@@ -16,18 +16,18 @@ import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 
 
 /**
- * Provides basic data extraction methods for Wikidata.
+ * Provides basic data extraction methods for the Wikidata Knowledge Graph.
  * <a href="https://www.wikidata.org/wiki/Wikidata:Main_Page">wikidata.org/</a>
- * @author Leon Geis #
+ * @author Leon Geis
  * Frankfurt University of Applied Sciences
  * lgeis@stud.fra-uas.de
  */
 public class WikidataExtraction {
 
     /**
-     * URL for used SPARQL Endpoint.
+     * URL for the used SPARQL Endpoint.
      */
-    private String sparqlEndpoint;
+    private String sparqlEndpoint="https://query.wikidata.org/sparql";
     /**
      * Repository Object of Wikidata.
      */
@@ -38,16 +38,27 @@ public class WikidataExtraction {
     private RepositoryConnection wikiconn;
 
     /**
-     * Sets the SPARQL Endpoint and Logging to Console.
-     *
-     * @param endpoint URL for Endpoint as String Object.
+     * Constructor which sets Basic Logging to Console.
      */
-    public WikidataExtraction(String endpoint){
+    public WikidataExtraction(){
         //Set Up Basic Logging to Console
         org.apache.log4j.BasicConfigurator.configure();
+    }
 
-        //URL OF SPARQL ENDPOINT
-        this.sparqlEndpoint=endpoint;
+    /**
+     * Set URL of SPARQL Endpoint.
+     * @param sparqlEndpoint String of the URL Endpoint.
+     */
+    public void setSparqlEndpoint(String sparqlEndpoint) {
+        this.sparqlEndpoint = sparqlEndpoint;
+    }
+
+    /**
+     * Get currently used SPARQL Endpoint URL.
+     * @return URL as a String.
+     */
+    public String getSparqlEndpoint() {
+        return sparqlEndpoint;
     }
 
     /**

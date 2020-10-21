@@ -1,7 +1,7 @@
-#Example taken from: https://query.wikidata.org/
-SELECT ?item ?itemLabel
+#Select subjects of two types of "Goats".
+#@author Leon Geis
+SELECT ?s ?p ?o
 WHERE
 {
-  ?item wdt:P31 wd:Q2934.
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+  {?s wdt:P31 wd:Q2934} UNION {?s wdt:P31 wd:Q198516}
 }

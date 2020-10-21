@@ -1,0 +1,13 @@
+#Example taken from: https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples/maintenance
+CONSTRUCT {
+  wd:Q35869 ?p ?o .
+  ?o ?qualifier ?f .
+  ?o prov:wasDerivedFrom ?u .
+  ?u ?a ?b .
+  }
+WHERE {
+  wd:Q35869 ?p ?o .
+  optional {?o ?qualifier ?f .}
+  OPTIONAL {?o prov:wasDerivedFrom ?u .
+  ?u ?a ?b .}
+  }
