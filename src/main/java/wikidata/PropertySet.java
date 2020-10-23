@@ -1,8 +1,6 @@
 package wikidata;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 //TODO: IMPLEMENT FOR CHOOSING PROPERTIES(ATTRIBUTES) FOR GIVEN CONTEXT
 
@@ -14,76 +12,40 @@ import java.util.Set;
  * can either be user input or read from a file.
  * @author Leon Geis
  */
-public class PropertySet implements Set {
+public class PropertySet {
 
     /**
      * The set of all properties, which are used for querying.
      */
     private Set<String> properties;
 
-    @Override
-    public int size() {
-        return 0;
+    public PropertySet(){
+        this.properties = new HashSet<>();
     }
 
-    @Override
-    public boolean isEmpty() {
-        return false;
+    public PropertySet(List<String> prop){
+        this.properties = new HashSet<>();
+        this.properties.addAll(prop);
     }
 
-    @Override
-    public boolean contains(Object o) {
-        return false;
+    public Set<String> getProperties(){
+        return this.properties;
     }
 
-    @Override
-    public Iterator iterator() {
-        return null;
+    public void addProperty(String prop){
+        this.properties.add(prop);
     }
 
-    @Override
-    public Object[] toArray() {
-        return new Object[0];
-    }
-
-    @Override
-    public boolean add(Object o) {
-        return false;
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        return false;
-    }
-
-    @Override
-    public boolean addAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public void clear() {
+    public void readFromFile(){
 
     }
 
-    @Override
-    public boolean removeAll(Collection c) {
-        return false;
+    public void readFromUser(){
+
     }
 
-    @Override
-    public boolean retainAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public boolean containsAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public Object[] toArray(Object[] a) {
-        return new Object[0];
+    public int getSize(){
+        return this.properties.size();
     }
 
 
