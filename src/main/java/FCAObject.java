@@ -33,8 +33,9 @@ public class FCAObject {
      * Constructor of the class. Creates a new and empty
      * List of {@link FCAAttribute}s.
      */
-    public FCAObject(){
+    public FCAObject(String name){
         this.attributes = new ArrayList<>();
+        this.objectName=name;
     }
 
     /**
@@ -51,6 +52,10 @@ public class FCAObject {
         this.objectName = objectName;
     }
 
+    /**
+     * Get all FCAAttributes, that this object has.
+     * @return List of FCAAttributes.
+     */
     public List<FCAAttribute> getAttributes() {
         return attributes;
     }

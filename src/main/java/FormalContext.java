@@ -7,6 +7,7 @@
  */
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +33,46 @@ public class FormalContext {
      * List of all Attributes of the Context.
      */
     private List<FCAAttribute> contextAttributes;
+
+    /**
+     * Constructor of the class creates two empty Lists.
+     */
+    public FormalContext(){
+        this.contextAttributes=new ArrayList<>();
+        this.contextObjects=new ArrayList<>();
+    }
+
+    /**
+     * Adds an object to the context.
+     * @param o FCAObject
+     */
+    public void addObject(FCAObject o){
+        this.contextObjects.add(o);
+    }
+
+    /**
+     * Adds an Attribute to the conext.
+     * @param a FCAAttribute
+     */
+    public void addAttribute(FCAAttribute a){
+        this.contextAttributes.add(a);
+    }
+
+    /**
+     * Get all Objects of the context.
+     * @return List of FCAObjects.
+     */
+    public List<FCAObject> getContextObjects(){
+        return this.contextObjects;
+    }
+
+    /**
+     * Get all Attributes of the context.
+     * @return List of FCAAttributes.
+     */
+    public List<FCAAttribute> getContextAttributes(){
+        return this.contextAttributes;
+    }
 
 
 }

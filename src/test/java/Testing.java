@@ -1,9 +1,7 @@
 import org.eclipse.rdf4j.query.*;
 import wikidata.PropertySet;
+import wikidata.SPARQLQueryBuilder;
 import wikidata.WikidataExtraction;
-import wikidata.WikidataQueryBuilder;
-import wikidata.exceptions.NoVariablesException;
-import wikidata.exceptions.TooManyPropertiesException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +19,19 @@ import java.util.List;
 public class Testing {
 
     public static void main(String[] args) {
-        
+
+        //Create new Object of type WikidataExtraction
         WikidataExtraction wa = new WikidataExtraction();
+        //Establish a connection to the SPARQL Endpoint of Wikidata
         wa.establishConnection();
 
-        WikidataQueryBuilder builder = new WikidataQueryBuilder();
+        //(Optional) Create a SPARQL query builder object
+        SPARQLQueryBuilder builder = new SPARQLQueryBuilder();
 
+        //(Optional) Set the Limit of the received Entities to 25 (Standard Limit is set to 10)
+        //builder.setLimit(25);
+
+        //Create a List of Properties the queries will be based on
         List<String> p = new ArrayList<>();
         p.add("P509");
         p.add("P22");
@@ -34,29 +39,79 @@ public class Testing {
         p.add("P3373");
         p.add("P26");
 
+        //Create a PropertySet object and pass it the List of properties
         PropertySet prop = new PropertySet(p);
+
+        //(Optional) add Variables to the SPARQLQueryBuilder object
         builder.addVariable("item");
         builder.addVariable("itemLabel");
+
+        //(Optional) Generate a SELECT Query based on the properties
         String query= null;
         try {
             query = builder.generateSelectQuery(prop);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        FCAAttribute a = new FCAAttribute();
+
+        //Create a FormalContext object, which stores the received objects/attributes (G/M)
+        FormalContext c = new FormalContext();
+
+        //Generate FCAAttribute List
+        for(String s : prop.getProperties()){
+            c.addAttribute(new FCAAttribute(s));
+        }
+
+        //Perform SELECT Query
         TupleQueryResult t = wa.selectQuery(query);
+
+        //Create List of Bindings associated with the variables (?item ?itemLabel)
         List<String> bn = t.getBindingNames();
+
+        //Add Objects to FormalContext (name of objects are: Q...)
+        //This Format is important for later querying
         for (BindingSet b : t){
-            String[] spl = b.getValue(bn.get(1)).toString().split("\"");
-            FCAObject o = new FCAObject();
-            o.setObjectName(spl[1]);
-            a.addObject(o);
+            String kl = b.getValue(bn.get(0)).toString();
+            c.addObject(new FCAObject(kl.substring(kl.lastIndexOf("/")+1)));
         }
-        //The first 10 objects with "attribute" P509 ...
-        System.out.println("ATTRIBUTE: P509,P22,P25,P3373,P26");
-        for(FCAObject ob : a.getObjects()){
-            System.out.println(ob.getObjectName());
+
+        //Check for each Object, if it has an Attribute of the FormalContext
+        for(FCAObject o : c.getContextObjects()){
+            //Print the Object Name (Q...)
+            System.out.println(o.getObjectName());
+            System.out.println("Checking if Object has the specified properties: ");
+            //For each Attribute specified in the context check if an object has it and
+            //if it has an Attribute add it to the Object Attribute List.
+            //This is done trough ASK Queries, which are generated
+            for(FCAAttribute a : c.getContextAttributes()){
+                //Generate ASK Query based on Object Name(Q...) and the Property (P...)
+                if(wa.booleanQuery(builder.generateAskQuery(o.getObjectName(),a.getName()))){
+                    o.addAttribute(a);
+                    a.addObject(o);
+                }
+            }
         }
+
+        //REDUNDANT PRINTING DUE TO TESTING PURPOSES
+
+        //Print each Object with the corresponding attributes it has
+        for(FCAObject o : c.getContextObjects()){
+            System.out.println("Object "+o.getObjectName()+" has the following Attributes: ");
+            for(FCAAttribute a : o.getAttributes()){
+                System.out.println(a.getName());
+            }
+        }
+        System.out.println("----------------------------------------------------");
+        //Print each Attribute with the corresponding objects it has
+        for (FCAAttribute a : c.getContextAttributes()){
+            System.out.println("Attribute "+a.getName()+" has the following Objects: ");
+            for(FCAObject o : a.getObjects()){
+                System.out.println(o.getObjectName());
+            }
+        }
+
+
+
 
 
 

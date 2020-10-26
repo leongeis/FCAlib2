@@ -19,7 +19,7 @@ public class FCAAttribute {
     /**
      * Name of the Attribute.
      */
-    private String name;
+    private String attributeName;
 
     /**
      * List of Objects an Attribute has.
@@ -32,18 +32,31 @@ public class FCAAttribute {
      * Constructor of the class, which creates a new
      * and empty List of {@link FCAObject}s.
      */
-    public FCAAttribute(){
+    public FCAAttribute(String name){
         this.objects = new ArrayList<>();
+        this.attributeName=name;
     }
 
+    /**
+     * Get Name of the Attribute.
+     * @return String of the name.
+     */
     public String getName() {
-        return name;
+        return this.attributeName;
     }
 
+    /**
+     * Set Name of the Attribute.
+     * @param name String of the name.
+     */
     public void setName(String name) {
-        this.name = name;
+        this.attributeName = name;
     }
 
+    /**
+     * Get all FCAObjects, which have this attribute.
+     * @return List of FCAObjects.
+     */
     public List<FCAObject> getObjects() {
         return objects;
     }

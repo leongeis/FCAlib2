@@ -14,12 +14,8 @@ import java.util.List;
  * @version 0.1
  */
 
-
-
-
 //For more information on SPARQL Queries, consider: https://www.w3.org/2009/Talks/0615-qbe/
 
-//TODO: Implementation of Class WikidataQueryBuilder (21.10.20)
 /**
  * Class used for creating simple SPARQL Queries, which are then
  * used at the SPARQL Endpoint of Wikidata. This enables a simple
@@ -27,17 +23,17 @@ import java.util.List;
  * of a SPARQL Query.
  * @author Leon Geis
  */
-public class WikidataQueryBuilder {
+public class SPARQLQueryBuilder {
 
     /**
      * The Limit specifies the amount of queried individuals.
      */
-    private static final int LIMIT=100;
+    private static int LIMIT=10;
 
     /**
      * Specifying the amount of properties.
      */
-    private static final int PROPERTY_COUNT=5;
+    private static int PROPERTY_COUNT=5;
 
     /**
      * Language of the Item Labels.
@@ -61,10 +57,18 @@ public class WikidataQueryBuilder {
     /**
      * The Constructor of the Class.
      */
-    public WikidataQueryBuilder(){
+    public SPARQLQueryBuilder(){
         prefixes = new ArrayList<>();
         variables = new ArrayList<>();
         this.language="en";
+    }
+
+    /**
+     * Set the Limit of the queried Individuals.
+     * @param limit int
+     */
+    public void setLimit(int limit){
+        LIMIT = limit;
     }
 
     /**
@@ -135,6 +139,16 @@ public class WikidataQueryBuilder {
         return resultQuery;
     }
 
+    /**
+     * Generates a ASK Query based on the given item name (Q...)
+     * and the property (P...). Used for Property Checking.
+     * @param item String of form (Q...)
+     * @param property String of form (P...)
+     * @return ASK Query String
+     */
+    public String generateAskQuery(String item, String property){
+        return "ASK WHERE {wd:"+item+" wdt:"+property+" ?o.}";
+    }
 
 
 }

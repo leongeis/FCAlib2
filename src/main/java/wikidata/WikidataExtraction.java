@@ -1,5 +1,6 @@
 package wikidata;
 
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
@@ -99,6 +100,21 @@ public class WikidataExtraction {
         try{
             //Return result of the specified SPARQL Query
             return this.wikiconn.prepareTupleQuery(query).evaluate();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Performs a ASK Query on the Wikidata Knowledge Graph.
+     *
+     * @param query SPARQL Query as String Object.
+     * @return If no Exception occured: Either true or false, otherwise <code>null</code>
+     */
+    public Boolean booleanQuery(String query){
+        try{
+            return this.wikiconn.prepareBooleanQuery(query).evaluate();
         }catch (Exception e){
             e.printStackTrace();
         }
