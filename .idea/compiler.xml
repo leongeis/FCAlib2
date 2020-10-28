@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="FCAlib2" target="7" />
+      <module name="FCAlib2" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

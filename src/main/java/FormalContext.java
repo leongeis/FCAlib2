@@ -74,5 +74,4 @@ public class FormalContext {
         return this.contextAttributes;
     }
 
-
 }

@@ -1,3 +1,4 @@
+import api.OutputWriter;
 import org.eclipse.rdf4j.query.*;
 import wikidata.PropertySet;
 import wikidata.SPARQLQueryBuilder;
@@ -110,10 +111,9 @@ public class Testing {
             }
         }
 
-
-
-
-
-
+        //Display Crosstable on Console and Write output to File
+        OutputWriter<FormalContext> o = new FCAOutputWriter();
+        o.printToConsole(c);
+        o.writeToFile(c,"context_output.txt");
     }
 }
