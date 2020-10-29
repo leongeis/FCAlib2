@@ -1,10 +1,14 @@
 import api.OutputWriter;
-import org.eclipse.rdf4j.query.*;
-import wikidata.PropertySet;
+import fca.FCAAttribute;
+import fca.FCAObject;
+import fca.FormalContext;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import utils.FCAOutputWriter;
+import utils.PropertySet;
 import wikidata.SPARQLQueryBuilder;
 import wikidata.WikidataExtraction;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,18 +34,20 @@ public class Testing {
         SPARQLQueryBuilder builder = new SPARQLQueryBuilder();
 
         //(Optional) Set the Limit of the received Entities to 25 (Standard Limit is set to 10)
-        //builder.setLimit(25);
+        builder.setLimit(25);
 
         //Create a List of Properties the queries will be based on
-        List<String> p = new ArrayList<>();
+        /*List<String> p = new ArrayList<>();
         p.add("P509");
         p.add("P22");
         p.add("P25");
         p.add("P3373");
-        p.add("P26");
+        p.add("P26"); */
 
-        //Create a PropertySet object and pass it the List of properties
-        PropertySet prop = new PropertySet(p);
+        //Create a PropertySet object and read properties from file
+        PropertySet prop = new PropertySet();
+        //Read from wikidata_properties.txt
+        prop.readFromFile();
 
         //(Optional) add Variables to the SPARQLQueryBuilder object
         builder.addVariable("item");
@@ -55,10 +61,10 @@ public class Testing {
             e.printStackTrace();
         }
 
-        //Create a FormalContext object, which stores the received objects/attributes (G/M)
+        //Create a fca.FormalContext object, which stores the received objects/attributes (G/M)
         FormalContext c = new FormalContext();
 
-        //Generate FCAAttribute List
+        //Generate fca.FCAAttribute List
         for(String s : prop.getProperties()){
             c.addAttribute(new FCAAttribute(s));
         }
@@ -69,14 +75,14 @@ public class Testing {
         //Create List of Bindings associated with the variables (?item ?itemLabel)
         List<String> bn = t.getBindingNames();
 
-        //Add Objects to FormalContext (name of objects are: Q...)
+        //Add Objects to fca.FormalContext (name of objects are: Q...)
         //This Format is important for later querying
         for (BindingSet b : t){
             String kl = b.getValue(bn.get(0)).toString();
             c.addObject(new FCAObject(kl.substring(kl.lastIndexOf("/")+1)));
         }
 
-        //Check for each Object, if it has an Attribute of the FormalContext
+        //Check for each Object, if it has an Attribute of the fca.FormalContext
         for(FCAObject o : c.getContextObjects()){
             //Print the Object Name (Q...)
             System.out.println(o.getObjectName());

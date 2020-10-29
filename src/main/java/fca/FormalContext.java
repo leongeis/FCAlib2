@@ -1,4 +1,4 @@
-/*
+package fca;/*
  * This library is an enhanced version of the
  * FCAlib
  * @see <a href="https://github.com/julianmendez/fcalib">https://github.com/julianmendez/fcalib</a>
@@ -44,7 +44,7 @@ public class FormalContext {
 
     /**
      * Adds an object to the context.
-     * @param o FCAObject
+     * @param o fca.FCAObject
      */
     public void addObject(FCAObject o){
         this.contextObjects.add(o);
@@ -52,7 +52,7 @@ public class FormalContext {
 
     /**
      * Adds an Attribute to the conext.
-     * @param a FCAAttribute
+     * @param a fca.FCAAttribute
      */
     public void addAttribute(FCAAttribute a){
         this.contextAttributes.add(a);

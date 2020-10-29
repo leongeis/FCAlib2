@@ -1,6 +1,14 @@
-import api.OutputWriter;
+package utils;
 
-import java.io.*;
+import api.OutputWriter;
+import fca.FCAAttribute;
+import fca.FCAObject;
+import fca.FormalContext;
+
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -8,7 +16,7 @@ import java.nio.charset.StandardCharsets;
  * @author Leon Geis
  */
 
-public class FCAOutputWriter implements OutputWriter<FormalContext>{
+public class FCAOutputWriter implements OutputWriter<FormalContext> {
 
     /**TODO: FORMATTING
      * Displays the Crosstable of the current Context on
@@ -55,12 +63,14 @@ public class FCAOutputWriter implements OutputWriter<FormalContext>{
         }
     }
 
-    /**TODO: FORMATTING
+    /**TODO: FORMATTING / GENERIC FILE WRITING
      * Writes the Crosstable to a file. The file path
      * is specified via a String parameter ("~/example.txt")
      */
     @Override
-    public void writeToFile(FormalContext c, String name){
+    public void writeToFile(FormalContext c, String fileName){
+        //Append file name to path
+        String name = "src/main/java/utils/"+fileName;
         //Print to Console
         System.out.println("Writing to File: "+name);
         try (Writer fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(name), StandardCharsets.UTF_8))){

@@ -1,5 +1,6 @@
 package wikidata;
 
+import utils.PropertySet;
 import wikidata.exceptions.NoVariablesException;
 import wikidata.exceptions.TooManyPropertiesException;
 

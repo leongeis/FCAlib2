@@ -1,6 +1,11 @@
-package wikidata;
+package utils;
 
-import java.util.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 //TODO: IMPLEMENT FOR CHOOSING PROPERTIES(ATTRIBUTES) FOR GIVEN CONTEXT
 
@@ -52,10 +57,28 @@ public class PropertySet {
         this.properties.add(prop);
     }
 
-    /** TODO
-     * Read a List of Properties from a file.
+    /** TODO OPEN EXPLORER TO CHOOSE FILE / GENERIC FILE ACCESS
+     * Read a List of Properties from file wikidata_properties.txt
      */
     public void readFromFile(){
+        String fileName = "src/main/java/utils/wikidata_properties.txt";
+        //Save Content of file as String
+        String content = null;
+        try {
+            content = new String(Files.readAllBytes(Paths.get(fileName)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //Split String at each comma
+        //Assume file is not empty:
+        assert content != null;
+        String[] split = content.split(",");
+        //Overwrite existing Properties
+        this.properties = new HashSet<>();
+        //Add each Property to property List
+        for(String s : split){
+            this.addProperty(s);
+        }
 
     }
 

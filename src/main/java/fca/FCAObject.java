@@ -1,4 +1,4 @@
-/*
+package fca;/*
  * This library is an enhanced version of the
  * FCAlib
  * @see <a href="https://github.com/julianmendez/fcalib">https://github.com/julianmendez/fcalib</a>

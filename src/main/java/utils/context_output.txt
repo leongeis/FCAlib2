@@ -1,0 +1,27 @@
+The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute
+          P2021 P1303 P856 P40 P109 
+Q223161   -     X     X    -   -    
+Q3510318  -     X     X    -   -    
+Q4093816  -     X     -    -   -    
+Q47087001 -     X     X    -   -    
+Q99671160 -     X     -    -   -    
+Q6056440  -     X     X    -   -    
+Q67175884 -     X     -    -   -    
+Q6976879  -     X     X    -   -    
+Q60229471 -     X     -    -   -    
+Q254      -     X     -    X   X    
+Q1339     -     X     -    X   X    
+Q3321     -     X     -    -   -    
+Q5950     -     X     X    -   -    
+Q7311     -     X     -    -   X    
+Q7349     -     X     -    -   X    
+Q9021     -     X     -    X   X    
+Q17457    X     X     X    -   -    
+Q19201    -     X     X    X   X    
+Q22742    -     X     -    -   -    
+Q26168    -     X     -    X   X    
+Q28348    -     X     X    -   -    
+Q29487    -     X     -    -   -    
+Q34624    -     X     -    -   -    
+Q41117    -     X     -    X   X    
+Q41309    -     X     -    X   X    
