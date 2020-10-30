@@ -34,7 +34,7 @@ public class Testing {
         SPARQLQueryBuilder builder = new SPARQLQueryBuilder();
 
         //(Optional) Set the Limit of the received Entities to 25 (Standard Limit is set to 10)
-        builder.setLimit(25);
+        builder.setLimit(5);
 
         //Create a List of Properties the queries will be based on
         /*List<String> p = new ArrayList<>();
