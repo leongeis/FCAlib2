@@ -1,20 +1,18 @@
 package utils;
 
+import utils.exceptions.NoPropertiesDefinedException;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-//TODO: IMPLEMENT FOR CHOOSING PROPERTIES(ATTRIBUTES) FOR GIVEN CONTEXT
-
-//EXAMPLE PROPERTIES FROM WIKIDATA: {mother,father,spouse,sibling,cause of death}
+import java.util.*;
 
 /**
  * This class used for storing the specified properties (attributes),
  * which are then used for further querying. The input for the properties
- * can either be user input or read from a file.
+ * can either be user input or read from a file. New files can be created in the
+ * properties package. See existing files for formatting.
  * @author Leon Geis
  */
 public class PropertySet {
@@ -25,10 +23,16 @@ public class PropertySet {
     private Set<String> properties;
 
     /**
+     * List of all file names in the properties directory.
+     */
+    private List<String> fileNames;
+
+    /**
      * Default Constructor.
      */
-    public PropertySet(){
+    public PropertySet() throws NoPropertiesDefinedException {
         this.properties = new HashSet<>();
+        getFiles();
     }
 
     /**
@@ -36,9 +40,10 @@ public class PropertySet {
      * as an argument.
      * @param prop List of properties.
      */
-    public PropertySet(List<String> prop){
+    public PropertySet(List<String> prop) throws NoPropertiesDefinedException {
         this.properties = new HashSet<>();
         this.properties.addAll(prop);
+        getFiles();
     }
 
     /**
@@ -57,11 +62,20 @@ public class PropertySet {
         this.properties.add(prop);
     }
 
-    /** TODO OPEN EXPLORER TO CHOOSE FILE / GENERIC FILE ACCESS
-     * Read a List of Properties from file wikidata_properties.txt
+    /**
+     * Read a List of Properties from file. If no parameter is given
+     * the user can choose from a list of files.
+     * @param name String of the file name
      */
-    public void readFromFile(){
-        String fileName = "src/main/java/utils/wikidata_properties.txt";
+    public void readFromFile(String name){
+        //Initialize file String with path
+        String fileName ="src/main/java/utils/properties/";
+        //If no file name is given, let user choose a file
+        if(name==null){
+            fileName=fileName+readFromUser();
+        }else {
+            fileName=fileName+name;
+        }
         //Save Content of file as String
         String content = null;
         try {
@@ -82,11 +96,33 @@ public class PropertySet {
 
     }
 
-    /** TODO
-     * Read a List of Properties from User Input.
+    /**
+     * Retrieves the list of all files currently present in the properties package.
+     * @throws NoPropertiesDefinedException When no file is found in the properties package.
      */
-    public void readFromUser(){
+    private void getFiles() throws NoPropertiesDefinedException {
+        //Define file path
+        File file = new File("src/main/java/utils/properties/");
+        //Create new String Array containing all files of this directory
+        String[] fileNames = file.list();
+        //Check if the directory contains a file
+        if(fileNames==null) throw new NoPropertiesDefinedException("No Property file found!");
+        //Add files to PropertySet file list
+        this.fileNames = Arrays.asList(fileNames.clone());
+    }
 
+    /**
+     * User can choose from a List of files.
+     */
+    public String readFromUser(){
+        System.out.println("No Property File specified! Which Property File should be used?");
+        for (int i = 0; i < this.fileNames.size(); i++) {
+            System.out.println("("+(i+1)+")"+this.fileNames.get(i));
+        }
+        System.out.println("Enter Number of desired File:");
+        Scanner sc = new Scanner(System.in);
+        int input = sc.nextInt();
+        return this.fileNames.get(input-1);
     }
 
     /**

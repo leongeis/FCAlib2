@@ -1,4 +1,4 @@
-package wikidata.exceptions;
+package utils.exceptions;
 
 /**
  * Exception used when the amount of the given properties

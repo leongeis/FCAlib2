@@ -1,4 +1,4 @@
-package wikidata.exceptions;
+package utils.exceptions;
 
 /**
  * Exception used for the case no variables are given in a Query.

@@ -6,9 +6,11 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import utils.FCAOutputWriter;
 import utils.PropertySet;
+import utils.exceptions.NoPropertiesDefinedException;
 import wikidata.SPARQLQueryBuilder;
 import wikidata.WikidataExtraction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,7 +25,7 @@ import java.util.List;
 
 public class Testing {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoPropertiesDefinedException {
 
         //Create new Object of type WikidataExtraction
         WikidataExtraction wa = new WikidataExtraction();
@@ -34,24 +36,21 @@ public class Testing {
         SPARQLQueryBuilder builder = new SPARQLQueryBuilder();
 
         //(Optional) Set the Limit of the received Entities to 25 (Standard Limit is set to 10)
-        builder.setLimit(5);
+        //builder.setLimit(25);
 
-        //Create a List of Properties the queries will be based on
-        /*List<String> p = new ArrayList<>();
-        p.add("P509");
-        p.add("P22");
-        p.add("P25");
-        p.add("P3373");
-        p.add("P26"); */
+        //(Optional) Set the Limit of received Entities to 0 to retrieve the whole list
+        //builder.setLimit(0);
 
         //Create a PropertySet object and read properties from file
         PropertySet prop = new PropertySet();
-        //Read from wikidata_properties.txt
-        prop.readFromFile();
+
+        //Read from specified file (null = user can choose the used file)
+        //file has to be in package properties!
+        prop.readFromFile(null);
 
         //(Optional) add Variables to the SPARQLQueryBuilder object
-        builder.addVariable("item");
-        builder.addVariable("itemLabel");
+        //builder.addVariable("item");
+        //builder.addVariable("itemLabel");
 
         //(Optional) Generate a SELECT Query based on the properties
         String query= null;
@@ -60,7 +59,8 @@ public class Testing {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        //Print generated query for testing purposes
+        System.out.println(query);
         //Create a fca.FormalContext object, which stores the received objects/attributes (G/M)
         FormalContext c = new FormalContext();
 
@@ -77,6 +77,9 @@ public class Testing {
 
         //Add Objects to fca.FormalContext (name of objects are: Q...)
         //This Format is important for later querying
+        //Note: Only subjects of the query are saved as objects of the context.
+        //Hence the line b.getValue(bn.get(0)).toString(); also saving objects is possible
+        //through exchanging the 0 with 2. Also saving both is possible!
         for (BindingSet b : t){
             String kl = b.getValue(bn.get(0)).toString();
             c.addObject(new FCAObject(kl.substring(kl.lastIndexOf("/")+1)));
@@ -84,12 +87,9 @@ public class Testing {
 
         //Check for each Object, if it has an Attribute of the fca.FormalContext
         for(FCAObject o : c.getContextObjects()){
-            //Print the Object Name (Q...)
-            System.out.println(o.getObjectName());
-            System.out.println("Checking if Object has the specified properties: ");
             //For each Attribute specified in the context check if an object has it and
             //if it has an Attribute add it to the Object Attribute List.
-            //This is done trough ASK Queries, which are generated
+            //This is done trough ASK Queries, which are generated respectively
             for(FCAAttribute a : c.getContextAttributes()){
                 //Generate ASK Query based on Object Name(Q...) and the Property (P...)
                 if(wa.booleanQuery(builder.generateAskQuery(o.getObjectName(),a.getName()))){
@@ -99,27 +99,10 @@ public class Testing {
             }
         }
 
-        //REDUNDANT PRINTING DUE TO TESTING PURPOSES
-
-        //Print each Object with the corresponding attributes it has
-        for(FCAObject o : c.getContextObjects()){
-            System.out.println("Object "+o.getObjectName()+" has the following Attributes: ");
-            for(FCAAttribute a : o.getAttributes()){
-                System.out.println(a.getName());
-            }
-        }
-        System.out.println("----------------------------------------------------");
-        //Print each Attribute with the corresponding objects it has
-        for (FCAAttribute a : c.getContextAttributes()){
-            System.out.println("Attribute "+a.getName()+" has the following Objects: ");
-            for(FCAObject o : a.getObjects()){
-                System.out.println(o.getObjectName());
-            }
-        }
-
         //Display Crosstable on Console and Write output to File
         OutputWriter<FormalContext> o = new FCAOutputWriter();
         o.printToConsole(c);
         o.writeToFile(c,"context_output.txt");
+
     }
 }

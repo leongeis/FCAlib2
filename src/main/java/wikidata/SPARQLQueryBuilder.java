@@ -1,8 +1,8 @@
 package wikidata;
 
 import utils.PropertySet;
-import wikidata.exceptions.NoVariablesException;
-import wikidata.exceptions.TooManyPropertiesException;
+import utils.exceptions.NoVariablesException;
+import utils.exceptions.TooManyPropertiesException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +90,6 @@ public class SPARQLQueryBuilder {
     }
 
 
-    //TODO REWORK generateSelectQuery!!!
     /**
      * Generates a SELECT Query based on the given properties and
      * returns a String representation of it. The amount of possible
@@ -98,24 +97,25 @@ public class SPARQLQueryBuilder {
      * @param properties The set of the specified properties.
      * @return A String representation of the SELECT Query.
      */
-    public String generateSelectQuery(PropertySet properties) throws TooManyPropertiesException,NoVariablesException {
+    public String generateSelectQuery(PropertySet properties) throws TooManyPropertiesException {
 
         //Limiting the amount of properties to 5
         if(properties.getSize()>PROPERTY_COUNT){
             throw new TooManyPropertiesException("Too many Properties are specified. Currently permitted: "+PROPERTY_COUNT);
         }
-        //Check if a variable was added.
-        if(this.variables.size()<1){
-            throw new NoVariablesException("No Variables are specified.");
-        }
-
 
         //Initializing result query String
         String resultQuery="SELECT ";
 
-        //Adding variables to be queried
-        for(String var : this.variables){
-            resultQuery=resultQuery.concat("?"+var+" ");
+        //Check if a variable was added and add them to the query.
+        //If not add an asterisk.
+        if(this.variables.size()<1){
+            resultQuery=resultQuery.concat("* ");
+        }else {
+            //Adding variables to be queried
+            for (String var : this.variables) {
+                resultQuery = resultQuery.concat("?" + var + " ");
+            }
         }
 
         //Adding WHERE Condition
@@ -123,19 +123,19 @@ public class SPARQLQueryBuilder {
 
         //For each property add Query String to resultQuery
         int i=0;
-        for(String s : properties.getProperties()){
+        for(String p : properties.getProperties()){
             //Adding String of format: e.g. : {?item wdt:509 ?o.}
-            resultQuery=resultQuery.concat("{?"+this.variables.get(0)+" wdt:"+s+" ?o.} ");
+            resultQuery=resultQuery.concat("{?s wdt:"+p+" ?o.} ");
             if(i<properties.getSize()-1) resultQuery=resultQuery.concat("UNION ");
             i++;
         }
 
-        //Adding Wikidata Service Label Translation with specified language
-        resultQuery=resultQuery.concat(" SERVICE wikibase:label { bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],"+this.language+"\". }}");
+        //Adding Wikidata Service Label Translation with specified language (HEAVILY DECREASES PERFORMANCE)
+        //resultQuery=resultQuery.concat(" SERVICE wikibase:label { bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],"+this.language+"\". ");
 
+        // TODO INCREASE QUERY PERFORMANCE
         //Specifying the Limit of individuals, which are returned by the query
-        resultQuery=resultQuery.concat("LIMIT "+LIMIT);
-
+        if(LIMIT>0) resultQuery=resultQuery.concat("} LIMIT "+LIMIT);
         //Return the generated SELECT Query String
         return resultQuery;
     }
@@ -143,6 +143,7 @@ public class SPARQLQueryBuilder {
     /**
      * Generates a ASK Query based on the given item name (Q...)
      * and the property (P...). Used for Property Checking.
+     * Note: When the statement is deprecated, false is returned!
      * @param item String of form (Q...)
      * @param property String of form (P...)
      * @return ASK Query String
