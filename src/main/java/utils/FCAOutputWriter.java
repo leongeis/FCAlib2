@@ -2,8 +2,8 @@ package utils;
 
 import api.OutputWriter;
 import fca.FCAAttribute;
+import fca.FCAFormalContext;
 import fca.FCAObject;
-import fca.FormalContext;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -15,15 +15,15 @@ import java.nio.charset.StandardCharsets;
  * Class used only for Displaying/Writing to File.
  * @author Leon Geis
  */
-
-public class FCAOutputWriter implements OutputWriter<FormalContext> {
+//TODO REWORK GENERICS
+public class FCAOutputWriter implements OutputWriter<FCAFormalContext<FCAObject,FCAAttribute>> {
 
     /**TODO: FORMATTING
      * Displays the Crosstable of the current Context on
      * the console.
      */
     @Override
-    public void printToConsole(FormalContext c){
+    public void printToConsole(FCAFormalContext<FCAObject,FCAAttribute> c){
         //Headline of the Output
         System.out.println("The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute");
         //Initial space for formatting purposes
@@ -68,7 +68,7 @@ public class FCAOutputWriter implements OutputWriter<FormalContext> {
      * is specified via a String parameter ("~/example.txt")
      */
     @Override
-    public void writeToFile(FormalContext c, String fileName){
+    public void writeToFile(FCAFormalContext<FCAObject,FCAAttribute> c, String fileName){
         //Append file name to path
         String name = "src/main/java/utils/"+fileName;
         //Print to Console

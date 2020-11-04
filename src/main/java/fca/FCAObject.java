@@ -8,6 +8,8 @@ package fca;
  */
 
 
+import de.tudresden.inf.tcs.fcalib.FullObject;
+
 import java.util.ArrayList;
 import java.util.List;
 

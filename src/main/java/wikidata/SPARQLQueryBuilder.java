@@ -29,7 +29,7 @@ public class SPARQLQueryBuilder {
     /**
      * The Limit specifies the amount of queried individuals.
      */
-    private static int LIMIT=10;
+    private static int LIMIT=100;
 
     /**
      * Specifying the amount of properties.
@@ -135,7 +135,11 @@ public class SPARQLQueryBuilder {
 
         // TODO INCREASE QUERY PERFORMANCE
         //Specifying the Limit of individuals, which are returned by the query
-        if(LIMIT>0) resultQuery=resultQuery.concat("} LIMIT "+LIMIT);
+        if(LIMIT>0){
+            resultQuery=resultQuery.concat("} LIMIT "+LIMIT);
+        }else{
+            resultQuery=resultQuery.concat("}");
+        }
         //Return the generated SELECT Query String
         return resultQuery;
     }

@@ -8,5 +8,7 @@ package fca;
  */
 
 
-public class FCAImplication {
+import de.tudresden.inf.tcs.fcalib.Implication;
+
+public class FCAImplication extends Implication {
 }

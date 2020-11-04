@@ -21,7 +21,6 @@
             </plugin>
         </plugins>
     </build>
-
         <dependencies>
             <!--Including RDF4J Framework Dependency-->
             <dependency>
@@ -44,6 +43,12 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>1.7.30</version>
+            </dependency>
+            <!--Including old FCAlib Dependency-->
+            <dependency>
+                <groupId>de.tu-dresden.inf.lat.fcalib</groupId>
+                <artifactId>fcalib</artifactId>
+                <version>0.11.0</version>
             </dependency>
         </dependencies>
 </project>
