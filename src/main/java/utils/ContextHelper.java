@@ -1,17 +1,15 @@
-package wikidata;
+package utils;
 
 import fca.FCAAttribute;
 import fca.FCAFormalContext;
 import fca.FCAObject;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import utils.PropertyIO;
 import utils.exceptions.NoPropertiesDefinedException;
+import wikidata.SPARQLQueryBuilder;
+import wikidata.WikidataExtraction;
 
 import java.util.List;
-
-//TODO REWORK CLASS
-
 /**
  * Used for creating a FCAFormalContext Object based on data from Wikidata.
  * @author Leon Geis

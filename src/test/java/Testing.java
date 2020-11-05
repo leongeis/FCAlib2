@@ -1,6 +1,6 @@
 import fca.FCAFormalContext;
 import utils.FCAOutputWriter;
-import wikidata.ContextHelper;
+import utils.ContextHelper;
 
 
 /*For further information on RDF4J connections:
@@ -42,7 +42,7 @@ public class Testing {
         //PropertyIO p = new PropertyIO();
         //p.deleteFile("test.txt");
 
-        //TODO Implement Expert and use algorithms from FCAlib1
+        //TODO Implement Expert and use algorithms
 
     }
 }

@@ -7,8 +7,23 @@ package fca;
  * @version 0.1
  */
 
+import java.util.List;
 
-import de.tudresden.inf.tcs.fcalib.Implication;
+/**
+ * Describes an Implication of Attributes in
+ * a Context.
+ * @author Leon Geis
+ */
+public class FCAImplication<O,A> {
 
-public class FCAImplication extends Implication {
+    /**
+     * Premise of an Implication.
+     */
+    private List<FCAAttribute<O,A>> premise;
+
+    /**
+     * Conclusion of an Implication
+     */
+    private List<FCAObject<O,A>> conclusion;
+
 }
