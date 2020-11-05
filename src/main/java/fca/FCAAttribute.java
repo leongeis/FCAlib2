@@ -12,53 +12,53 @@ import java.util.List;
 
 /**
  * Describes a single Attribute with the
- * corresponding {@link FCAObject}s.
+ * corresponding Objects.
  * @author Leon Geis
  */
-public class FCAAttribute {
+public class FCAAttribute<O,A> {
 
     /**
-     * Name of the Attribute.
+     * ID of the Attribute.
      */
-    private String attributeName;
+    private A attributeID;
 
     /**
      * List of Objects an Attribute has.
      * Can be seen as a "x" in the given context
      * for that Attribute.
      */
-    private List<FCAObject> objects;
+    private List<O> objects;
 
     /**
      * Constructor of the class, which creates a new
-     * and empty List of {@link FCAObject}s.
+     * and empty List of Objects.
      */
-    public FCAAttribute(String name){
+    public FCAAttribute(A id){
         this.objects = new ArrayList<>();
-        this.attributeName=name;
+        this.attributeID = id;
     }
 
     /**
-     * Get Name of the Attribute.
-     * @return String of the name.
+     * Get ID of the Attribute.
+     * @return Attribute ID.
      */
-    public String getName() {
-        return this.attributeName;
+    public A getAttributeID() {
+        return this.attributeID;
     }
 
     /**
      * Set Name of the Attribute.
-     * @param name String of the name.
+     * @param id ID of the name.
      */
-    public void setName(String name) {
-        this.attributeName = name;
+    public void setAttributeID(A id) {
+        this.attributeID = id;
     }
 
     /**
-     * Get all FCAObjects, which have this attribute.
-     * @return List of FCAObjects.
+     * Get all Objects, which have this attribute.
+     * @return List of Objects.
      */
-    public List<FCAObject> getObjects() {
+    public List<O> getObjects() {
         return objects;
     }
 
@@ -66,7 +66,7 @@ public class FCAAttribute {
      * Adds an Object to the Attribute.
      * @param object Object that has to be added.
      */
-    public void addObject(FCAObject object){
+    public void addObject(O object){
         this.objects.add(object);
     }
 }

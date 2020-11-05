@@ -8,58 +8,56 @@ package fca;
  */
 
 
-import de.tudresden.inf.tcs.fcalib.FullObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Describes a single Object with the
- * corresponding {@link FCAAttribute}s.
+ * corresponding Attributes.
  * @author Leon Geis
  */
-public class FCAObject {
+public class FCAObject<O,A> {
 
     /**
-     * Name of the Object.
+     * ID of the Object.
      */
-    private String objectName;
+    private O objectID;
 
     /**
      * List of Attributes an Object has.
      * Can be seen as a "x" in the given context
      * for that object.
      */
-    private List<FCAAttribute> attributes;
+    private List<A> attributes;
 
     /**
      * Constructor of the class. Creates a new and empty
-     * List of {@link FCAAttribute}s.
+     * List of Attributes.
      */
-    public FCAObject(String name){
+    public FCAObject(O o){
         this.attributes = new ArrayList<>();
-        this.objectName=name;
+        this.objectID =o;
     }
 
     /**
-     * @return ObjectName
+     * @return ObjectID
      */
-    public String getObjectName() {
-        return objectName;
+    public O getObjectID() {
+        return objectID;
     }
 
     /**
-     * @param objectName String of the Name.
+     * @param objectID String of the ID.
      */
-    public void setObjectName(String objectName) {
-        this.objectName = objectName;
+    public void setObjectID(O objectID) {
+        this.objectID = objectID;
     }
 
     /**
      * Get all FCAAttributes, that this object has.
      * @return List of FCAAttributes.
      */
-    public List<FCAAttribute> getAttributes() {
+    public List<A> getAttributes() {
         return attributes;
     }
 
@@ -67,7 +65,7 @@ public class FCAObject {
      * Add an Attribute to the Object.
      * @param attribute Attribute that has to be added.
      */
-    public void addAttribute(FCAAttribute attribute){
+    public void addAttribute(A attribute){
         this.attributes.add(attribute);
     }
 }

@@ -9,7 +9,7 @@ import de.tudresden.inf.tcs.fcalib.AbstractExpert;
  * @author Leon Geis
  */
 //TODO Expert Implementation
-public class FCAExpert extends AbstractExpert {
+public class FCAExpert<O,A> extends AbstractExpert<A,O,FCAObject<A,O>> {
     @Override
     public void requestCounterExample(FCAImplication fcaImplication) {
 

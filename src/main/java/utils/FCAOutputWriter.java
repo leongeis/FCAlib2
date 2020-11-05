@@ -16,30 +16,30 @@ import java.nio.charset.StandardCharsets;
  * @author Leon Geis
  */
 //TODO REWORK GENERICS
-public class FCAOutputWriter implements OutputWriter<FCAFormalContext<FCAObject,FCAAttribute>> {
+public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>> {
 
     /**TODO: FORMATTING
      * Displays the Crosstable of the current Context on
      * the console.
      */
     @Override
-    public void printToConsole(FCAFormalContext<FCAObject,FCAAttribute> c){
+    public void printToConsole(FCAFormalContext<O,A> c){
         //Headline of the Output
         System.out.println("The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute");
         //Initial space for formatting purposes
         System.out.print("          ");
         //Print each Attribute name
-        for(FCAAttribute a : c.getContextAttributes()){
-            System.out.print(a.getName()+" ");
+        for(FCAAttribute<O,A> a : c.getContextAttributes()){
+            System.out.print(a.getAttributeID()+" ");
         }
         //Newline
         System.out.println();
         //Go through each Object and print the corresponding Attributes
-        for(FCAObject o : c.getContextObjects()){
+        for(fca.FCAObject<O,A> o : c.getContextObjects()){
             //Get the length of the name (formatting purposes)
-            int nameLength = o.getObjectName().length();
+            int nameLength = o.getObjectID().toString().length();
             //Print name of Object
-            System.out.print(o.getObjectName());
+            System.out.print(o.getObjectID());
             //Printing whitespaces for formatting
             while(nameLength<10){
                 System.out.print(" ");
@@ -47,14 +47,14 @@ public class FCAOutputWriter implements OutputWriter<FCAFormalContext<FCAObject,
             }
             //Go through each Attribute and check if Object has Attribute
             //If it does Print X else -
-            for(FCAAttribute a : c.getContextAttributes()){
-                if(o.getAttributes().contains(a)){
+            for(fca.FCAAttribute<O,A> a : c.getContextAttributes()){
+                if(o.getAttributes().contains(a.getAttributeID())){
                     System.out.print("X ");
                 }else {
                     System.out.print("- ");
                 }
                 //Printing whitespaces for formatting of the table
-                for (int i = 0; i < a.getName().length()-1; i++) {
+                for (int i = 0; i < a.getAttributeID().toString().length()-1; i++) {
                     System.out.print(" ");
                 }
             }
@@ -63,12 +63,13 @@ public class FCAOutputWriter implements OutputWriter<FCAFormalContext<FCAObject,
         }
     }
 
+
     /**TODO: FORMATTING / GENERIC FILE WRITING
-     * Writes the Crosstable to a file. The file path
-     * is specified via a String parameter ("~/example.txt")
+     * Writes the Crosstable to a file. The file name
+     * is specified via a String parameter ("example.txt")
      */
     @Override
-    public void writeToFile(FCAFormalContext<FCAObject,FCAAttribute> c, String fileName){
+    public void writeToFile(FCAFormalContext<O,A> c, String fileName){
         //Append file name to path
         String name = "src/main/java/utils/"+fileName;
         //Print to Console
@@ -79,17 +80,17 @@ public class FCAOutputWriter implements OutputWriter<FCAFormalContext<FCAObject,
             //Initial space for formatting purposes
             fileWriter.write("          ");
             //Print each Attribute name
-            for(FCAAttribute a : c.getContextAttributes()){
-                fileWriter.write(a.getName()+" ");
+            for(FCAAttribute<O,A> a : c.getContextAttributes()){
+                fileWriter.write(a.getAttributeID()+" ");
             }
             //Newline
             fileWriter.write("\n");
             //Go through each Object and print the corresponding Attributes
-            for(FCAObject o : c.getContextObjects()){
+            for(FCAObject<O,A> o : c.getContextObjects()){
                 //Get the length of the name (formatting purposes)
-                int nameLength = o.getObjectName().length();
+                int nameLength = o.getObjectID().toString().length();
                 //Print name of Object
-                fileWriter.write(o.getObjectName());
+                fileWriter.write(o.getObjectID().toString());
                 //Printing whitespaces for formatting
                 while(nameLength<10){
                     fileWriter.write(" ");
@@ -97,14 +98,14 @@ public class FCAOutputWriter implements OutputWriter<FCAFormalContext<FCAObject,
                 }
                 //Go through each Attribute and check if Object has Attribute
                 //If it does Print X else -
-                for(FCAAttribute a : c.getContextAttributes()){
-                    if(o.getAttributes().contains(a)){
+                for(FCAAttribute<O,A> a : c.getContextAttributes()){
+                    if(o.getAttributes().contains(a.getAttributeID())){
                         fileWriter.write("X ");
                     }else {
                         fileWriter.write("- ");
                     }
                     //Printing whitespaces for formatting of the table
-                    for (int i = 0; i < a.getName().length()-1; i++) {
+                    for (int i = 0; i < a.getAttributeID().toString().length()-1; i++) {
                         fileWriter.write(" ");
                     }
                 }
@@ -121,4 +122,5 @@ public class FCAOutputWriter implements OutputWriter<FCAFormalContext<FCAObject,
         }
 
     }
+
 }

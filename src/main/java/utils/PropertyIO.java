@@ -1,8 +1,11 @@
 package utils;
 
 import utils.exceptions.NoPropertiesDefinedException;
+import wikidata.SPARQLQueryBuilder;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,7 +18,7 @@ import java.util.*;
  * properties package. See existing files for formatting.
  * @author Leon Geis
  */
-public class PropertySet {
+public class PropertyIO {
 
     /**
      * The set of all properties, which are used for querying.
@@ -28,9 +31,14 @@ public class PropertySet {
     private List<String> fileNames;
 
     /**
+     * Path of the files.
+     */
+    private static String filePath="src/main/java/utils/properties/";
+
+    /**
      * Default Constructor.
      */
-    public PropertySet() throws NoPropertiesDefinedException {
+    public PropertyIO() throws NoPropertiesDefinedException {
         this.properties = new HashSet<>();
         getFiles();
     }
@@ -40,7 +48,7 @@ public class PropertySet {
      * as an argument.
      * @param prop List of properties.
      */
-    public PropertySet(List<String> prop) throws NoPropertiesDefinedException {
+    public PropertyIO(List<String> prop) throws NoPropertiesDefinedException {
         this.properties = new HashSet<>();
         this.properties.addAll(prop);
         getFiles();
@@ -69,7 +77,7 @@ public class PropertySet {
      */
     public void readFromFile(String name){
         //Initialize file String with path
-        String fileName ="src/main/java/utils/properties/";
+        String fileName =filePath;
         //If no file name is given, let user choose a file
         if(name==null){
             fileName=fileName+readFromUser();
@@ -102,12 +110,12 @@ public class PropertySet {
      */
     private void getFiles() throws NoPropertiesDefinedException {
         //Define file path
-        File file = new File("src/main/java/utils/properties/");
+        File file = new File(filePath);
         //Create new String Array containing all files of this directory
         String[] fileNames = file.list();
         //Check if the directory contains a file
         if(fileNames==null) throw new NoPropertiesDefinedException("No Property file found!");
-        //Add files to PropertySet file list
+        //Add files to PropertyIO file list
         this.fileNames = Arrays.asList(fileNames.clone());
     }
 
@@ -116,12 +124,22 @@ public class PropertySet {
      */
     public String readFromUser(){
         System.out.println("No Property File specified! Which Property File should be used?");
-        for (int i = 0; i < this.fileNames.size(); i++) {
-            System.out.println("("+(i+1)+")"+this.fileNames.get(i));
+        int i;
+        for (i = 0; i < this.fileNames.size(); i++) {
+            System.out.println("("+(i+1)+") Choose: "+this.fileNames.get(i));
         }
-        System.out.println("Enter Number of desired File:");
+        System.out.println("("+(i+1)+") Create a new File.");
+        System.out.println("Enter Number of desired Action:");
         Scanner sc = new Scanner(System.in);
         int input = sc.nextInt();
+        sc.nextLine();
+        if(input==i+1){
+            try {
+                return createFile(sc);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return this.fileNames.get(input-1);
     }
 
@@ -133,5 +151,60 @@ public class PropertySet {
         return this.properties.size();
     }
 
+    //TODO FORMAT CHECKING
+    /**
+     * Creates a new File and lets the user specify own Properties.
+     * @param s Scanner Object
+     * @return Name of the created file as String
+     * @throws IOException When error occurred during file creation.
+     */
+    public String createFile(Scanner s) throws IOException {
+        //Display Format for Input
+        System.out.println("Format: P?,P?,P?,P?,P?");
+        System.out.println("Where ? has to be replaced by an arbitrary Integer.");
+        System.out.println("Enter desired Properties (Amount of Properties should not be above "+SPARQLQueryBuilder.getPropertyCount()+"): ");
+        //Get next Line and save it as a String
+        String input=s.nextLine();
+        //Display Msg on Console
+        System.out.println("Enter file Name:");
+        //Get next Line and save it as String
+        String name=s.nextLine();
+        //Append file with .txt ending
+        name=name+".txt";
+        //Create BufferedWriter Object and provide it with the specified file name
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filePath+name));
+        //Write Properties to new File
+        writer.write(input);
+        //Close Write Object
+        writer.close();
+        //Return name of new file
+        return name;
+    }
+
+    /**
+     * Deletes a File from the properties package.
+     * @param name Name of the file as String.
+     */
+    public void deleteFile(String name){
+        //Display Info Messages
+        System.out.println("Are you sure to delete "+name+"?");
+        System.out.print("yes/no[y/n]:");
+        //Create Scanner Object
+        Scanner sc = new Scanner(System.in);
+        //Read next Char (String)
+        String in = sc.next();
+        //Check Input and either delete the given file
+        //or print error message.
+        if(in.equals("y")||in.equals("yes")) {
+            File f = new File(filePath + name);
+            if (f.delete()) {
+                System.out.println("File deleted!");
+            } else {
+                System.out.println("Failed to delete File!");
+            }
+        }else if(in.equals("n")||in.equals("no")){
+            System.out.println("Canceled!");
+        }
+    }
 
 }

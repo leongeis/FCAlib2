@@ -5,7 +5,7 @@ import fca.FCAFormalContext;
 import fca.FCAObject;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import utils.PropertySet;
+import utils.PropertyIO;
 import utils.exceptions.NoPropertiesDefinedException;
 
 import java.util.List;
@@ -32,10 +32,10 @@ public class ContextHelper {
      * @param file String of the file name the properties should be extracted from.
      * @return A FCAFormalContext Object, which is set according to the specified data from Wikidata.
      */
-    //Note: Currently only Plain Incidence is considered! (4.11.20)
-    public static FCAFormalContext<FCAObject,FCAAttribute> createContextFromWikidata(boolean build, String qry, String file){
+    //Note: Currently only Plain Incidence is implemented! (4.11.20)
+    public static FCAFormalContext<String,String> createContextFromWikidata(boolean build, String qry, String file){
         //Create new FormalContext
-        FCAFormalContext<FCAObject,FCAAttribute> c = new FCAFormalContext<>();
+        FCAFormalContext<String,String> c = new FCAFormalContext<>();
         //Create new Object of type WikidataExtraction
         WikidataExtraction wa = new WikidataExtraction();
         //Establish a connection to the SPARQL Endpoint of Wikidata
@@ -46,10 +46,10 @@ public class ContextHelper {
         if(build){
             builder = new SPARQLQueryBuilder();
         }
-        //Create a PropertySet object and read properties from file
-        PropertySet prop=null;
+        //Create a PropertyIO object and read properties from file
+        PropertyIO prop=null;
         try {
-            prop = new PropertySet();
+            prop = new PropertyIO();
         } catch (NoPropertiesDefinedException e) {
             e.printStackTrace();
         }
@@ -74,7 +74,7 @@ public class ContextHelper {
         }
         //Initialize fca.FCAAttribute List
         for(String s : prop.getProperties()){
-            c.addFCAAttribute(new FCAAttribute(s));
+            c.addFCAAttribute(s);
         }
         //Perform SELECT Query
         TupleQueryResult t = wa.selectQuery(query);
@@ -89,18 +89,18 @@ public class ContextHelper {
         //through exchanging the 0 with 2. Also saving both is possible!
         for (BindingSet b : t){
             String kl = b.getValue(bn.get(0)).toString();
-            c.addFCAObject(new FCAObject(kl.substring(kl.lastIndexOf("/")+1)));
+            c.addFCAObject((kl.substring(kl.lastIndexOf("/")+1)));
         }
         //Check for each Object, if it has an Attribute of the fca.FCAFormalContext
-        for(FCAObject o : c.getContextObjects()){
+        for(FCAObject<String,String> o : c.getContextObjects()){
             //For each Attribute specified in the context check if an object has it and
             //if it has an Attribute add it to the Object Attribute List.
             //This is done trough ASK Queries, which are generated respectively
-            for(FCAAttribute a : c.getContextAttributes()){
+            for(FCAAttribute<String,String> a : c.getContextAttributes()){
                 //Generate ASK Query based on Object Name(Q...) and the Property (P...)
-                if(wa.booleanQuery(builder.generateAskQuery(o.getObjectName(),a.getName()))){
-                    o.addAttribute(a);
-                    a.addObject(o);
+                if(wa.booleanQuery(builder.generateAskQuery(o.getObjectID(),a.getAttributeID()))){
+                    o.addAttribute(a.getAttributeID());
+                    a.addObject(o.getObjectID());
                 }
             }
         }

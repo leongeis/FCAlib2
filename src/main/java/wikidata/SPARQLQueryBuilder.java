@@ -1,7 +1,6 @@
 package wikidata;
 
-import utils.PropertySet;
-import utils.exceptions.NoVariablesException;
+import utils.PropertyIO;
 import utils.exceptions.TooManyPropertiesException;
 
 import java.util.ArrayList;
@@ -76,7 +75,7 @@ public class SPARQLQueryBuilder {
      * Get the permitted amount of Properties.
      * @return Number of Properties.
      */
-    public int getPropertyCount(){
+    public static int getPropertyCount(){
         return PROPERTY_COUNT;
     }
 
@@ -97,7 +96,7 @@ public class SPARQLQueryBuilder {
      * @param properties The set of the specified properties.
      * @return A String representation of the SELECT Query.
      */
-    public String generateSelectQuery(PropertySet properties) throws TooManyPropertiesException {
+    public String generateSelectQuery(PropertyIO properties) throws TooManyPropertiesException {
 
         //Limiting the amount of properties to 5
         if(properties.getSize()>PROPERTY_COUNT){

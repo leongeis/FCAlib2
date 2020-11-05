@@ -1,7 +1,4 @@
-import api.OutputWriter;
-import fca.FCAAttribute;
 import fca.FCAFormalContext;
-import fca.FCAObject;
 import utils.FCAOutputWriter;
 import wikidata.ContextHelper;
 
@@ -17,7 +14,7 @@ import wikidata.ContextHelper;
 
 public class Testing {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
         //Create a FCAFormalContext Object and initialize it with Data from Wikidata
         //first parameter: a SPARQLQueryBuilder Object is used for generating a query
@@ -25,20 +22,27 @@ public class Testing {
         //third parameter: specifying a file name, the properties are read from. When null is provided,
         //the user can choose from a list of files.
 
-        //This approach always returns an object with types FCAObject and FCAAttribute.
+        //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
 
-        FCAFormalContext<FCAObject,FCAAttribute> context = ContextHelper.createContextFromWikidata(true,null,null);
+        FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,null);
 
-        //Here a Context is created and the type of the Objects and Attributes are Strings
-        FCAFormalContext<String,String> exampleContext = new FCAFormalContext<>();
+        //Here both Objects Attributes are of type Integer
+        FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>();
+
+        //They do not have to be of the same type
+        FCAFormalContext<Character,Double> exampleContext2 = new FCAFormalContext<>();
 
         //Display Crosstable on Console and Write output to File
-        OutputWriter<FCAFormalContext<FCAObject,FCAAttribute>> o = new FCAOutputWriter();
+        FCAOutputWriter<String,String> o = new FCAOutputWriter<>();
         o.printToConsole(context);
         o.writeToFile(context,"context_output.txt");
 
+        //Option to delete file from properties package
+        //PropertyIO p = new PropertyIO();
+        //p.deleteFile("test.txt");
 
+        //TODO Implement Expert and use algorithms from FCAlib1
 
     }
 }
