@@ -72,7 +72,7 @@ public class ContextHelper {
         }
         //Initialize fca.FCAAttribute List
         for(String s : prop.getProperties()){
-            c.addFCAAttribute(s);
+            c.createFCAAttribute(s);
         }
         //Perform SELECT Query
         TupleQueryResult t = wa.selectQuery(query);
@@ -87,7 +87,13 @@ public class ContextHelper {
         //through exchanging the 0 with 2. Also saving both is possible!
         for (BindingSet b : t){
             String kl = b.getValue(bn.get(0)).toString();
-            c.addFCAObject((kl.substring(kl.lastIndexOf("/")+1)));
+            //Get Identifier of the Subject
+            String identifier = kl.substring(kl.lastIndexOf("/")+1);
+            //Checking if Object is already in Object List of the context
+            //If not add it to the context.
+            if(!c.containsObject(identifier)){
+                c.createFCAObject(identifier);
+            }
         }
         //Check for each Object, if it has an Attribute of the fca.FCAFormalContext
         for(FCAObject<String,String> o : c.getContextObjects()){

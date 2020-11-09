@@ -28,7 +28,7 @@ public class SPARQLQueryBuilder {
     /**
      * The Limit specifies the amount of queried individuals.
      */
-    private static int LIMIT=100;
+    private static int LIMIT=10;
 
     /**
      * Specifying the amount of properties.
@@ -104,7 +104,7 @@ public class SPARQLQueryBuilder {
         }
 
         //Initializing result query String
-        String resultQuery="SELECT ";
+        String resultQuery="SELECT DISTINCT ";
 
         //Check if a variable was added and add them to the query.
         //If not add an asterisk.

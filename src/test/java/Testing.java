@@ -1,6 +1,12 @@
+import fca.FCAAttribute;
+import fca.FCAConcept;
 import fca.FCAFormalContext;
+import fca.FCAObject;
 import utils.FCAOutputWriter;
 import utils.ContextHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /*For further information on RDF4J connections:
@@ -25,7 +31,7 @@ public class Testing {
         //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
 
-        FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,null);
+        FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
 
         //Here both Objects Attributes are of type Integer
         FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>();
@@ -42,7 +48,44 @@ public class Testing {
         //PropertyIO p = new PropertyIO();
         //p.deleteFile("test.txt");
 
-        //TODO Implement Expert and use algorithms
+        //Create new TestContext
+        FCAFormalContext<String,String> testContext = new FCAFormalContext<>();
 
+        //Create Objects and provide them with Attributes
+        FCAObject<String,String> ob1 = new FCAObject<>("Q1");
+        FCAObject<String,String> ob2 = new FCAObject<>("Q2");
+        FCAObject<String,String> ob3 = new FCAObject<>("Q3");
+
+        ob1.addAttribute("a");
+        ob1.addAttribute("b");
+        ob1.addAttribute("c");
+        //ob1.addAttribute("d");
+
+        ob2.addAttribute("c");
+        ob2.addAttribute("b");
+
+        ob3.addAttribute("c");
+        ob3.addAttribute("d");
+        ob3.addAttribute("b");
+
+        //Add them to the Context;
+        //Note: If an Attribute of an Object is not present in the
+        //Attribute List of the Context, a new FCAAttribute Object is created
+        //and added to the Attribute List of the Context.
+        testContext.addFCAObject(ob1);
+        testContext.addFCAObject(ob2);
+        testContext.addFCAObject(ob3);
+
+        FCAObject<String,String> ob4 = new FCAObject<>("Q4");
+        ob4.addAttribute("b");
+        ob4.addAttribute("c");
+        testContext.addFCAObject(ob4);
+        o.printToConsole(testContext);
+
+        //Print all Concepts of the Context
+        List<FCAConcept<String,String>> c = context.computeAllConcepts();
+        for(FCAConcept<String,String> s : c){
+            s.printConcept();
+        }
     }
 }

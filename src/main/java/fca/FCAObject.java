@@ -35,7 +35,7 @@ public class FCAObject<O,A> {
      */
     public FCAObject(O o){
         this.attributes = new ArrayList<>();
-        this.objectID =o;
+        this.objectID = o;
     }
 
     /**

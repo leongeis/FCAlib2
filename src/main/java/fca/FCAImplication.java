@@ -7,6 +7,7 @@ package fca;
  * @version 0.1
  */
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,5 +26,13 @@ public class FCAImplication<O,A> {
      * Conclusion of an Implication
      */
     private List<FCAObject<O,A>> conclusion;
+
+    /**
+     * Constructor of the class.
+     */
+    public FCAImplication(){
+        this.premise = new ArrayList<>();
+        this.conclusion = new ArrayList<>();
+    }
 
 }
