@@ -1,11 +1,9 @@
-import fca.FCAAttribute;
 import fca.FCAConcept;
 import fca.FCAFormalContext;
 import fca.FCAObject;
-import utils.FCAOutputWriter;
 import utils.ContextHelper;
+import utils.FCAOutputWriter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -80,12 +78,18 @@ public class Testing {
         ob4.addAttribute("b");
         ob4.addAttribute("c");
         testContext.addFCAObject(ob4);
-        o.printToConsole(testContext);
+        //o.printToConsole(testContext);
 
-        //Print all Concepts of the Context
+        //Print all Concepts of the Context; Due to naive implementation takes a while...
         List<FCAConcept<String,String>> c = context.computeAllConcepts();
         for(FCAConcept<String,String> s : c){
             s.printConcept();
+        }
+
+        //Print Context and all Concepts of TestContext
+        o.printToConsole(testContext);
+        for(FCAConcept<String,String> co : testContext.computeAllConcepts()){
+            co.printConcept();
         }
     }
 }

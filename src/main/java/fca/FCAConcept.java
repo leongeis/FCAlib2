@@ -2,6 +2,7 @@ package fca;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Describes a Concept of a Context. A
@@ -65,29 +66,16 @@ public class FCAConcept<O,A> {
         this.intent = intent;
     }
 
-    //TODO FORMATTING
     /**
      * Prints first the extent of this Concept
      * and afterward the intent.
      */
     public void printConcept(){
-        System.out.print("({");
-        if(this.extent != null) {
-            for (int i = 0; i < this.extent.size(); i++) {
-                if (i + 1 == this.extent.size()) System.out.print(this.extent.get(i).getObjectID() + "};{");
-                else System.out.print(this.extent.get(i).getObjectID() + ",");
-            }
-        }else{
-            System.out.print("};");
-        }
-        if(this.intent != null) {
-            for (int i = 0; i < this.intent.size(); i++) {
-                if (i + 1 == this.intent.size()) System.out.println(this.intent.get(i).getAttributeID() + "})");
-                else System.out.print(this.intent.get(i).getAttributeID() + ",");
-            }
-        }else{
-            System.out.print("})");
-        }
+        System.out.print("CONCEPT:");
+        //Print Extent
+        System.out.print(this.getExtent().stream().map(FCAObject::getObjectID).collect(Collectors.toList())+";");
+        //Print Intent
+        System.out.print(this.getIntent().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList())+"\n");
     }
 
 }

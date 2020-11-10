@@ -7,7 +7,10 @@ package fca;
  * @version 0.1
  */
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 /**
@@ -187,7 +190,7 @@ public class FCAFormalContext<O,A> {
         return null;
     }
 
-    //TODO Efficient Implementation & PROVE IF RESULT IS CORRECT
+    //TODO Efficient Implementation
     /**
      * Computes all Concepts of the Context.
      * All Concepts are of the form (A,A')
@@ -211,6 +214,7 @@ public class FCAFormalContext<O,A> {
             //Calculate the Prime for this Attribute
             //Use getAttributePrime Method; Hence the Parameter
             //Collections.singletonList.
+            //Equivalently, one can use here a.getObjects();
             List<FCAObject<O,A>> prime = getAttributePrime(Collections.singletonList(a));
 
             //Calculate the Intersection of the prime and each set of Objects in the list
@@ -227,7 +231,14 @@ public class FCAFormalContext<O,A> {
                 if(!concepts.stream().map(FCAConcept::getExtent).collect(Collectors.toList()).contains(intersection)){
                     FCAConcept<O,A> concept = new FCAConcept<>();
                     concept.setExtent(intersection);
-                    concept.setIntent(getObjectPrime(intersection));
+                    //Check if Extent is empty
+                    //If it is: Add Intent as (∅,∅')
+                    if(concept.getExtent().isEmpty()){
+                        concept.setIntent(this.getContextAttributes());
+                    }else{
+                        concept.setIntent(getObjectPrime(intersection));
+                    }
+                    //Add Concept to Temporary List
                     temp.add(concept);
                 }
             }
