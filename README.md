@@ -16,7 +16,7 @@
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
-* [Usage](#usage)
+* [Tutorial](#tutorial)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
@@ -47,8 +47,7 @@ This project is an enhanced version of FCAlib originally developed by Baris Sert
 ### Installation
 
 
-<!-- USAGE EXAMPLES -->
-## Usage
+## Tutorial
 
 
 
