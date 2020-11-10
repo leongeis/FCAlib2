@@ -10,15 +10,16 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Class used only for Displaying/Writing to File.
  * @author Leon Geis
  */
-//TODO REWORK GENERICS
 public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>> {
 
-    /**TODO: FORMATTING
+    /**
      * Displays the Crosstable of the current Context on
      * the console.
      */
@@ -27,7 +28,11 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
         //Headline of the Output
         System.out.println("The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute");
         //Initial space for formatting purposes
-        System.out.print("          ");
+        //Using the Stream API to receive the longest ID (as a String) of an Object
+        int length = Collections.max(c.getContextObjects(),Comparator.comparing(object -> object.getObjectID().toString().length())).getObjectID().toString().length()+1;
+        for (int i = 0; i < length; i++) {
+            System.out.print(" ");
+        }
         //Print each Attribute name
         for(FCAAttribute<O,A> a : c.getContextAttributes()){
             System.out.print(a.getAttributeID()+" ");
@@ -41,7 +46,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
             //Print name of Object
             System.out.print(o.getObjectID());
             //Printing whitespaces for formatting
-            while(nameLength<10){
+            while(nameLength<length){
                 System.out.print(" ");
                 nameLength++;
             }
@@ -64,7 +69,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
     }
 
 
-    /**TODO: FORMATTING / GENERIC FILE WRITING
+    /**
      * Writes the Crosstable to a file. The file name
      * is specified via a String parameter ("example.txt")
      */
@@ -78,7 +83,11 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
             //Headline of the Output
             fileWriter.write("The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute\n");
             //Initial space for formatting purposes
-            fileWriter.write("          ");
+            //Using the Stream API to receive the longest ID (as a String) of an Object
+            int length = Collections.max(c.getContextObjects(),Comparator.comparing(object -> object.getObjectID().toString().length())).getObjectID().toString().length()+1;
+            for (int i = 0; i < length; i++) {
+                fileWriter.write(" ");
+            }
             //Print each Attribute name
             for(FCAAttribute<O,A> a : c.getContextAttributes()){
                 fileWriter.write(a.getAttributeID()+" ");
@@ -92,7 +101,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
                 //Print name of Object
                 fileWriter.write(o.getObjectID().toString());
                 //Printing whitespaces for formatting
-                while(nameLength<10){
+                while(nameLength<length){
                     fileWriter.write(" ");
                     nameLength++;
                 }
