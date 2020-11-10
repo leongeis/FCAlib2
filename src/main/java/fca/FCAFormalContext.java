@@ -124,6 +124,16 @@ public class FCAFormalContext<O,A> {
                 FCAAttribute<O,A> newAttribute = new FCAAttribute<>(attr);
                 newAttribute.addObject(o.getObjectID());
                 this.contextAttributes.add(newAttribute);
+            }else {
+                //Check if other objects have this Attribute
+                for(FCAObject<O,A> object : this.getContextObjects()){
+                    //If an Object has this Attribute add it to the Object
+                    //List of the Attribute. Care for the case that the Object List
+                    //of the Attribute already contains the Object.
+                    if(object.getAttributes().contains(attr) && !getAttribute(attr).getObjects().contains(object.getObjectID())){
+                        getAttribute(attr).addObject(object.getObjectID());
+                    }
+                }
             }
         }
     }
@@ -144,6 +154,16 @@ public class FCAFormalContext<O,A> {
                 FCAObject<O,A> newObject = new FCAObject<>(obj);
                 newObject.addAttribute(a.getAttributeID());
                 this.contextObjects.add(newObject);
+            }else{
+                //Check if other Attribute have this Object
+                for(FCAAttribute<O,A> atr : this.getContextAttributes()){
+                    //If an Attribute has this Object add it to the Attribute
+                    //List of the Object. Care for the case that the Attribute List
+                    //of the Object already contains the Attribute.
+                    if(atr.getObjects().contains(obj) && !getObject(obj).getAttributes().contains(atr.getAttributeID())){
+                        getObject(obj).addAttribute(atr.getAttributeID());
+                    }
+                }
             }
         }
     }
