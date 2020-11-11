@@ -7,6 +7,9 @@ package fca;
  * @version 0.1
  */
 
+import utils.IndexedList;
+import utils.Pair;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -125,7 +128,7 @@ public class FCAFormalContext<O,A> {
                 newAttribute.addObject(o.getObjectID());
                 this.contextAttributes.add(newAttribute);
             }else {
-                //Check if other objects have this Attribute
+                //Check if other Objects have this Attribute
                 for(FCAObject<O,A> object : this.getContextObjects()){
                     //If an Object has this Attribute add it to the Object
                     //List of the Attribute. Care for the case that the Object List
@@ -155,7 +158,7 @@ public class FCAFormalContext<O,A> {
                 newObject.addAttribute(a.getAttributeID());
                 this.contextObjects.add(newObject);
             }else{
-                //Check if other Attribute have this Object
+                //Check if other Attributes have this Object
                 for(FCAAttribute<O,A> atr : this.getContextAttributes()){
                     //If an Attribute has this Object add it to the Attribute
                     //List of the Object. Care for the case that the Attribute List
@@ -210,7 +213,6 @@ public class FCAFormalContext<O,A> {
         return null;
     }
 
-    //TODO Efficient Implementation
     /**
      * Computes all Concepts of the Context.
      * All Concepts are of the form (A,A')
@@ -337,13 +339,72 @@ public class FCAFormalContext<O,A> {
         return new ArrayList<>();
     }
 
+    //TODO Create JavaDoc/Comment Methods
+    //TODO Verify Results
+    public void computeAllClosures(){
+        //Create Lectical Order on all Attributes
+        IndexedList<FCAAttribute<O,A>> indexedAttributes = new IndexedList<>(this.getContextAttributes());
+        //Set the lectically first Set
+        for(Pair<FCAAttribute<O,A>,Integer> pair : indexedAttributes.getIndexedList() ){
+            System.out.println(pair.getLeft().getAttributeID()+","+pair.getRight());
+        }
+        IndexedList<FCAAttribute<O,A>> A = firstClosure();
+        System.out.println("CLOSURES:");
+        while(!A.isEmpty()){
+            //Print
+            System.out.println(A.getIndexedList().stream().map(Pair::getLeft).map(FCAAttribute::getAttributeID).collect(Collectors.toList()));
+            A = nextClosure(A, indexedAttributes);
+        }
+    }
+
+    private IndexedList<FCAAttribute<O,A>> firstClosure(){
+        //return ∅''
+        return new IndexedList<>(getObjectPrime(this.getContextObjects()));
+    }
+
+    public IndexedList<FCAAttribute<O, A>> nextClosure(IndexedList<FCAAttribute<O,A>> next, IndexedList<FCAAttribute<O,A>> indexed){
+        //Go through List of all Attributes in reverse Order
+        //Provide listIterator Parameter with size of the List to get a pointer
+        //to the end of the list.
+        ListIterator<Pair<FCAAttribute<O,A>,Integer>> iterator = indexed.getIndexedList().listIterator(indexed.getIndexedList().size());
+        while(iterator.hasPrevious()){
+            Pair<FCAAttribute<O,A>,Integer> previous = iterator.previous();
+            if(next.contains(previous.getLeft())){
+                next.remove(previous.getLeft());
+            }else{
+                IndexedList<FCAAttribute<O,A>> union = new IndexedList<>();
+                union.add(previous);
+                union.addAll(next.getIndexedList());
+                List<FCAAttribute<O,A>> B = getObjectPrime(getAttributePrime(union.getObjects()));
+                B.removeAll(next.getObjects());
+                boolean flag=false;
+                for(FCAAttribute<O,A> a : B){
+                    if(indexed.getIndex(a)>=previous.getRight())flag = true;
+                }
+
+                if(flag){
+                    IndexedList<FCAAttribute<O,A>> ret = new IndexedList<>();
+                    for(FCAAttribute<O,A> a : getObjectPrime(getAttributePrime(union.getObjects()))){
+                        ret.add(new Pair<>(a,indexed.getIndex(a)));
+                    }
+                    return ret;
+                }
+            }
+        }
+        return new IndexedList<>();
+    }
+
+    public void nextIntent(){
+
+    }
+
+    public void nextExtent(){
+
+    }
 
     public void computeStemBase(){
 
     }
 
-    public void nextClosure(){
-
-    }
 
 }
