@@ -275,9 +275,26 @@ public class FCAFormalContext<O,A> {
         return concepts;
     }
 
-
-    public List<FCAConcept<O,A>> computeAllConcepts(IndexedList<FCAAttribute<O,A>> index){
-        return null;
+    /**
+     * Computes all Concepts of the Context.
+     * Uses a List of computed Closures to compute
+     * the corresponding concepts and returns them.
+     * @param closures List of Closures
+     * @return List of Concepts of the Context
+     */
+    public List<FCAConcept<O,A>> computeAllConcepts(List<List<FCAAttribute<O,A>>> closures){
+        //Create List of FCAConcepts that will be returned
+        List<FCAConcept<O,A>> concepts = new ArrayList<>();
+        //Go through List of closures and create a FCAConcept Object
+        //for each closure. Also compute the prime and set the Extent accordingly.
+        for(List<FCAAttribute<O,A>> list : closures){
+            FCAConcept<O,A> concept = new FCAConcept<>();
+            concept.setIntent(list);
+            concept.setExtent(getAttributePrime(list));
+            concepts.add(concept);
+        }
+        //Return List of concepts
+        return concepts;
     }
 
     /**
@@ -352,17 +369,25 @@ public class FCAFormalContext<O,A> {
      * Computes all Closures of the Context.
      * Note: Currently only Attribute Closures are computed.
      */
-    public void computeAllClosures(){
+    public List<List<FCAAttribute<O,A>>> computeAllClosures(boolean... print){
+        //Setting the Optional Parameter to False
+        boolean printBool = print.length >= 1 && print[0];
         //Create Lectical Order on all Attributes
         IndexedList<FCAAttribute<O,A>> indexedAttributes = new IndexedList<>(this.getContextAttributes());
+        //Create List of Lists of Attributes (Closures) to be returned
+        List<List<FCAAttribute<O,A>>> closures = new ArrayList<>();
         //Set the lectically first Set
         IndexedList<FCAAttribute<O,A>> A = firstClosure(indexedAttributes);
-        System.out.println("CLOSURES:");
+        if(printBool)System.out.println("CLOSURES:");
         while(A != null){
-            //Print
-            System.out.println(A.getIndexedList().stream().map(Pair::getLeft).map(FCAAttribute::getAttributeID).collect(Collectors.toList()));
+            //Print (Optional)
+            if(printBool)System.out.println(A.getIndexedList().stream().map(Pair::getLeft).map(FCAAttribute::getAttributeID).collect(Collectors.toList()));
+            //Add A to the List to be returned
+            closures.add(A.getIndexedList().stream().map(Pair::getLeft).collect(Collectors.toList()));
             A = nextClosure(A, indexedAttributes);
         }
+        //Return the List of all Closures
+        return closures;
     }
 
     /**
@@ -388,7 +413,7 @@ public class FCAFormalContext<O,A> {
      * @param indexed The Indexed Attribute List of the Context.
      * @return IndexedList of the Next Closure.
      */
-    public IndexedList<FCAAttribute<O, A>> nextClosure(IndexedList<FCAAttribute<O,A>> next, IndexedList<FCAAttribute<O,A>> indexed){
+    public IndexedList<FCAAttribute<O,A>> nextClosure(IndexedList<FCAAttribute<O,A>> next, IndexedList<FCAAttribute<O,A>> indexed){
         //Go through List of all Attributes in reverse Order
         //Provide listIterator Parameter with size of the List to get a pointer
         //to the end of the list.

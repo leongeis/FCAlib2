@@ -2,6 +2,7 @@ package utils;
 
 import api.OutputWriter;
 import fca.FCAAttribute;
+import fca.FCAConcept;
 import fca.FCAFormalContext;
 import fca.FCAObject;
 
@@ -12,6 +13,8 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Class used only for Displaying/Writing to File.
@@ -20,11 +23,17 @@ import java.util.Comparator;
 public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>> {
 
     /**
+     * The fixed file path the files are created in.
+     */
+    private static final String filepath = "src/main/java/utils/output/";
+
+
+    /**
      * Displays the Crosstable of the current Context on
      * the console.
      */
     @Override
-    public void printToConsole(FCAFormalContext<O,A> c){
+    public void printCrosstableToConsole(FCAFormalContext<O,A> c){
         //Headline of the Output
         System.out.println("The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute");
         //Initial space for formatting purposes
@@ -74,9 +83,9 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
      * is specified via a String parameter ("example.txt")
      */
     @Override
-    public void writeToFile(FCAFormalContext<O,A> c, String fileName){
+    public void writeCrosstableToFile(FCAFormalContext<O,A> c, String fileName){
         //Append file name to path
-        String name = "src/main/java/utils/"+fileName;
+        String name = filepath+fileName;
         //Print to Console
         System.out.println("Writing to File: "+name);
         try (Writer fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(name), StandardCharsets.UTF_8))){
@@ -131,5 +140,51 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
         }
 
     }
+
+    /**
+     * Displays all Concepts of the current Context on
+     * the console. It uses nextClosure to compute all concepts.
+     * @param c The Context Object.
+     */
+    @Override
+    public void printConceptsToConsole(FCAFormalContext<O, A> c) {
+        List<FCAConcept<O,A>> concepts = c.computeAllConcepts(c.computeAllClosures());
+        for(FCAConcept<O,A> concept : concepts){
+            concept.printConcept();
+        }
+    }
+
+    /**
+     * Writes all Concepts of the given Context to the specific file.
+     * @param c The Context from which all Concepts will be computed
+     * @param name The Name of the File ("example.txt")
+     * Note: Uses NextClosure to compute all Concepts.
+     */
+    @Override
+    public void writeConceptsToFile(FCAFormalContext<O, A> c, String name) {
+        //Append the file name
+        String fileName = filepath+name;
+        //Print to Console
+        System.out.println("Writing to File: "+fileName);
+        //Create Writer Object
+        try(Writer fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8))){
+            //Write Headline of the file
+            fileWriter.write("Concepts (A,B) with A⊆G and B⊆M. G is the set of all Objects and M the set of all Attributes.\n");
+            //Get the List of all Concepts
+            List<FCAConcept<O,A>> concepts = c.computeAllConcepts(c.computeAllClosures());
+            //Go through each concept and display the extent and the intent
+            for(FCAConcept<O,A> concept : concepts){
+                fileWriter.write(concept.getExtent().stream().map(FCAObject::getObjectID).collect(Collectors.toList())+";");
+                fileWriter.write(concept.getIntent().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList())+"\n");
+            }
+            //Display Success Message
+            System.out.println("Writing Successful!");
+        //Catch Exception and Display Message
+        }catch (Exception e){
+            System.out.println("Writing not Successful!");
+            e.printStackTrace();
+        }
+    }
+
 
 }

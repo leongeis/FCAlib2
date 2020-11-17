@@ -1,0 +1,7 @@
+Concepts (A,B) with A⊆G and B⊆M. G is the set of all Objects and M the set of all Attributes.
+[Q1, Q2, Q3, Q4];[b]
+[Q3];[d, b]
+[Q2, Q4];[c, b]
+[Q1, Q4];[a, b]
+[Q4];[a, c, b]
+[];[a, b, c, d]
