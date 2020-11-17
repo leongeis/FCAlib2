@@ -48,7 +48,7 @@ public class IndexedList<O> {
      * @return List of Pairs of the indexed Elements.
      */
     public List<Pair<O, Integer>> getIndexedList() {
-        return indexedList;
+        return this.indexedList;
     }
 
     /**

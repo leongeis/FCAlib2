@@ -275,7 +275,11 @@ public class FCAFormalContext<O,A> {
         return concepts;
     }
 
-    //TODO INCREASE PERFORMANCE
+
+    public List<FCAConcept<O,A>> computeAllConcepts(IndexedList<FCAAttribute<O,A>> index){
+        return null;
+    }
+
     /**
      * Compute the Prime of a List of FCAObjects.
      * @param o List of FCAObjects.
@@ -283,6 +287,9 @@ public class FCAFormalContext<O,A> {
      * have in common.
      */
     public List<FCAAttribute<O,A>> getObjectPrime(List<FCAObject<O,A>> o){
+        //If the List is empty return M (all Attributes)
+        if(o.isEmpty())return new ArrayList<>(this.contextAttributes);
+        //Else:
         //First get all Lists of Attributes of the Objects; List of Lists
         List<List<A>> allAttributes = new ArrayList<>();
         //Iterate over each Object and add the Attributes of this Object to the List
@@ -307,7 +314,6 @@ public class FCAFormalContext<O,A> {
         return new ArrayList<>();
     }
 
-    //TODO INCREASE PERFORMANCE
     /**
      * Compute the Prime of a List of FCAAttributes.
      * @param a List of FCAAttributes.
@@ -315,6 +321,9 @@ public class FCAFormalContext<O,A> {
      * have in common.
      */
     public List<FCAObject<O,A>> getAttributePrime(List<FCAAttribute<O,A>> a){
+        //If the List is empty return G (all Objects)
+        if(a.isEmpty())return new ArrayList<>(this.contextObjects);
+        //Else:
         //First get all Lists of Objects of the Attributes; List of Lists
         List<List<O>> allObjects = new ArrayList<>();
         //Iterate over each Attribute and add the Objects of this Attribute to the List
@@ -339,59 +348,96 @@ public class FCAFormalContext<O,A> {
         return new ArrayList<>();
     }
 
-    //TODO Create JavaDoc/Comment Methods
-    //TODO Verify Results
+    /**
+     * Computes all Closures of the Context.
+     * Note: Currently only Attribute Closures are computed.
+     */
     public void computeAllClosures(){
         //Create Lectical Order on all Attributes
         IndexedList<FCAAttribute<O,A>> indexedAttributes = new IndexedList<>(this.getContextAttributes());
         //Set the lectically first Set
-        for(Pair<FCAAttribute<O,A>,Integer> pair : indexedAttributes.getIndexedList() ){
-            System.out.println(pair.getLeft().getAttributeID()+","+pair.getRight());
-        }
-        IndexedList<FCAAttribute<O,A>> A = firstClosure();
+        IndexedList<FCAAttribute<O,A>> A = firstClosure(indexedAttributes);
         System.out.println("CLOSURES:");
-        while(!A.isEmpty()){
+        while(A != null){
             //Print
             System.out.println(A.getIndexedList().stream().map(Pair::getLeft).map(FCAAttribute::getAttributeID).collect(Collectors.toList()));
             A = nextClosure(A, indexedAttributes);
         }
     }
 
-    private IndexedList<FCAAttribute<O,A>> firstClosure(){
+    /**
+     * Computes the first Closure, i.e., ∅''.
+     * @param index Indexed Attribute List
+     * @return First Closure as IndexedList
+     */
+    private IndexedList<FCAAttribute<O,A>> firstClosure(IndexedList<FCAAttribute<O,A>> index){
+        //Create a new IndexedList
+        IndexedList<FCAAttribute<O,A>> closure = new IndexedList<>();
+        //Go through each Attribute of ∅'' and add the corresponding Pair to the
+        //newly created IndexedList
+        for(FCAAttribute<O,A> attr : getObjectPrime(this.getContextObjects())){
+            closure.add(index.getPair(index.getIndex(attr)));
+        }
         //return ∅''
-        return new IndexedList<>(getObjectPrime(this.getContextObjects()));
+        return closure;
     }
 
+    /**
+     * Computes the lectically next Closure of the given first parameter.
+     * @param next The List from which the next Closure should be computed.
+     * @param indexed The Indexed Attribute List of the Context.
+     * @return IndexedList of the Next Closure.
+     */
     public IndexedList<FCAAttribute<O, A>> nextClosure(IndexedList<FCAAttribute<O,A>> next, IndexedList<FCAAttribute<O,A>> indexed){
         //Go through List of all Attributes in reverse Order
         //Provide listIterator Parameter with size of the List to get a pointer
         //to the end of the list.
         ListIterator<Pair<FCAAttribute<O,A>,Integer>> iterator = indexed.getIndexedList().listIterator(indexed.getIndexedList().size());
         while(iterator.hasPrevious()){
+            //Get the previous Pair of Attribute and Index
             Pair<FCAAttribute<O,A>,Integer> previous = iterator.previous();
+            //If the Attribute is contained in next remove it
             if(next.contains(previous.getLeft())){
                 next.remove(previous.getLeft());
             }else{
+                //Create union of the current List and the previous Attribute
                 IndexedList<FCAAttribute<O,A>> union = new IndexedList<>();
                 union.add(previous);
                 union.addAll(next.getIndexedList());
+                //Compute the double Prime of the union and save it
                 List<FCAAttribute<O,A>> B = getObjectPrime(getAttributePrime(union.getObjects()));
+                //Remove all Attributes from B that are in next
                 B.removeAll(next.getObjects());
-                boolean flag=false;
+                //Use a flag to verify if Attributes are < than previous (m)
+                boolean flag=true;
+                //Go through each Attribute left in B and check
+                //if it is smaller (lectically) than previous (m)
+                //If it is set the flag to false and stop.
                 for(FCAAttribute<O,A> a : B){
-                    if(indexed.getIndex(a)>=previous.getRight())flag = true;
+                    //Use the indexed Attribute List to get the index
+                    if(indexed.getIndex(a) < previous.getRight()){
+                        flag = false;
+                        break;
+                    }
                 }
-
+                //Now if the flag is still true, which means that there is not element in B,
+                //which is smaller than previous (m), create a indexed List and return it.
                 if(flag){
+                    //Create the List
                     IndexedList<FCAAttribute<O,A>> ret = new IndexedList<>();
+                    //Again compute the double prime of the union and add each attribute as a pair
+                    //Using the indexed Attribute List to get an index for each Attribute
                     for(FCAAttribute<O,A> a : getObjectPrime(getAttributePrime(union.getObjects()))){
                         ret.add(new Pair<>(a,indexed.getIndex(a)));
                     }
+                    //Return the IndexedList
                     return ret;
                 }
             }
         }
-        return new IndexedList<>();
+        //If all Attributes are traversed in reverse Order and none of the
+        //above statements fits, return null.
+        return null;
     }
 
     public void nextIntent(){

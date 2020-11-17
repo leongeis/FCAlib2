@@ -1,6 +1,10 @@
+import fca.FCAConcept;
 import fca.FCAFormalContext;
 import fca.FCAObject;
+import utils.ContextHelper;
 import utils.FCAOutputWriter;
+
+import java.util.List;
 
 
 /*For further information on RDF4J connections:
@@ -25,7 +29,7 @@ public class Testing {
         //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
 
-        //FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
+        FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
 
         //Here both Objects Attributes are of type Integer
         FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>();
@@ -35,8 +39,8 @@ public class Testing {
 
         //Display Crosstable on Console and Write output to File
         FCAOutputWriter<String,String> o = new FCAOutputWriter<>();
-        //o.printToConsole(context);
-        //o.writeToFile(context,"context_output.txt");
+        o.printToConsole(context);
+        o.writeToFile(context,"context_output.txt");
 
         //Option to delete file from properties package
         //PropertyIO p = new PropertyIO();
@@ -75,17 +79,20 @@ public class Testing {
         testContext.addFCAObject(ob4);
 
         //Print all Concepts of the Context; Due to naive implementation takes a while...
-        /*List<FCAConcept<String,String>> c = context.computeAllConcepts();
+        List<FCAConcept<String,String>> c = context.computeAllConcepts();
         for(FCAConcept<String,String> s : c){
             s.printConcept();
         }
+
+        context.computeAllClosures();
+
 
         //Print Context and all Concepts of TestContext
         o.printToConsole(testContext);
         o.writeToFile(testContext,"test_context.txt");
         for(FCAConcept<String,String> co : testContext.computeAllConcepts()){
             co.printConcept();
-        }*/
+        }
 
         testContext.computeAllClosures();
 
