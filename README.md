@@ -52,7 +52,7 @@ This project is an enhanced version of FCAlib originally developed by Baris Sert
 The flavour of FCA comes into play, when considering Objects and Attributes of a formal Context.
 Thus, below is a quick guide on how to create an Object/Attribute/Context and how to use the
 implemented algorithms. 
-####1.Creating an Object (`FCAObject`)
+#### 1.Creating an Object (`FCAObject`)
 >First we need to create an Object and specify the type of the Object itself (first type parameter)
 >, and the type of the Attributes the Object holds (second type parameter). Both the Object itself and
 >its Attributes are of type `String`.
