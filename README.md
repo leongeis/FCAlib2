@@ -61,7 +61,7 @@ implemented algorithms.
 ```java
 FCAObject<String,String> ob1 = new FCAObject<>("Q1");
 ```
-####2.Creating an Attribute (`FCAAttribute`)
+#### 2.Creating an Attribute (`FCAAttribute`)
 >When creating a new Attribute, the type parameter are (similar to the FCAObject type parameter) first the type
 >of the Attribute itself and secondly the type of the Objects the Attribute holds. Again, both the Attribute itself
 >and its Objects are of type `String`.
@@ -70,14 +70,14 @@ FCAObject<String,String> ob1 = new FCAObject<>("Q1");
 ```java
 FCAAttribute<String,String> atr1 = new FCAAttribute<>("a");
 ```
-####3.Creating a Formal Context (`FCAFormalContext`)
+#### 3.Creating a Formal Context (`FCAFormalContext`)
 >Similar to the Object and Attribute type parameter, the first type parameter specifies the type of the Objects (G) of
 >the context and the second type parameter specifies the type of the Attributes (M) of the context. Here, both
 >the Objects and the Attributes of the context are of type `String`.
 ```java
 FCAFormalContext<String,String> testContext = new FCAFormalContext<>();
 ```
-####4.Interaction between `FCAObject` and `FCAAttribute`
+#### 4.Interaction between `FCAObject` and `FCAAttribute`
 >An Object without any Attribute describing the Object is almost worthless. Thus, below is the easiest and quickest way
 >to assign an Attribute to an Object.
 ```java
@@ -96,7 +96,7 @@ atr1.addObject("Q2");
 >even more obvious when considering the other methods of the classes.
 <br/>FCAAttribute: https://github.com/leongeis/FCAlib2/blob/main/src/main/java/fca/FCAAttribute.java
 <br/>FCAObject: https://github.com/leongeis/FCAlib2/blob/main/src/main/java/fca/FCAObject.java
-####5.Interaction between `FCAFormalContext` and `FCAAttribute/FCAObject`
+#### 5.Interaction between `FCAFormalContext` and `FCAAttribute/FCAObject`
 >One can either add Attributes or Objects to a context. This approach is fairly easy, because one can add them
 >interchangeably. Adding an Object will also add all of its Attributes to the context, dually for Attributes.
 ```java
@@ -106,7 +106,7 @@ testContext.addFCAObject(ob3);
 ```
 >Here we add the FCAObjects `ob1`,`ob2` and `ob3` to the earlier created FCAFormalContext Object. Again the Attributes
 >of each individual Object are also added to the context. Thus, one could also use the method `addFCAAttribute()`.
-####6.Algorithms
+#### 6.Algorithms
 >The usefulness of FCA comes from the existing algorithms. There is an implemented approach for using these. First we create
 >an `FCAOutputWriter` Object to display each computed result on the Console.
 ```java
