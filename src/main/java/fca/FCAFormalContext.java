@@ -10,10 +10,7 @@ package fca;
 import utils.IndexedList;
 import utils.Pair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -200,6 +197,7 @@ public class FCAFormalContext<O,A> {
         }
         return null;
     }
+
     /**
      * Returns a single Object of the Context.
      * @param o The Object to be returned.
@@ -472,9 +470,204 @@ public class FCAFormalContext<O,A> {
     public void nextExtent(){
 
     }
+    //NOT WORKING (20.10.20)
+    public List<FCAAttribute<O,A>> computeLinClosure(List<FCAAttribute<O,A>> attributes, List<FCAImplication<O,A>> implications){
 
-    public void computeStemBase(){
+        //Create Create List of Pairs. Here, the Pair consists on the left side of
+        //a single FCAAttribute, and on the right side a List of Implications.
+        //Note: The left side is always the Attribute itself
+        //      and the right side are Implications which contain this Attribute
+        //      in their premise.
+        List<Pair<FCAAttribute<O,A>,List<FCAImplication<O,A>>>> attrList = new ArrayList<>();
 
+        //Create List of Pairs, with Implications on the left and Integers, describing the size of the premise
+        //on the right
+        List<Pair<FCAImplication<O,A>,Integer>> count = new ArrayList<>();
+
+        //Go through each Implication provided via parameter
+        for(FCAImplication<O,A> implication : implications){
+            //Save the size of the implication and save the pair in count
+            count.add(new Pair<>(implication,implication.getPremise().size()));
+            //Check if left side of the implication is empty
+            if(implication.getPremise().isEmpty()){
+
+                //Add the conclusion to the set of attributes provided via parameter
+                attributes.addAll(implication.getConclusion());
+
+                //Remove duplicate Elements using Stream API
+                //TODO Rework assigned data structure (currently simple ArrayList 20.10.20)
+                attributes = attributes.stream().distinct().collect(Collectors.toList());
+            }
+            //Go through each Attribute in the Premise of the Implication
+            for(FCAAttribute<O,A> attribute : implication.getPremise()){
+                //Get a List of all Attributes on the left side
+                List<FCAAttribute<O,A>> lhsAttributes = attrList.stream().map(Pair::getLeft).collect(Collectors.toList());
+                //If this List contains the variable 'attribute', get the Pair of that variable and
+                //add the Implication to the right side
+                if(lhsAttributes.contains(attribute)){
+                    //TODO DECREASE COMPLEXITY OF THIS STEP BELOW
+                    //Go through each Pair of the attrList and if the left side of a pair,
+                    //matches the variable 'attribute', add the implication to the right side.
+                    for(Pair<FCAAttribute<O,A>,List<FCAImplication<O,A>>> p : attrList){
+                        if(p.getLeft().equals(attribute)){
+                            p.getRight().add(implication);
+                            break;
+                        }
+                    }
+                }
+                //If not, add the variable 'attribute' with an empty List of Implications
+                //to the attrList.
+                else{
+                    attrList.add(new Pair<>(attribute,new ArrayList<>()));
+                }
+            }
+        }
+        //Create a copy of the attribute List, which is provided via parameter and (possibly) changed
+        //during computation above:
+        List<FCAAttribute<O,A>> updated = new ArrayList<>(attributes);
+
+        //While the copy (updated) is not empty
+        while(!updated.isEmpty()){
+            //Get an Attribute out of the List and remove it afterwards from the list
+            Iterator<FCAAttribute<O,A>> iterator = updated.iterator();
+            FCAAttribute<O,A> m = iterator.next();
+            updated.remove(m);
+            //Get the List of Implications that contain m
+            List<FCAImplication<O,A>> implicationsOfm = new ArrayList<>();
+            for(Pair<FCAAttribute<O,A>,List<FCAImplication<O,A>>> p : attrList){
+                if(p.getLeft().equals(m)){
+                    implicationsOfm = p.getRight();
+                    break;
+                }
+            }
+            //Now, go through each Implication of m
+            for(FCAImplication<O,A> implOfm : implicationsOfm){
+                //Get the pair of the implication and decrease the right side by 1
+                for(Pair<FCAImplication<O,A>,Integer> countPair : count){
+                    if(countPair.getLeft().equals(implOfm)){
+                        countPair.setRight(countPair.getRight()-1);
+                        //If the right side is now 0
+                        if(countPair.getRight()==0){
+                            //Add the conclusion of the implication without elements from
+                            //the attribute List (provided via parameter) to this list
+                            //First create a copy of the conclusion
+                            List<FCAAttribute<O,A>> conclusionCopy = new ArrayList<>(implOfm.getConclusion());
+                            //Remove all Elements that are in the provided Attribute List from the Copy
+                            conclusionCopy.removeAll(attributes);
+                            //Add this copy now to the attribute List provided via parameter
+                            //and the 'updated' List
+                            attributes.addAll(conclusionCopy);
+                            updated.addAll(conclusionCopy);
+                        }
+                    }
+                }
+            }
+        }
+        //Return the closure of the provided List
+        return attributes;
+    }
+
+    //NOT WORKING (20.10.20)
+    public List<FCAImplication<O,A>> computeStemBase(){
+        //Create IndexedList of the Attributes of the Context
+        IndexedList<FCAAttribute<O,A>> indexedAttributes = new IndexedList<>(this.contextAttributes);
+        //Create new List and set it to the closure of the empty set
+        List<FCAAttribute<O,A>> A = firstClosure(indexedAttributes).getObjects();
+        //Create empty List for the Implications
+        List<FCAImplication<O,A>> implList = new ArrayList<>();
+        //If A is not empty add first Implication to Implication List
+        //System.out.println(A.getObjects().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList()));
+        if(!A.isEmpty()){
+            implList.add(new FCAImplication<>(new ArrayList<>(),A));
+        }
+        //Get the Attribute with the highest Index in the Attribute List
+        FCAAttribute<O,A> max = indexedAttributes.getMaxElement();
+
+        while (!A.equals(indexedAttributes.getObjects())){
+            //Get all attributes smaller than 'max' and traverse them in reverse order
+            List<FCAAttribute<O,A>> smallerAttributes = new ArrayList<>();
+            for(Pair<FCAAttribute<O,A>,Integer> indexpair : indexedAttributes.getIndexedList()){
+                if(indexpair.getRight()<indexedAttributes.getPair(indexedAttributes.getIndex(max)).getRight()){
+                    smallerAttributes.add(indexpair.getLeft());
+                }
+            }
+            //Reverse the order
+            Collections.reverse(smallerAttributes);
+            for(FCAAttribute<O,A> atr : smallerAttributes){
+                if(A.contains(atr)){
+                    A.remove(atr);
+                }else {
+                    //Create Copy of A and add the current Attribute 'atr'
+                    List<FCAAttribute<O,A>> attrCopy = new ArrayList<>(A);
+                    attrCopy.add(atr);
+                    //Compute the Closure of this copy List
+                    List<FCAAttribute<O,A>> B = computeLinClosure(attrCopy,implList);
+                    //Remove A from B
+                    B.removeAll(A);
+                    //Go through each remaining Attribute in B and check if no element lectically smaller than
+                    //'atr' is contained
+                    //Create boolean variable
+                    boolean flag = true;
+                    for(FCAAttribute<O,A> a : B){
+                        if(indexedAttributes.getPair(indexedAttributes.getIndex(a)).getRight() < indexedAttributes.getPair(indexedAttributes.getIndex(atr)).getRight()){
+                            flag = false;
+                            break;
+                        }
+                    }
+                    //Now if the flag is still true:
+                    if(flag){
+                        //Add back the Elements from A to B and set A to B
+                        B.addAll(A);
+                        A = B;
+                        //Set max Attribute to current Attribute
+                        max = atr;
+                        //Exit for loop
+                        break;
+                    }
+                }
+                if(atr.equals(max))break;
+            }
+            //if A is not equal its closure add corresponding Implication
+            //Compute Closure of A
+            List<FCAAttribute<O,A>> closureA = getObjectPrime(getAttributePrime(A));
+            if(!A.equals(closureA)){
+                implList.add(new FCAImplication<>(A,closureA));
+            }
+
+            //Remove the closure of A from A itself
+            List<FCAAttribute<O,A>> closureWithoutA = new ArrayList<>(closureA);
+            closureA.removeAll(A);
+            //Go through each Attribute in closureWithoutA and
+            //if no Attribute smaller than 'max' is contained
+            //then set A to closureA and max to the largest Attribute
+            //in the IndexedList of Attributes
+            //Set boolean flag to true
+            boolean flag = true;
+            for(FCAAttribute<O,A> atr : closureWithoutA){
+                if(indexedAttributes.getPair(indexedAttributes.getIndex(atr)).getRight()>=indexedAttributes.getPair(indexedAttributes.getIndex(max)).getRight()){
+                    flag = false;
+                    break;
+                }
+            }
+            //If the flag is still true perform steps mentioned above:
+            if(flag){
+                A = getObjectPrime(getAttributePrime(A));
+                //set max to the largest Attribute in Indexed Attribute List
+                max = indexedAttributes.getMaxElement();
+            }else{
+                //Get List of all Attributes in A that are smaller than max
+                List<FCAAttribute<O,A>> smaller = new ArrayList<>();
+                for(FCAAttribute<O,A> atr : A){
+                    if(indexedAttributes.getPair(indexedAttributes.getIndex(atr)).getRight()<=indexedAttributes.getPair(indexedAttributes.getIndex(max)).getRight()){
+                        smaller.add(atr);
+                    }
+                }
+                //Set A to 'smaller'
+                A = smaller;
+            }
+        }
+
+        return implList;
     }
 
 

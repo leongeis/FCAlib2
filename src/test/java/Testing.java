@@ -1,7 +1,11 @@
-import fca.FCAAttribute;
 import fca.FCAFormalContext;
+import fca.FCAImplication;
 import fca.FCAObject;
 import utils.FCAOutputWriter;
+import utils.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /*For further information on RDF4J connections:
@@ -51,19 +55,14 @@ public class Testing {
         FCAObject<String,String> ob2 = new FCAObject<>("Q2");
         FCAObject<String,String> ob3 = new FCAObject<>("Q3");
 
-        FCAAttribute<String,String> atr1 = new FCAAttribute<>("a");
-        atr1.addObject("Q1");
-        atr1.addObject("Q2");
-
-        ob1.addAttribute("a");
         ob1.addAttribute("b");
+        ob1.addAttribute("d");
 
 
-        ob2.addAttribute("c");
+        ob2.addAttribute("e");
         ob2.addAttribute("b");
 
-        ob3.addAttribute("d");
-        ob3.addAttribute("b");
+        ob3.addAttribute("c");
 
         //Add them to the Context;
         //Note: If an Attribute of an Object is not present in the
@@ -78,7 +77,17 @@ public class Testing {
         ob4.addAttribute("c");
         ob4.addAttribute("b");
         testContext.addFCAObject(ob4);
+        FCAObject<String,String> ob5 = new FCAObject<>("Q5");
+        ob5.addAttribute("d");
+        FCAObject<String,String> ob6 = new FCAObject<>("Q6");
+        ob6.addAttribute("b");
+        ob6.addAttribute("c");
+        FCAObject<String,String> ob7 = new FCAObject<>("Q7");
+        ob7.addAttribute("e");
 
+        testContext.addFCAObject(ob5);
+        testContext.addFCAObject(ob6);
+        testContext.addFCAObject(ob7);
         //Print all Concepts of the Context; Due to naive implementation takes a while...
         /*List<FCAConcept<String,String>> c = context.computeAllConcepts();
         for(FCAConcept<String,String> s : c){
@@ -94,6 +103,16 @@ public class Testing {
 
         o.printConceptsToConsole(testContext);
         o.writeConceptsToFile(testContext,"test_concepts.txt");
+
+        for(FCAImplication<String,String> im : testContext.computeStemBase()){
+            System.out.println(new ArrayList<>(im.getPremise())+" "+new ArrayList<>(im.getConclusion()));
+        }
+
+        Pair<Integer,List<Integer>> pair = new Pair<>(0,new ArrayList<>());
+        System.out.println(pair.getRight());
+        pair.getRight().add(3);
+        System.out.println(pair.getRight());
+
 
     }
 }

@@ -148,6 +148,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
      */
     @Override
     public void printConceptsToConsole(FCAFormalContext<O, A> c) {
+        System.out.println("Concepts (A,B) with A⊆G and B⊆M. G is the set of all Objects and M the set of all Attributes.");
         List<FCAConcept<O,A>> concepts = c.computeAllConcepts(c.computeAllClosures());
         for(FCAConcept<O,A> concept : concepts){
             concept.printConcept();

@@ -1,6 +1,7 @@
 package utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -138,6 +139,30 @@ public class IndexedList<O> {
                 this.indexedList.add(p);
             }
         }
+    }
+
+    /**
+     * Checks if the current and the given List are equal.
+     * Here ONLY the Left side of each Pair are considered.
+     * Hence, not making use of the indices!
+     * @param list IndexedList to be checked
+     * @return <code>true</code> if they are the same size and
+     * contain the same elements, <code>false</code> otherwise.
+     */
+    public boolean equals(IndexedList<O> list){
+        return list.getObjects().equals(this.indexedList);
+    }
+
+
+    public O getMaxElement(){
+        //Get List of all Indices
+        List<Integer> indexList = new ArrayList<>();
+        for(Pair<O,Integer> p : this.indexedList){
+            indexList.add(p.getRight());
+        }
+        //Return Element with the highest Index
+        return getPair(Collections.max(indexList)).getLeft();
+
     }
 
 }

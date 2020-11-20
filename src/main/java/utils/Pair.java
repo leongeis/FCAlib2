@@ -41,4 +41,19 @@ public class Pair<L,R> {
         return this.right;
     }
 
+    /**
+     * Set the left side of the Pair.
+     * @param left new left side.
+     */
+    public void setLeft(L left) {
+        this.left = left;
+    }
+
+    /**
+     * Set the right side of the Pair.
+     * @param right new right side.
+     */
+    public void setRight(R right) {
+        this.right = right;
+    }
 }

@@ -1,6 +1,9 @@
 The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute
-   a b c d 
-Q1 X X - - 
-Q2 - X X - 
-Q3 - X - X 
-Q4 X X X - 
+   b d e c a 
+Q1 X X - - - 
+Q2 X - X - - 
+Q3 - - - X - 
+Q4 X - - X X 
+Q5 - X - - - 
+Q6 X - - X - 
+Q7 - - X - - 
