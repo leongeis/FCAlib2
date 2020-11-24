@@ -473,7 +473,7 @@ public class FCAFormalContext<O,A> {
     //NOT WORKING (20.10.20)
     public List<FCAAttribute<O,A>> computeLinClosure(List<FCAAttribute<O,A>> attributes, List<FCAImplication<O,A>> implications){
 
-        //Create Create List of Pairs. Here, the Pair consists on the left side of
+        //Create List of Pairs. Here, the Pair consists on the left side of
         //a single FCAAttribute, and on the right side a List of Implications.
         //Note: The left side is always the Attribute itself
         //      and the right side are Implications which contain this Attribute
@@ -490,7 +490,6 @@ public class FCAFormalContext<O,A> {
             count.add(new Pair<>(implication,implication.getPremise().size()));
             //Check if left side of the implication is empty
             if(implication.getPremise().isEmpty()){
-
                 //Add the conclusion to the set of attributes provided via parameter
                 attributes.addAll(implication.getConclusion());
 
@@ -515,10 +514,12 @@ public class FCAFormalContext<O,A> {
                         }
                     }
                 }
-                //If not, add the variable 'attribute' with an empty List of Implications
-                //to the attrList.
+                //If not, add the variable 'attribute' with a Singleton List containing
+                //the current Implication
                 else{
-                    attrList.add(new Pair<>(attribute,new ArrayList<>()));
+                    List<FCAImplication<O,A>> implList = new ArrayList<>();
+                    implList.add(implication);
+                    attrList.add(new Pair<>(attribute,implList));
                 }
             }
         }
@@ -532,7 +533,7 @@ public class FCAFormalContext<O,A> {
             Iterator<FCAAttribute<O,A>> iterator = updated.iterator();
             FCAAttribute<O,A> m = iterator.next();
             updated.remove(m);
-            //Get the List of Implications that contain m
+            //Get the List of Implications that contain m in their premise
             List<FCAImplication<O,A>> implicationsOfm = new ArrayList<>();
             for(Pair<FCAAttribute<O,A>,List<FCAImplication<O,A>>> p : attrList){
                 if(p.getLeft().equals(m)){
@@ -558,6 +559,7 @@ public class FCAFormalContext<O,A> {
                             //and the 'updated' List
                             attributes.addAll(conclusionCopy);
                             updated.addAll(conclusionCopy);
+                            //TODO Check for redundant elements
                         }
                     }
                 }
@@ -576,24 +578,24 @@ public class FCAFormalContext<O,A> {
         //Create empty List for the Implications
         List<FCAImplication<O,A>> implList = new ArrayList<>();
         //If A is not empty add first Implication to Implication List
-        //System.out.println(A.getObjects().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList()));
         if(!A.isEmpty()){
             implList.add(new FCAImplication<>(new ArrayList<>(),A));
         }
         //Get the Attribute with the highest Index in the Attribute List
         FCAAttribute<O,A> max = indexedAttributes.getMaxElement();
-
         while (!A.equals(indexedAttributes.getObjects())){
             //Get all attributes smaller than 'max' and traverse them in reverse order
             List<FCAAttribute<O,A>> smallerAttributes = new ArrayList<>();
-            for(Pair<FCAAttribute<O,A>,Integer> indexpair : indexedAttributes.getIndexedList()){
-                if(indexpair.getRight()<indexedAttributes.getPair(indexedAttributes.getIndex(max)).getRight()){
-                    smallerAttributes.add(indexpair.getLeft());
+            for(Pair<FCAAttribute<O,A>,Integer> indexed : indexedAttributes.getIndexedList()){
+                if(indexed.getRight()<=indexedAttributes.getIndex(max)){
+                    smallerAttributes.add(indexed.getLeft());
                 }
             }
             //Reverse the order
-            Collections.reverse(smallerAttributes);
-            for(FCAAttribute<O,A> atr : smallerAttributes){
+            //Collections.reverse(smallerAttributes);
+            ListIterator<FCAAttribute<O,A>> iterator = smallerAttributes.listIterator(smallerAttributes.size());
+            while(iterator.hasPrevious()){
+                FCAAttribute<O,A> atr = iterator.previous();
                 if(A.contains(atr)){
                     A.remove(atr);
                 }else {
@@ -608,8 +610,8 @@ public class FCAFormalContext<O,A> {
                     //'atr' is contained
                     //Create boolean variable
                     boolean flag = true;
-                    for(FCAAttribute<O,A> a : B){
-                        if(indexedAttributes.getPair(indexedAttributes.getIndex(a)).getRight() < indexedAttributes.getPair(indexedAttributes.getIndex(atr)).getRight()){
+                    for(FCAAttribute<O,A> atrInB : B){
+                        if(indexedAttributes.getIndex(atrInB) < indexedAttributes.getIndex(atr)){
                             flag = false;
                             break;
                         }
@@ -625,18 +627,17 @@ public class FCAFormalContext<O,A> {
                         break;
                     }
                 }
-                if(atr.equals(max))break;
             }
             //if A is not equal its closure add corresponding Implication
             //Compute Closure of A
             List<FCAAttribute<O,A>> closureA = getObjectPrime(getAttributePrime(A));
-            if(!A.equals(closureA)){
+            if(!A.containsAll(closureA) && A.size()!=closureA.size()){
                 implList.add(new FCAImplication<>(A,closureA));
             }
 
             //Remove the closure of A from A itself
             List<FCAAttribute<O,A>> closureWithoutA = new ArrayList<>(closureA);
-            closureA.removeAll(A);
+            closureWithoutA.removeAll(A);
             //Go through each Attribute in closureWithoutA and
             //if no Attribute smaller than 'max' is contained
             //then set A to closureA and max to the largest Attribute
@@ -644,21 +645,21 @@ public class FCAFormalContext<O,A> {
             //Set boolean flag to true
             boolean flag = true;
             for(FCAAttribute<O,A> atr : closureWithoutA){
-                if(indexedAttributes.getPair(indexedAttributes.getIndex(atr)).getRight()>=indexedAttributes.getPair(indexedAttributes.getIndex(max)).getRight()){
+                if(indexedAttributes.getIndex(atr)<indexedAttributes.getIndex(max)){
                     flag = false;
                     break;
                 }
             }
             //If the flag is still true perform steps mentioned above:
             if(flag){
-                A = getObjectPrime(getAttributePrime(A));
+                A = new ArrayList<>(closureA);
                 //set max to the largest Attribute in Indexed Attribute List
                 max = indexedAttributes.getMaxElement();
             }else{
-                //Get List of all Attributes in A that are smaller than max
+                //Get List of all Attributes in A that are smaller equal than max
                 List<FCAAttribute<O,A>> smaller = new ArrayList<>();
                 for(FCAAttribute<O,A> atr : A){
-                    if(indexedAttributes.getPair(indexedAttributes.getIndex(atr)).getRight()<=indexedAttributes.getPair(indexedAttributes.getIndex(max)).getRight()){
+                    if(indexedAttributes.getIndex(atr)<=indexedAttributes.getIndex(max)){
                         smaller.add(atr);
                     }
                 }

@@ -1,11 +1,11 @@
+import fca.FCAAttribute;
 import fca.FCAFormalContext;
 import fca.FCAImplication;
 import fca.FCAObject;
 import utils.FCAOutputWriter;
-import utils.Pair;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
 
 
 /*For further information on RDF4J connections:
@@ -63,6 +63,7 @@ public class Testing {
         ob2.addAttribute("b");
 
         ob3.addAttribute("c");
+        //ob3.addAttribute("b");
 
         //Add them to the Context;
         //Note: If an Attribute of an Object is not present in the
@@ -79,11 +80,13 @@ public class Testing {
         testContext.addFCAObject(ob4);
         FCAObject<String,String> ob5 = new FCAObject<>("Q5");
         ob5.addAttribute("d");
+        //ob5.addAttribute("b");
         FCAObject<String,String> ob6 = new FCAObject<>("Q6");
         ob6.addAttribute("b");
         ob6.addAttribute("c");
         FCAObject<String,String> ob7 = new FCAObject<>("Q7");
         ob7.addAttribute("e");
+        //ob7.addAttribute("b");
 
         testContext.addFCAObject(ob5);
         testContext.addFCAObject(ob6);
@@ -105,13 +108,11 @@ public class Testing {
         o.writeConceptsToFile(testContext,"test_concepts.txt");
 
         for(FCAImplication<String,String> im : testContext.computeStemBase()){
-            System.out.println(new ArrayList<>(im.getPremise())+" "+new ArrayList<>(im.getConclusion()));
+            System.out.println("Implications");
+            System.out.println(new ArrayList<>(im.getPremise().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList()))+" "+new ArrayList<>(im.getConclusion().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList())));
         }
 
-        Pair<Integer,List<Integer>> pair = new Pair<>(0,new ArrayList<>());
-        System.out.println(pair.getRight());
-        pair.getRight().add(3);
-        System.out.println(pair.getRight());
+
 
 
     }
