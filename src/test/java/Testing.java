@@ -1,11 +1,7 @@
-import fca.FCAAttribute;
 import fca.FCAFormalContext;
-import fca.FCAImplication;
 import fca.FCAObject;
+import utils.ContextHelper;
 import utils.FCAOutputWriter;
-
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 
 /*For further information on RDF4J connections:
@@ -30,7 +26,7 @@ public class Testing {
         //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
 
-        //FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
+        FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
 
         //Here both Objects Attributes are of type Integer
         FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>();
@@ -101,17 +97,19 @@ public class Testing {
 
 
         //Print Context and all Concepts of TestContext
-        o.printCrosstableToConsole(testContext);
+        /*o.printCrosstableToConsole(testContext);
         o.writeCrosstableToFile(testContext,"test_context.txt");
 
         o.printConceptsToConsole(testContext);
         o.writeConceptsToFile(testContext,"test_concepts.txt");
 
-        for(FCAImplication<String,String> im : testContext.computeStemBase()){
-            System.out.println("Implications");
-            System.out.println(new ArrayList<>(im.getPremise().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList()))+" "+new ArrayList<>(im.getConclusion().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList())));
-        }
+        o.printStemBaseToConsole(testContext);
+        o.writeStemBaseToFile(testContext,"test_stembase.txt");
+         */
 
+        o.printCrosstableToConsole(context);
+        o.printConceptsToConsole(context);
+        o.printStemBaseToConsole(context);
 
 
 

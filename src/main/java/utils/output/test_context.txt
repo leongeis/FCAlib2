@@ -1,3 +1,4 @@
+Crosstable of the context with ID: 4
 The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute
    b d e c a 
 Q1 X X - - - 

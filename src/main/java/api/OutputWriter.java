@@ -35,4 +35,17 @@ public interface OutputWriter<T> {
      */
     void writeConceptsToFile(T t, String name);
 
+    /**
+     * Displays all Implications of the Stem Base of the Context
+     * on the console.
+     * @param t The Context from which the Stem Base will be computed
+     */
+    void printStemBaseToConsole(T t);
+    /**
+     * Writes all Implications of the Stem Base of the given Context to the specific file.
+     * @param t The Context from the Stem Base will be computed.
+     * @param name The Name of the File ("example.txt")
+     */
+    void writeStemBaseToFile(T t, String name);
+
 }

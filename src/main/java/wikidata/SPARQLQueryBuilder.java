@@ -28,7 +28,7 @@ public class SPARQLQueryBuilder {
     /**
      * The Limit specifies the amount of queried individuals.
      */
-    private static int LIMIT=100;
+    private static int LIMIT=1000;
 
     /**
      * Specifying the amount of properties.

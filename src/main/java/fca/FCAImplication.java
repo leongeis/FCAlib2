@@ -9,6 +9,7 @@ package fca;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Describes an Implication of Attributes in
@@ -46,10 +47,16 @@ public class FCAImplication<O,A> {
         this.conclusion = new ArrayList<>(newCon);
     }
 
+    /**
+     * @return List of Attributes of the Premise
+     */
     public List<FCAAttribute<O, A>> getPremise() {
         return premise;
     }
 
+    /**
+     * @return List of Attributes of the Conclusion
+     */
     public List<FCAAttribute<O, A>> getConclusion() {
         return conclusion;
     }
@@ -58,7 +65,7 @@ public class FCAImplication<O,A> {
      * @return A String representation of the current Implication.
      */
     public String toString(){
-        return this.premise+"->"+this.conclusion;
+        return this.premise.stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList())+"->"+this.conclusion.stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList());
     }
 
 }

@@ -60,6 +60,13 @@ public class FCAFormalContext<O,A> {
     }
 
     /**
+     * @return context ID of the context.
+     */
+    public int getContextID() {
+        return contextID;
+    }
+
+    /**
      * Creates an Object and adds it to the Context.
      * @param o ID of new Object
      */
@@ -91,6 +98,7 @@ public class FCAFormalContext<O,A> {
         //Check if Parameter a is contained.
         return ids.contains(a);
     }
+
     /**
      * Checks if a given Object ID is contained in the Context.
      * @param o Object ID
@@ -167,7 +175,6 @@ public class FCAFormalContext<O,A> {
             }
         }
     }
-
 
     /**
      * Get all Objects of the context.
@@ -463,14 +470,13 @@ public class FCAFormalContext<O,A> {
         return null;
     }
 
-    public void nextIntent(){
-
-    }
-
-    public void nextExtent(){
-
-    }
-    //NOT WORKING (20.10.20)
+    /**
+     * Computes the Closure of a List of Attribute w.r.t a List of
+     * Implications in linear time. The provided List of Attributes will be modified!
+     * @param attributes List of Attributes
+     * @param implications List of Implications
+     * @return Closure of the List of Attributes
+     */
     public List<FCAAttribute<O,A>> computeLinClosure(List<FCAAttribute<O,A>> attributes, List<FCAImplication<O,A>> implications){
 
         //Create List of Pairs. Here, the Pair consists on the left side of
@@ -569,7 +575,10 @@ public class FCAFormalContext<O,A> {
         return attributes;
     }
 
-    //NOT WORKING (20.10.20)
+    /**
+     * Computes the Stem Base of the current Context.
+     * @return List of all Implications of the Stem Base
+     */
     public List<FCAImplication<O,A>> computeStemBase(){
         //Create IndexedList of the Attributes of the Context
         IndexedList<FCAAttribute<O,A>> indexedAttributes = new IndexedList<>(this.contextAttributes);
@@ -671,5 +680,12 @@ public class FCAFormalContext<O,A> {
         return implList;
     }
 
+    public void nextIntent(){
+
+    }
+
+    public void nextExtent(){
+
+    }
 
 }
