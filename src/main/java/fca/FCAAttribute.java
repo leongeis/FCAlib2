@@ -7,6 +7,8 @@ package fca;
  * @version 0.1
  */
 
+import api.Attribute;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +17,7 @@ import java.util.List;
  * corresponding Objects.
  * @author Leon Geis
  */
-public class FCAAttribute<O,A> {
+public class FCAAttribute<O,A> implements Attribute<O,A> {
 
     /**
      * ID of the Attribute.
@@ -69,4 +71,10 @@ public class FCAAttribute<O,A> {
     public void addObject(O object){
         this.objects.add(object);
     }
+
+    @Override
+    public List<O> getDualEntities() {
+        return this.objects;
+    }
+
 }

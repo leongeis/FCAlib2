@@ -1,4 +1,4 @@
 package api;
 
-public interface Attribute {
+public interface Attribute<O,A> extends ClosureOperator<O> {
 }

@@ -6,4 +6,7 @@ package api;
  */
 
 public interface Context {
+
+    <T extends ClosureOperator<?>> T getEntity();
+
 }

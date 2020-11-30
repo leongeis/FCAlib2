@@ -1,7 +1,11 @@
+import fca.FCAAttribute;
 import fca.FCAFormalContext;
 import fca.FCAObject;
-import utils.ContextHelper;
 import utils.FCAOutputWriter;
+import utils.exceptions.MustImplementInterfaceException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /*For further information on RDF4J connections:
@@ -15,7 +19,7 @@ import utils.FCAOutputWriter;
 
 public class Testing {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchMethodException, MustImplementInterfaceException {
 
         //Create a FCAFormalContext Object and initialize it with Data from Wikidata
         //first parameter: a SPARQLQueryBuilder Object is used for generating a query
@@ -26,7 +30,7 @@ public class Testing {
         //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
 
-        FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
+        //FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
 
         //Here both Objects Attributes are of type Integer
         FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>();
@@ -97,7 +101,7 @@ public class Testing {
 
 
         //Print Context and all Concepts of TestContext
-        /*o.printCrosstableToConsole(testContext);
+        o.printCrosstableToConsole(testContext);
         o.writeCrosstableToFile(testContext,"test_context.txt");
 
         o.printConceptsToConsole(testContext);
@@ -105,13 +109,19 @@ public class Testing {
 
         o.printStemBaseToConsole(testContext);
         o.writeStemBaseToFile(testContext,"test_stembase.txt");
+
+
+        //o.printCrosstableToConsole(context);
+        //o.printConceptsToConsole(context);
+        //o.printStemBaseToConsole(context);
+        List<FCAObject<String,String>> objects = new ArrayList<>();
+        /*for(ClosureOperator e: testContext.computePrime(objects)){
+            System.out.println(e.getID());
+        }
+
          */
-
-        o.printCrosstableToConsole(context);
-        o.printConceptsToConsole(context);
-        o.printStemBaseToConsole(context);
-
-
+        List<FCAAttribute<String,String>> s = new ArrayList<>();
+        testContext.computePrime(testContext.getContextObjects(), FCAObject.class);
 
     }
 }

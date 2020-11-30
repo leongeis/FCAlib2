@@ -7,8 +7,13 @@ package fca;
  * @version 0.1
  */
 
+import api.Attribute;
+import api.ClosureOperator;
+import api.Context;
+import api.Object;
 import utils.IndexedList;
 import utils.Pair;
+import utils.exceptions.MustImplementInterfaceException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +28,7 @@ import java.util.stream.Collectors;
  * @author Leon Geis
  */
 
-public class FCAFormalContext<O,A> {
+public class FCAFormalContext<O,A> implements Context {
 
     /**
      * ID of the Context.
@@ -158,7 +163,7 @@ public class FCAFormalContext<O,A> {
         //if Object is already present in the Object List;
         //if not add the Object with the new Attribute to the Context.
         for(O obj : a.getObjects()){
-            if(!this.containsObject(obj)){
+            if(!this.containsObject((obj))){
                 FCAObject<O,A> newObject = new FCAObject<>(obj);
                 newObject.addAttribute(a.getAttributeID());
                 this.contextObjects.add(newObject);
@@ -216,6 +221,70 @@ public class FCAFormalContext<O,A> {
             if(obj.getObjectID().equals(o))return obj;
         }
         return null;
+    }
+
+
+    @Override
+    public <T extends ClosureOperator<?>> T getEntity() {
+        return null;
+    }
+
+
+    public List<? extends ClosureOperator<?>> computePrime(List<? extends ClosureOperator<?>> entities, Class<?> clazz) throws MustImplementInterfaceException{
+
+        //If the List is empty return either all Attributes (M) or all Objects (G)
+        if(entities.isEmpty()){
+            //Check type of entities List
+            //if Objects in List implement Attribute Interface:
+            if(Attribute.class.isAssignableFrom(clazz)){
+                return new ArrayList<>(this.contextAttributes);
+            }
+            //if Objects in List implement Object Interface:
+            if(Object.class.isAssignableFrom(clazz)){
+                return new ArrayList<>(this.contextObjects);
+            }else {
+                //If Objects do not implement Object or Attribute Interface,
+                //Throw Error:
+                throw new MustImplementInterfaceException("Objects in List do not implement interface Attribute or Object.");
+            }
+        }
+        //Create HashSet, which contains all dual Entities
+        HashSet<?> set = new HashSet<>();
+        for(ClosureOperator<?> c : entities){
+            List<?> copy = new ArrayList<>(c.getDualEntities());
+            if(Attribute.class.isAssignableFrom(clazz)){
+                for(java.lang.Object o : copy){
+
+                }
+            }
+        }
+        /*
+        //Else:
+        //First get all Lists of Attributes of the Objects; List of Lists
+        List<List<A>> allAttributes = new ArrayList<>();
+        //Iterate over each Object and add the Attributes of this Object to the List
+        for(FCAObject<O,A> obj : o){
+            allAttributes.add(obj.getAttributes());
+        }
+        if(allAttributes.size()>0) {
+            //Create Intersection of Lists of Attributes to be returned and
+            //add first element (List) of allAttributes to create a starting point
+            List<A> intersection = new ArrayList<>(allAttributes.get(0));
+            for(ListIterator<List<A>> iterator = allAttributes.listIterator(0); iterator.hasNext();){
+                intersection.retainAll(iterator.next());
+            }
+            //Add corresponding Attribute Objects to be returned to new List
+            List<FCAAttribute<O,A>> returnList = new ArrayList<>();
+            for (A a : intersection) {
+                returnList.add(getAttribute(a));
+            }
+            return returnList;
+        }
+        */
+        //If no matching Element is found return new empty List
+        return new ArrayList<>();
+
+
     }
 
     /**
@@ -396,9 +465,9 @@ public class FCAFormalContext<O,A> {
     }
 
     /**
-     * Computes the first Closure, i.e., ∅''.
+     * Computes the first ClosureOperator, i.e., ∅''.
      * @param index Indexed Attribute List
-     * @return First Closure as IndexedList
+     * @return First ClosureOperator as IndexedList
      */
     private IndexedList<FCAAttribute<O,A>> firstClosure(IndexedList<FCAAttribute<O,A>> index){
         //Create a new IndexedList
@@ -413,10 +482,10 @@ public class FCAFormalContext<O,A> {
     }
 
     /**
-     * Computes the lectically next Closure of the given first parameter.
-     * @param next The List from which the next Closure should be computed.
+     * Computes the lectically next ClosureOperator of the given first parameter.
+     * @param next The List from which the next ClosureOperator should be computed.
      * @param indexed The Indexed Attribute List of the Context.
-     * @return IndexedList of the Next Closure.
+     * @return IndexedList of the Next ClosureOperator.
      */
     public IndexedList<FCAAttribute<O,A>> nextClosure(IndexedList<FCAAttribute<O,A>> next, IndexedList<FCAAttribute<O,A>> indexed){
         //Go through List of all Attributes in reverse Order
@@ -471,11 +540,11 @@ public class FCAFormalContext<O,A> {
     }
 
     /**
-     * Computes the Closure of a List of Attribute w.r.t a List of
+     * Computes the ClosureOperator of a List of Attribute w.r.t a List of
      * Implications in linear time. The provided List of Attributes will be modified!
      * @param attributes List of Attributes
      * @param implications List of Implications
-     * @return Closure of the List of Attributes
+     * @return ClosureOperator of the List of Attributes
      */
     public List<FCAAttribute<O,A>> computeLinClosure(List<FCAAttribute<O,A>> attributes, List<FCAImplication<O,A>> implications){
 
@@ -611,7 +680,7 @@ public class FCAFormalContext<O,A> {
                     //Create Copy of A and add the current Attribute 'atr'
                     List<FCAAttribute<O,A>> attrCopy = new ArrayList<>(A);
                     attrCopy.add(atr);
-                    //Compute the Closure of this copy List
+                    //Compute the ClosureOperator of this copy List
                     List<FCAAttribute<O,A>> B = computeLinClosure(attrCopy,implList);
                     //Remove A from B
                     B.removeAll(A);
@@ -638,7 +707,7 @@ public class FCAFormalContext<O,A> {
                 }
             }
             //if A is not equal its closure add corresponding Implication
-            //Compute Closure of A
+            //Compute ClosureOperator of A
             List<FCAAttribute<O,A>> closureA = getObjectPrime(getAttributePrime(A));
             if(!A.containsAll(closureA) && A.size()!=closureA.size()){
                 implList.add(new FCAImplication<>(A,closureA));
@@ -687,5 +756,6 @@ public class FCAFormalContext<O,A> {
     public void nextExtent(){
 
     }
+
 
 }
