@@ -58,7 +58,8 @@ public class FCAObject<O,A> implements Object<O,A> {
      * Get all FCAAttributes, that this object has.
      * @return List of FCAAttributes.
      */
-    public List<A> getAttributes() {
+    @Override
+    public List<A> getDualEntities() {
         return attributes;
     }
 
@@ -70,9 +71,5 @@ public class FCAObject<O,A> implements Object<O,A> {
         this.attributes.add(attribute);
     }
 
-    @Override
-    public List<A> getDualEntities() {
-        return this.attributes;
-    }
 
 }

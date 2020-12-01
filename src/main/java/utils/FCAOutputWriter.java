@@ -59,7 +59,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
             //Go through each Attribute and check if Object has Attribute
             //If it does Print X else -
             for(fca.FCAAttribute<O,A> a : c.getContextAttributes()){
-                if(o.getAttributes().contains(a.getAttributeID())){
+                if(o.getDualEntities().contains(a.getAttributeID())){
                     System.out.print("X ");
                 }else {
                     System.out.print("- ");
@@ -115,7 +115,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
                 //Go through each Attribute and check if Object has Attribute
                 //If it does Print X else -
                 for(FCAAttribute<O,A> a : c.getContextAttributes()){
-                    if(o.getAttributes().contains(a.getAttributeID())){
+                    if(o.getDualEntities().contains(a.getAttributeID())){
                         fileWriter.write("X ");
                     }else {
                         fileWriter.write("- ");

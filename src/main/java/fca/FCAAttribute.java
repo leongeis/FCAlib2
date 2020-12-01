@@ -60,7 +60,8 @@ public class FCAAttribute<O,A> implements Attribute<O,A> {
      * Get all Objects, which have this attribute.
      * @return List of Objects.
      */
-    public List<O> getObjects() {
+    @Override
+    public List<O> getDualEntities() {
         return objects;
     }
 
@@ -70,11 +71,6 @@ public class FCAAttribute<O,A> implements Attribute<O,A> {
      */
     public void addObject(O object){
         this.objects.add(object);
-    }
-
-    @Override
-    public List<O> getDualEntities() {
-        return this.objects;
     }
 
 }

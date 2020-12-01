@@ -8,12 +8,10 @@ package fca;
  */
 
 import api.Attribute;
-import api.ClosureOperator;
 import api.Context;
 import api.Object;
 import utils.IndexedList;
 import utils.Pair;
-import utils.exceptions.MustImplementInterfaceException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +26,7 @@ import java.util.stream.Collectors;
  * @author Leon Geis
  */
 
-public class FCAFormalContext<O,A> implements Context {
+public class FCAFormalContext<O,A> implements Context<O,A> {
 
     /**
      * ID of the Context.
@@ -132,7 +130,7 @@ public class FCAFormalContext<O,A> implements Context {
         //For each Attribute of the new Object, check
         //if Attribute is already present in the Attribute List;
         //if not add the Attribute with the new Object to the Context.
-        for(A attr : o.getAttributes()){
+        for(A attr : o.getDualEntities()){
             if(!this.containsAttribute(attr)){
                 FCAAttribute<O,A> newAttribute = new FCAAttribute<>(attr);
                 newAttribute.addObject(o.getObjectID());
@@ -143,7 +141,7 @@ public class FCAFormalContext<O,A> implements Context {
                     //If an Object has this Attribute add it to the Object
                     //List of the Attribute. Care for the case that the Object List
                     //of the Attribute already contains the Object.
-                    if(object.getAttributes().contains(attr) && !getAttribute(attr).getObjects().contains(object.getObjectID())){
+                    if(object.getDualEntities().contains(attr) && !getAttribute(attr).getDualEntities().contains(object.getObjectID())){
                         getAttribute(attr).addObject(object.getObjectID());
                     }
                 }
@@ -162,7 +160,7 @@ public class FCAFormalContext<O,A> implements Context {
         //For each Object of the new Attribute, check
         //if Object is already present in the Object List;
         //if not add the Object with the new Attribute to the Context.
-        for(O obj : a.getObjects()){
+        for(O obj : a.getDualEntities()){
             if(!this.containsObject((obj))){
                 FCAObject<O,A> newObject = new FCAObject<>(obj);
                 newObject.addAttribute(a.getAttributeID());
@@ -173,7 +171,7 @@ public class FCAFormalContext<O,A> implements Context {
                     //If an Attribute has this Object add it to the Attribute
                     //List of the Object. Care for the case that the Attribute List
                     //of the Object already contains the Attribute.
-                    if(atr.getObjects().contains(obj) && !getObject(obj).getAttributes().contains(atr.getAttributeID())){
+                    if(atr.getDualEntities().contains(obj) && !getObject(obj).getDualEntities().contains(atr.getAttributeID())){
                         getObject(obj).addAttribute(atr.getAttributeID());
                     }
                 }
@@ -223,68 +221,45 @@ public class FCAFormalContext<O,A> implements Context {
         return null;
     }
 
-
-    @Override
-    public <T extends ClosureOperator<?>> T getEntity() {
-        return null;
+    /**
+     * Returns all Attribute Objects, which correspond to the
+     * List of IDs.
+     * @param IDs List of IDs
+     * @param aInt Object that matches the returned Attributes.
+     * @return List of Attribute Objects
+     */
+    public List<Attribute<O,A>> getEntities(List<A> IDs, Attribute<O,A> aInt){
+        if(IDs.isEmpty()){
+            //It it is, return empty ArrayList
+            return new ArrayList<>();
+        }else{
+            //Create HashSet to be returned
+            HashSet<Attribute<O,A>> entities = new HashSet<>();
+            for(A a : IDs){
+                entities.add(getAttribute(a));
+            }
+            return new ArrayList<>(entities);
+        }
     }
-
-
-    public List<? extends ClosureOperator<?>> computePrime(List<? extends ClosureOperator<?>> entities, Class<?> clazz) throws MustImplementInterfaceException{
-
-        //If the List is empty return either all Attributes (M) or all Objects (G)
-        if(entities.isEmpty()){
-            //Check type of entities List
-            //if Objects in List implement Attribute Interface:
-            if(Attribute.class.isAssignableFrom(clazz)){
-                return new ArrayList<>(this.contextAttributes);
+    /**
+     * Returns all Objects, which correspond to the
+     * List of IDs.
+     * @param IDs List of IDs
+     * @param oInt Object that matches the returned Objects.
+     * @return List of Objects
+     */
+    public List<Object<O,A>> getEntities(List<O> IDs, Object<O,A> oInt){
+        if(IDs.isEmpty()){
+            //It it is, return empty ArrayList
+            return new ArrayList<>();
+        }else{
+            //Create HashSet to be returned
+            HashSet<Object<O,A>> entities = new HashSet<>();
+            for(O o : IDs){
+                entities.add(getObject(o));
             }
-            //if Objects in List implement Object Interface:
-            if(Object.class.isAssignableFrom(clazz)){
-                return new ArrayList<>(this.contextObjects);
-            }else {
-                //If Objects do not implement Object or Attribute Interface,
-                //Throw Error:
-                throw new MustImplementInterfaceException("Objects in List do not implement interface Attribute or Object.");
-            }
+            return new ArrayList<>(entities);
         }
-        //Create HashSet, which contains all dual Entities
-        HashSet<?> set = new HashSet<>();
-        for(ClosureOperator<?> c : entities){
-            List<?> copy = new ArrayList<>(c.getDualEntities());
-            if(Attribute.class.isAssignableFrom(clazz)){
-                for(java.lang.Object o : copy){
-
-                }
-            }
-        }
-        /*
-        //Else:
-        //First get all Lists of Attributes of the Objects; List of Lists
-        List<List<A>> allAttributes = new ArrayList<>();
-        //Iterate over each Object and add the Attributes of this Object to the List
-        for(FCAObject<O,A> obj : o){
-            allAttributes.add(obj.getAttributes());
-        }
-        if(allAttributes.size()>0) {
-            //Create Intersection of Lists of Attributes to be returned and
-            //add first element (List) of allAttributes to create a starting point
-            List<A> intersection = new ArrayList<>(allAttributes.get(0));
-            for(ListIterator<List<A>> iterator = allAttributes.listIterator(0); iterator.hasNext();){
-                intersection.retainAll(iterator.next());
-            }
-            //Add corresponding Attribute Objects to be returned to new List
-            List<FCAAttribute<O,A>> returnList = new ArrayList<>();
-            for (A a : intersection) {
-                returnList.add(getAttribute(a));
-            }
-            return returnList;
-        }
-        */
-        //If no matching Element is found return new empty List
-        return new ArrayList<>();
-
-
     }
 
     /**
@@ -302,7 +277,7 @@ public class FCAFormalContext<O,A> implements Context {
 
         //Add Concept (G,G') to the List
         first.setExtent(new ArrayList<>(this.contextObjects));
-        first.setIntent(getObjectPrime(this.contextObjects));
+        first.setIntent(computePrime(this.contextObjects,null));
         concepts.add(first);
 
         //Iterate over each Attribute
@@ -311,7 +286,7 @@ public class FCAFormalContext<O,A> implements Context {
             //Use getAttributePrime Method; Hence the Parameter
             //Collections.singletonList.
             //Equivalently, one can use here a.getObjects();
-            List<FCAObject<O,A>> prime = getAttributePrime(Collections.singletonList(a));
+            List<FCAObject<O,A>> prime = computePrime(Collections.singletonList(a),null);
 
             //Calculate the Intersection of the prime and each set of Objects in the list
             //--> A ∩ m'
@@ -332,7 +307,7 @@ public class FCAFormalContext<O,A> implements Context {
                     if(concept.getExtent().isEmpty()){
                         concept.setIntent(this.getContextAttributes());
                     }else{
-                        concept.setIntent(getObjectPrime(intersection));
+                        concept.setIntent(computePrime(intersection,null));
                     }
                     //Add Concept to Temporary List
                     temp.add(concept);
@@ -364,7 +339,7 @@ public class FCAFormalContext<O,A> implements Context {
         for(List<FCAAttribute<O,A>> list : closures){
             FCAConcept<O,A> concept = new FCAConcept<>();
             concept.setIntent(list);
-            concept.setExtent(getAttributePrime(list));
+            concept.setExtent(computePrime(list,null));
             concepts.add(concept);
         }
         //Return List of concepts
@@ -377,7 +352,7 @@ public class FCAFormalContext<O,A> implements Context {
      * @return List of FCAAttributes all of the FCAObjects
      * have in common.
      */
-    public List<FCAAttribute<O,A>> getObjectPrime(List<FCAObject<O,A>> o){
+    public List<FCAAttribute<O,A>> computePrime(List<FCAObject<O, A>> o, Object<O,A> oInt){
         //If the List is empty return M (all Attributes)
         if(o.isEmpty())return new ArrayList<>(this.contextAttributes);
         //Else:
@@ -385,7 +360,7 @@ public class FCAFormalContext<O,A> implements Context {
         List<List<A>> allAttributes = new ArrayList<>();
         //Iterate over each Object and add the Attributes of this Object to the List
         for(FCAObject<O,A> obj : o){
-            allAttributes.add(obj.getAttributes());
+            allAttributes.add(obj.getDualEntities());
         }
         if(allAttributes.size()>0) {
             //Create Intersection of Lists of Attributes to be returned and
@@ -411,7 +386,7 @@ public class FCAFormalContext<O,A> implements Context {
      * @return List of FCAObjects all of the FCAAttributes
      * have in common.
      */
-    public List<FCAObject<O,A>> getAttributePrime(List<FCAAttribute<O,A>> a){
+    public List<FCAObject<O,A>> computePrime(List<FCAAttribute<O,A>> a, Attribute<O,A> aInt){
         //If the List is empty return G (all Objects)
         if(a.isEmpty())return new ArrayList<>(this.contextObjects);
         //Else:
@@ -419,7 +394,7 @@ public class FCAFormalContext<O,A> implements Context {
         List<List<O>> allObjects = new ArrayList<>();
         //Iterate over each Attribute and add the Objects of this Attribute to the List
         for(FCAAttribute<O,A> attr : a){
-            allObjects.add(attr.getObjects());
+            allObjects.add(attr.getDualEntities());
         }
         if(allObjects.size()>0) {
             //Create Intersection of Lists of Objects to be returned and
@@ -474,7 +449,7 @@ public class FCAFormalContext<O,A> implements Context {
         IndexedList<FCAAttribute<O,A>> closure = new IndexedList<>();
         //Go through each Attribute of ∅'' and add the corresponding Pair to the
         //newly created IndexedList
-        for(FCAAttribute<O,A> attr : getObjectPrime(this.getContextObjects())){
+        for(FCAAttribute<O,A> attr : computePrime(this.getContextObjects(),null)){
             closure.add(index.getPair(index.getIndex(attr)));
         }
         //return ∅''
@@ -504,7 +479,7 @@ public class FCAFormalContext<O,A> implements Context {
                 union.add(previous);
                 union.addAll(next.getIndexedList());
                 //Compute the double Prime of the union and save it
-                List<FCAAttribute<O,A>> B = getObjectPrime(getAttributePrime(union.getObjects()));
+                List<FCAAttribute<O,A>> B = computePrime(computePrime(union.getObjects(),null),null);
                 //Remove all Attributes from B that are in next
                 B.removeAll(next.getObjects());
                 //Use a flag to verify if Attributes are < than previous (m)
@@ -526,7 +501,7 @@ public class FCAFormalContext<O,A> implements Context {
                     IndexedList<FCAAttribute<O,A>> ret = new IndexedList<>();
                     //Again compute the double prime of the union and add each attribute as a pair
                     //Using the indexed Attribute List to get an index for each Attribute
-                    for(FCAAttribute<O,A> a : getObjectPrime(getAttributePrime(union.getObjects()))){
+                    for(FCAAttribute<O,A> a : computePrime(computePrime(union.getObjects(),null),null)){
                         ret.add(new Pair<>(a,indexed.getIndex(a)));
                     }
                     //Return the IndexedList
@@ -708,7 +683,7 @@ public class FCAFormalContext<O,A> implements Context {
             }
             //if A is not equal its closure add corresponding Implication
             //Compute ClosureOperator of A
-            List<FCAAttribute<O,A>> closureA = getObjectPrime(getAttributePrime(A));
+            List<FCAAttribute<O,A>> closureA = computePrime(computePrime(A,null),null);
             if(!A.containsAll(closureA) && A.size()!=closureA.size()){
                 implList.add(new FCAImplication<>(A,closureA));
             }
@@ -756,6 +731,7 @@ public class FCAFormalContext<O,A> implements Context {
     public void nextExtent(){
 
     }
+
 
 
 }

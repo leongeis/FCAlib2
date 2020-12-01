@@ -1,8 +1,6 @@
-import fca.FCAAttribute;
 import fca.FCAFormalContext;
 import fca.FCAObject;
 import utils.FCAOutputWriter;
-import utils.exceptions.MustImplementInterfaceException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +17,7 @@ import java.util.List;
 
 public class Testing {
 
-    public static void main(String[] args) throws NoSuchMethodException, MustImplementInterfaceException {
+    public static void main(String[] args) {
 
         //Create a FCAFormalContext Object and initialize it with Data from Wikidata
         //first parameter: a SPARQLQueryBuilder Object is used for generating a query
@@ -33,10 +31,10 @@ public class Testing {
         //FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
 
         //Here both Objects Attributes are of type Integer
-        FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>();
+        //FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>(Integer.class,Integer.class);
 
         //They do not have to be of the same type
-        FCAFormalContext<Character,Double> exampleContext2 = new FCAFormalContext<>();
+        //FCAFormalContext<Character,Double> exampleContext2 = new FCAFormalContext<>();
 
         //Display Crosstable on Console and Write output to File
         FCAOutputWriter<String,String> o = new FCAOutputWriter<>();
@@ -73,6 +71,11 @@ public class Testing {
         testContext.addFCAObject(ob2);
         testContext.addFCAObject(ob3);
 
+        List<String> ID = new ArrayList<>();
+        ID.add("Q1");
+        ID.add("Q2");
+
+
         FCAObject<String,String> ob4 = new FCAObject<>("Q4");
         ob4.addAttribute("a");
         ob4.addAttribute("c");
@@ -91,13 +94,6 @@ public class Testing {
         testContext.addFCAObject(ob5);
         testContext.addFCAObject(ob6);
         testContext.addFCAObject(ob7);
-        //Print all Concepts of the Context; Due to naive implementation takes a while...
-        /*List<FCAConcept<String,String>> c = context.computeAllConcepts();
-        for(FCAConcept<String,String> s : c){
-            s.printConcept();
-        }*/
-
-        //context.computeAllClosures(true);
 
 
         //Print Context and all Concepts of TestContext
@@ -114,14 +110,6 @@ public class Testing {
         //o.printCrosstableToConsole(context);
         //o.printConceptsToConsole(context);
         //o.printStemBaseToConsole(context);
-        List<FCAObject<String,String>> objects = new ArrayList<>();
-        /*for(ClosureOperator e: testContext.computePrime(objects)){
-            System.out.println(e.getID());
-        }
-
-         */
-        List<FCAAttribute<String,String>> s = new ArrayList<>();
-        testContext.computePrime(testContext.getContextObjects(), FCAObject.class);
 
     }
 }
