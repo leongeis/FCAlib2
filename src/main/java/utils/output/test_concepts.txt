@@ -1,4 +1,4 @@
-Concepts of the context with ID: 1
+Concepts of the context with ID: 2
 Concepts (A,B) with A⊆G and B⊆M. G is the set of all Objects and M the set of all Attributes.
 CONCEPT:[Q1, Q2, Q3, Q4, Q5, Q6, Q7];[]
 CONCEPT:[Q3, Q4, Q6];[c]

@@ -9,11 +9,11 @@ import java.util.List;
  * Attributes.
  * @author Leon Geis
  */
-public interface ClosureOperator<T> {
+public interface ClosureOperator {
 
     /**
      * @return List of the dual Entities.
      */
-    List<T> getDualEntities();
+    List<?> getDualEntities();
 
 }

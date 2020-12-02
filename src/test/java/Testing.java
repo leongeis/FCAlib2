@@ -1,5 +1,7 @@
+import api.Attribute;
 import fca.FCAFormalContext;
 import fca.FCAObject;
+import utils.ContextHelper;
 import utils.FCAOutputWriter;
 
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ public class Testing {
         //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
 
-        //FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
+        FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
 
         //Here both Objects Attributes are of type Integer
         //FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>(Integer.class,Integer.class);
@@ -46,7 +48,7 @@ public class Testing {
         //p.deleteFile("test.txt");
 
         //Create new TestContext
-        FCAFormalContext<String,String> testContext = new FCAFormalContext<>();
+        FCAFormalContext<String,String> testContext = new FCAFormalContext<String,String>(){};
 
         //Create Objects and provide them with Attributes
         FCAObject<String,String> ob1 = new FCAObject<>("Q1");
@@ -106,10 +108,16 @@ public class Testing {
         o.printStemBaseToConsole(testContext);
         o.writeStemBaseToFile(testContext,"test_stembase.txt");
 
+        List<String> ids = new ArrayList<>();
+        ids.add("a");
+        for(Attribute<String,String> a : testContext.getEntities(ids,Attribute.class)){
+            System.out.println(a.getAttributeID());
+        }
 
-        //o.printCrosstableToConsole(context);
+
+        o.printCrosstableToConsole(context);
         //o.printConceptsToConsole(context);
-        //o.printStemBaseToConsole(context);
+        o.printStemBaseToConsole(context);
 
     }
 }

@@ -11,21 +11,15 @@ import java.util.List;
  */
 public interface Context<O,A> {
     /**
-     * Returns all Attribute Objects, which correspond to the
+     * Returns all Attributes/Objects, which correspond to the
      * List of IDs.
      * @param IDs List of IDs
-     * @param a Object that matches the returned Attributes.
-     * @return List of Attribute Objects
+     * @param clazz Class of the Entity, which can either be Attribute.class
+     *              or ObjectAPI.class
+     * @return List of Attributes/Objects
      */
-    List<Attribute<O,A>> getEntities(List<A> IDs, Attribute<O,A> a);
-    /**
-     * Returns all Objects, which correspond to the
-     * List of IDs.
-     * @param IDs List of IDs
-     * @param o Object that matches the returned Objects.
-     * @return List of Objects
-     */
-    List<Object<O,A>> getEntities(List<O> IDs, Object<O,A> o);
+    <T extends ClosureOperator> List<T> getEntities(List<?> IDs, Class<T> clazz);
+
     /**
      * Compute the Prime of a List of FCAAttributes.
      * @param attributes List of FCAAttributes.
@@ -41,6 +35,6 @@ public interface Context<O,A> {
      * @return List of FCAAttributes all of the FCAObjects
      * have in common.
      */
-    List<FCAAttribute<O,A>> computePrime (List<FCAObject<O,A>> objects, Object<O,A> o);
+    List<FCAAttribute<O,A>> computePrime (List<FCAObject<O,A>> objects, ObjectAPI<O,A> o);
 
 }

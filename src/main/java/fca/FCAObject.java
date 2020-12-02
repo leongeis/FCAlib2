@@ -7,7 +7,7 @@ package fca;
  * @version 0.1
  */
 
-import api.Object;
+import api.ObjectAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  * corresponding Attributes.
  * @author Leon Geis
  */
-public class FCAObject<O,A> implements Object<O,A> {
+public class FCAObject<O,A> implements ObjectAPI<O,A> {
 
     /**
      * ID of the Object.

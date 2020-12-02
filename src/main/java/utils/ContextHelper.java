@@ -33,7 +33,7 @@ public class ContextHelper {
     //Note: Currently only Plain Incidence is implemented! (4.11.20)
     public static FCAFormalContext<String,String> createContextFromWikidata(boolean build, String qry, String file){
         //Create new FormalContext
-        FCAFormalContext<String,String> c = new FCAFormalContext<>();
+        FCAFormalContext<String,String> c = new FCAFormalContext<String,String>(){};
         //Create new Object of type WikidataExtraction
         WikidataExtraction wa = new WikidataExtraction();
         //Establish a connection to the SPARQL Endpoint of Wikidata

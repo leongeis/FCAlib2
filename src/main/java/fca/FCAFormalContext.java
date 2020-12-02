@@ -8,11 +8,14 @@ package fca;
  */
 
 import api.Attribute;
+import api.ClosureOperator;
 import api.Context;
-import api.Object;
+import api.ObjectAPI;
 import utils.IndexedList;
 import utils.Pair;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +29,7 @@ import java.util.stream.Collectors;
  * @author Leon Geis
  */
 
-public class FCAFormalContext<O,A> implements Context<O,A> {
+public abstract class FCAFormalContext<O,A> implements Context<O,A> {
 
     /**
      * ID of the Context.
@@ -49,14 +52,30 @@ public class FCAFormalContext<O,A> implements Context<O,A> {
     private List<FCAAttribute<O,A>> contextAttributes;
 
     /**
+     * Type of the Objects of the Context.
+     */
+    private final Type objectType;
+
+    /**
+     * Type of the Attributes of the Context.
+     */
+    private final Type attributeType;
+
+    /**
      * Constructor of the class creates two empty Lists
      * for the Attributes and the Objects and initializes the
      * FormalContext Object for computation purposes, as well
      * as an Expert Object.
+     * Making use of an anonymous inner class to store the type parameter
+     * during runtime.
      */
     public FCAFormalContext(){
         this.contextAttributes=new ArrayList<>();
         this.contextObjects=new ArrayList<>();
+        //Save Types
+        Type type = getClass().getGenericSuperclass();
+        this.objectType = ((ParameterizedType)type).getActualTypeArguments()[0];
+        this.attributeType = ((ParameterizedType)type).getActualTypeArguments()[1];
         //this.expert = new FCAExpert();
         //Increment ID
         contextID++;
@@ -222,44 +241,40 @@ public class FCAFormalContext<O,A> implements Context<O,A> {
     }
 
     /**
-     * Returns all Attribute Objects, which correspond to the
+     * Returns all Attributes/Objects, which correspond to the
      * List of IDs.
      * @param IDs List of IDs
-     * @param aInt Object that matches the returned Attributes.
-     * @return List of Attribute Objects
+     * @param clazz Class of the Entity, which can either be Attribute.class
+     *              or ObjectAPI.class
+     * @return List of Attributes/Objects, <code>null</code> if the Type of the
+     *          List and the Class do not match this context.
      */
-    public List<Attribute<O,A>> getEntities(List<A> IDs, Attribute<O,A> aInt){
+    @SuppressWarnings("unchecked")
+    public <T extends ClosureOperator> List<T> getEntities(List<?> IDs, Class<T> clazz){
+        //First check if the List of IDs is empty
+        //If not check the class parameter and the first element of the List.
+        //When the specified class equals either ObjectAPI or Attribute and the first
+        //element aligns with the type of the Elements in this context, return the
+        //corresponding List.
         if(IDs.isEmpty()){
             //It it is, return empty ArrayList
             return new ArrayList<>();
-        }else{
+        }else if(clazz.equals(ObjectAPI.class) && IDs.get(0).getClass().equals(this.objectType)){
+            //Create HashSet to be returned
+            HashSet<ObjectAPI<O,A>> entities = new HashSet<>();
+            for(Object o : IDs){
+                entities.add(getObject((O)o));
+            }
+            return new ArrayList<>((Collection<? extends T>) entities);
+        }else if(clazz.equals(Attribute.class) && IDs.get(0).getClass().equals(this.attributeType)){
             //Create HashSet to be returned
             HashSet<Attribute<O,A>> entities = new HashSet<>();
-            for(A a : IDs){
-                entities.add(getAttribute(a));
+            for(Object o : IDs){
+                entities.add(getAttribute((A)o));
             }
-            return new ArrayList<>(entities);
+            return new ArrayList<>((Collection<? extends T>) entities);
         }
-    }
-    /**
-     * Returns all Objects, which correspond to the
-     * List of IDs.
-     * @param IDs List of IDs
-     * @param oInt Object that matches the returned Objects.
-     * @return List of Objects
-     */
-    public List<Object<O,A>> getEntities(List<O> IDs, Object<O,A> oInt){
-        if(IDs.isEmpty()){
-            //It it is, return empty ArrayList
-            return new ArrayList<>();
-        }else{
-            //Create HashSet to be returned
-            HashSet<Object<O,A>> entities = new HashSet<>();
-            for(O o : IDs){
-                entities.add(getObject(o));
-            }
-            return new ArrayList<>(entities);
-        }
+        return null;
     }
 
     /**
@@ -352,7 +367,7 @@ public class FCAFormalContext<O,A> implements Context<O,A> {
      * @return List of FCAAttributes all of the FCAObjects
      * have in common.
      */
-    public List<FCAAttribute<O,A>> computePrime(List<FCAObject<O, A>> o, Object<O,A> oInt){
+    public List<FCAAttribute<O,A>> computePrime(List<FCAObject<O, A>> o, ObjectAPI<O,A> oInt){
         //If the List is empty return M (all Attributes)
         if(o.isEmpty())return new ArrayList<>(this.contextAttributes);
         //Else:
@@ -462,7 +477,7 @@ public class FCAFormalContext<O,A> implements Context<O,A> {
      * @param indexed The Indexed Attribute List of the Context.
      * @return IndexedList of the Next ClosureOperator.
      */
-    public IndexedList<FCAAttribute<O,A>> nextClosure(IndexedList<FCAAttribute<O,A>> next, IndexedList<FCAAttribute<O,A>> indexed){
+    private IndexedList<FCAAttribute<O,A>> nextClosure(IndexedList<FCAAttribute<O,A>> next, IndexedList<FCAAttribute<O,A>> indexed){
         //Go through List of all Attributes in reverse Order
         //Provide listIterator Parameter with size of the List to get a pointer
         //to the end of the list.
@@ -685,6 +700,10 @@ public class FCAFormalContext<O,A> implements Context<O,A> {
             //Compute ClosureOperator of A
             List<FCAAttribute<O,A>> closureA = computePrime(computePrime(A,null),null);
             if(!A.containsAll(closureA) && A.size()!=closureA.size()){
+                //Check if the size of the Closure is not equal the size of all Attributes
+                //If it is remove all Attribute from the Conclusion that are contained in the premise
+                if(closureA.size()!=this.contextAttributes.size())closureA.removeAll(A);
+                //Add the implication to the List
                 implList.add(new FCAImplication<>(A,closureA));
             }
 

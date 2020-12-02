@@ -1,6 +1,6 @@
-Stem Base of the context with ID: 1
+Stem Base of the context with ID: 2
 Implications with the premise on the left and the conclusion on the right.
-IMPLICATION:[a]->[a, c, b]
+IMPLICATION:[a]->[c, b]
 IMPLICATION:[c, e]->[b, d, e, c, a]
 IMPLICATION:[c, d]->[b, d, e, c, a]
 IMPLICATION:[e, d]->[b, d, e, c, a]
