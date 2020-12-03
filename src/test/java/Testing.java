@@ -1,4 +1,3 @@
-import api.Attribute;
 import fca.FCAFormalContext;
 import fca.FCAObject;
 import utils.ContextHelper;
@@ -107,13 +106,6 @@ public class Testing {
 
         o.printStemBaseToConsole(testContext);
         o.writeStemBaseToFile(testContext,"test_stembase.txt");
-
-        List<String> ids = new ArrayList<>();
-        ids.add("a");
-        for(Attribute<String,String> a : testContext.getEntities(ids,Attribute.class)){
-            System.out.println(a.getAttributeID());
-        }
-
 
         o.printCrosstableToConsole(context);
         //o.printConceptsToConsole(context);

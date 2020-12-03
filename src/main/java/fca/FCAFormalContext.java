@@ -8,7 +8,6 @@ package fca;
  */
 
 import api.Attribute;
-import api.ClosureOperator;
 import api.Context;
 import api.ObjectAPI;
 import utils.IndexedList;
@@ -241,41 +240,68 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
     }
 
     /**
-     * Returns all Attributes/Objects, which correspond to the
-     * List of IDs.
+     * Get all Attributes, which correspond to the List of IDs.
      * @param IDs List of IDs
-     * @param clazz Class of the Entity, which can either be Attribute.class
-     *              or ObjectAPI.class
-     * @return List of Attributes/Objects, <code>null</code> if the Type of the
-     *          List and the Class do not match this context.
+     * @param <T> Attribute Interface or any subtype.
+     * @return List of all Attributes, corresponding to the List
+     *          of IDs.
      */
     @SuppressWarnings("unchecked")
-    public <T extends ClosureOperator> List<T> getEntities(List<?> IDs, Class<T> clazz){
+    public <T extends Attribute<O,A>> List<T> getAttributes(List<A> IDs){
         //First check if the List of IDs is empty
-        //If not check the class parameter and the first element of the List.
-        //When the specified class equals either ObjectAPI or Attribute and the first
-        //element aligns with the type of the Elements in this context, return the
-        //corresponding List.
         if(IDs.isEmpty()){
-            //It it is, return empty ArrayList
+            //If it is return empty List;
             return new ArrayList<>();
-        }else if(clazz.equals(ObjectAPI.class) && IDs.get(0).getClass().equals(this.objectType)){
+            //If not check if Type of the IDs equals the Type of the Attributes
+            //of the context.
+        }else if(this.attributeType.equals(IDs.get(0).getClass())){
             //Create HashSet to be returned
-            HashSet<ObjectAPI<O,A>> entities = new HashSet<>();
-            for(Object o : IDs){
-                entities.add(getObject((O)o));
+            HashSet<T> set = new HashSet<>();
+            //Get each Attribute according to the List of IDs
+            for(A a: IDs){
+                set.add((T)getAttribute(a));
             }
-            return new ArrayList<>((Collection<? extends T>) entities);
-        }else if(clazz.equals(Attribute.class) && IDs.get(0).getClass().equals(this.attributeType)){
-            //Create HashSet to be returned
-            HashSet<Attribute<O,A>> entities = new HashSet<>();
-            for(Object o : IDs){
-                entities.add(getAttribute((A)o));
-            }
-            return new ArrayList<>((Collection<? extends T>) entities);
+            //Return List of all Attributes
+            return new ArrayList<>(set);
+        }else{
+            //If the Type of the List is not equal the Type of the Attributes of this context
+            //return an empty List
+            return new ArrayList<>();
         }
-        return null;
     }
+
+    /**
+     * Get all Objects, which correspond to the List of IDs.
+     * @param IDs List of IDs
+     * @param <T> ObjectAPI Interface or any subtype.
+     * @return List of all Objects, corresponding to the List
+     *          of IDs.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectAPI<O,A>> List<T> getObjects(List<O> IDs){
+        //First check if the List of IDs is empty
+        if(IDs.isEmpty()){
+            //If it is return empty List;
+            return new ArrayList<>();
+            //If not check if Type of the IDs equals the Type of the Objects
+            //of the context.
+        }else if(this.objectType.equals(IDs.get(0).getClass())){
+            //Create HashSet to be returned
+            HashSet<T> set = new HashSet<>();
+            //Get each Object according to the List of IDs
+            for(O o: IDs){
+                set.add((T)getObject(o));
+            }
+            //Return List of all Objects
+            return new ArrayList<>(set);
+        }else{
+            //If the Type of the List is not equal the Type of the Objects of this context
+            //return an empty List
+            return new ArrayList<>();
+        }
+    }
+
+
 
     /**
      * Computes all Concepts of the Context.

@@ -11,14 +11,22 @@ import java.util.List;
  */
 public interface Context<O,A> {
     /**
-     * Returns all Attributes/Objects, which correspond to the
-     * List of IDs.
+     * Get all Objects, which correspond to the List of IDs.
      * @param IDs List of IDs
-     * @param clazz Class of the Entity, which can either be Attribute.class
-     *              or ObjectAPI.class
-     * @return List of Attributes/Objects
+     * @param <T> ObjectAPI Interface or any subtype.
+     * @return List of all Objects, corresponding to the List
+     *          of IDs.
      */
-    <T extends ClosureOperator> List<T> getEntities(List<?> IDs, Class<T> clazz);
+    <T extends ObjectAPI<O,A>> List<T> getObjects(List<O> IDs);
+
+    /**
+     * Get all Attributes, which correspond to the List of IDs.
+     * @param IDs List of IDs
+     * @param <T> Attribute Interface or any subtype.
+     * @return List of all Attributes, corresponding to the List
+     *          of IDs.
+     */
+    <T extends Attribute<O,A>> List<T> getAttributes(List<A> IDs);
 
     /**
      * Compute the Prime of a List of FCAAttributes.
