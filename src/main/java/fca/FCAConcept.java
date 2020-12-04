@@ -1,5 +1,8 @@
 package fca;
 
+import api.Attribute;
+import api.ObjectAPI;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,12 +22,12 @@ public class FCAConcept<O,A> {
     /**
      * List of Objects of an Concept.
      */
-    private List<FCAObject<O,A>> extent;
+    private List<? extends ObjectAPI<O,A>> extent;
 
     /**
      * List of Attributes of an Concept
      */
-    private List<FCAAttribute<O,A>> intent;
+    private List<? extends Attribute<O,A>> intent;
 
     /**
      * Constructor of the Class.
@@ -38,7 +41,7 @@ public class FCAConcept<O,A> {
      * Get all Objects of this Concept.
      * @return List of FCAObjects
      */
-    public List<FCAObject<O,A>> getExtent() {
+    public List<? extends ObjectAPI<O,A>> getExtent() {
         return extent;
     }
 
@@ -46,7 +49,7 @@ public class FCAConcept<O,A> {
      * Set the Objects of an Concept.
      * @param extent New List of Objects for this Concept.
      */
-    public void setExtent(List<FCAObject<O, A>> extent) {
+    public void setExtent(List<ObjectAPI<O, A>> extent) {
         this.extent = extent;
     }
 
@@ -54,7 +57,7 @@ public class FCAConcept<O,A> {
      * Get all Attributes of this Concept.
      * @return List of FCAAttributes
      */
-    public List<FCAAttribute<O,A>> getIntent() {
+    public List<? extends Attribute<O,A>> getIntent() {
         return intent;
     }
 
@@ -62,7 +65,7 @@ public class FCAConcept<O,A> {
      * Set the Attributes of this Concept.
      * @param intent New List of Attributes for this Concept.
      */
-    public void setIntent(List<FCAAttribute<O, A>> intent) {
+    public void setIntent(List<Attribute<O, A>> intent) {
         this.intent = intent;
     }
 
@@ -73,9 +76,9 @@ public class FCAConcept<O,A> {
     public void printConcept(){
         System.out.print("CONCEPT:");
         //Print Extent
-        System.out.print(this.getExtent().stream().map(FCAObject::getObjectID).collect(Collectors.toList())+";");
+        System.out.print(this.getExtent().stream().map(ObjectAPI::getObjectID).collect(Collectors.toList())+";");
         //Print Intent
-        System.out.print(this.getIntent().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList())+"\n");
+        System.out.print(this.getIntent().stream().map(Attribute::getAttributeID).collect(Collectors.toList())+"\n");
     }
 
 }

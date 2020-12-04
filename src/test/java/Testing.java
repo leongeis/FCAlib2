@@ -75,7 +75,7 @@ public class Testing {
         List<String> ID = new ArrayList<>();
         ID.add("Q1");
         ID.add("Q2");
-
+        //List<Attribute<String,String>> ab = testContext.Prime(testContext.getContextObjects(), ObjectAPI.class);
 
         FCAObject<String,String> ob4 = new FCAObject<>("Q4");
         ob4.addAttribute("a");
@@ -107,8 +107,10 @@ public class Testing {
         o.printStemBaseToConsole(testContext);
         o.writeStemBaseToFile(testContext,"test_stembase.txt");
 
+        //List<List<NEWAtt<String,String>>> l = testContext.computeAllClosures();
+
         o.printCrosstableToConsole(context);
-        //o.printConceptsToConsole(context);
+        o.printConceptsToConsole(context);
         o.printStemBaseToConsole(context);
 
     }

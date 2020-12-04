@@ -1,8 +1,8 @@
 package utils;
 
-import fca.FCAAttribute;
+import api.Attribute;
+import api.ObjectAPI;
 import fca.FCAFormalContext;
-import fca.FCAObject;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import utils.exceptions.NoPropertiesDefinedException;
@@ -96,11 +96,11 @@ public class ContextHelper {
             }
         }
         //Check for each Object, if it has an Attribute of the fca.FCAFormalContext
-        for(FCAObject<String,String> o : c.getContextObjects()){
+        for(ObjectAPI<String,String> o : c.getContextObjects()){
             //For each Attribute specified in the context check if an object has it and
             //if it has an Attribute add it to the Object Attribute List.
             //This is done trough ASK Queries, which are generated respectively
-            for(FCAAttribute<String,String> a : c.getContextAttributes()){
+            for(Attribute<String,String> a : c.getContextAttributes()){
                 //Generate ASK Query based on Object Name(Q...) and the Property (P...)
                 if(wa.booleanQuery(builder.generateAskQuery(o.getObjectID(),a.getAttributeID()))){
                     o.addAttribute(a.getAttributeID());

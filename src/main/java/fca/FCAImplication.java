@@ -7,6 +7,8 @@ package fca;
  * @version 0.1
  */
 
+import api.Attribute;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,12 +23,12 @@ public class FCAImplication<O,A> {
     /**
      * Premise of an Implication.
      */
-    private List<FCAAttribute<O,A>> premise;
+    private List<? extends Attribute<O,A>> premise;
 
     /**
      * Conclusion of an Implication
      */
-    private List<FCAAttribute<O,A>> conclusion;
+    private List<? extends Attribute<O,A>> conclusion;
 
     /**
      * Constructor of the class.
@@ -42,7 +44,7 @@ public class FCAImplication<O,A> {
      * @param newPrem Premise, List of Attributes
      * @param newCon Conclusion, List of Attributes
      */
-    public FCAImplication(List<FCAAttribute<O,A>> newPrem, List<FCAAttribute<O,A>> newCon){
+    public FCAImplication(List<? extends Attribute<O,A>> newPrem, List<? extends Attribute<O,A>> newCon){
         this.premise = new ArrayList<>(newPrem);
         this.conclusion = new ArrayList<>(newCon);
     }
@@ -50,14 +52,14 @@ public class FCAImplication<O,A> {
     /**
      * @return List of Attributes of the Premise
      */
-    public List<FCAAttribute<O, A>> getPremise() {
+    public List<? extends Attribute<O, A>> getPremise() {
         return premise;
     }
 
     /**
      * @return List of Attributes of the Conclusion
      */
-    public List<FCAAttribute<O, A>> getConclusion() {
+    public List<? extends Attribute<O, A>> getConclusion() {
         return conclusion;
     }
 
@@ -65,7 +67,7 @@ public class FCAImplication<O,A> {
      * @return A String representation of the current Implication.
      */
     public String toString(){
-        return this.premise.stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList())+"->"+this.conclusion.stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList());
+        return this.premise.stream().map(Attribute::getAttributeID).collect(Collectors.toList())+"->"+this.conclusion.stream().map(Attribute::getAttributeID).collect(Collectors.toList());
     }
 
 }

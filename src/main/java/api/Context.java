@@ -1,8 +1,5 @@
 package api;
 
-import fca.FCAAttribute;
-import fca.FCAObject;
-
 import java.util.List;
 
 /**
@@ -31,18 +28,17 @@ public interface Context<O,A> {
     /**
      * Compute the Prime of a List of FCAAttributes.
      * @param attributes List of FCAAttributes.
-     * @param a Object used due to type erasure
      * @return List of FCAObjects all of the FCAAttributes
      * have in common.
      */
-    List<FCAObject<O,A>> computePrime (List<FCAAttribute<O,A>> attributes, Attribute<O,A> a);
+    <T extends ObjectAPI<O,A>> List<T> computePrimeOfAttributes(List<? extends Attribute<O,A>> attributes);
+
     /**
      * Compute the Prime of a List of FCAObjects.
      * @param objects List of FCAObjects.
-     * @param o Object used due to type erasure
      * @return List of FCAAttributes all of the FCAObjects
      * have in common.
      */
-    List<FCAAttribute<O,A>> computePrime (List<FCAObject<O,A>> objects, ObjectAPI<O,A> o);
+    <T extends Attribute<O,A>> List<T> computePrimeOfObjects(List<? extends ObjectAPI<O, A>> objects);
 
 }

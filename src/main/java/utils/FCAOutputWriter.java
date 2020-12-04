@@ -1,7 +1,11 @@
 package utils;
 
+import api.Attribute;
+import api.ObjectAPI;
 import api.OutputWriter;
-import fca.*;
+import fca.FCAConcept;
+import fca.FCAFormalContext;
+import fca.FCAImplication;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -40,13 +44,13 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
             System.out.print(" ");
         }
         //Print each Attribute name
-        for(FCAAttribute<O,A> a : c.getContextAttributes()){
+        for(Attribute<O,A> a : c.getContextAttributes()){
             System.out.print(a.getAttributeID()+" ");
         }
         //Newline
         System.out.println();
         //Go through each Object and print the corresponding Attributes
-        for(fca.FCAObject<O,A> o : c.getContextObjects()){
+        for(ObjectAPI<O,A> o : c.getContextObjects()){
             //Get the length of the name (formatting purposes)
             int nameLength = o.getObjectID().toString().length();
             //Print name of Object
@@ -58,7 +62,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
             }
             //Go through each Attribute and check if Object has Attribute
             //If it does Print X else -
-            for(fca.FCAAttribute<O,A> a : c.getContextAttributes()){
+            for(Attribute<O,A> a : c.getContextAttributes()){
                 if(o.getDualEntities().contains(a.getAttributeID())){
                     System.out.print("X ");
                 }else {
@@ -96,13 +100,13 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
                 fileWriter.write(" ");
             }
             //Print each Attribute name
-            for(FCAAttribute<O,A> a : c.getContextAttributes()){
+            for(Attribute<O,A> a : c.getContextAttributes()){
                 fileWriter.write(a.getAttributeID()+" ");
             }
             //Newline
             fileWriter.write("\n");
             //Go through each Object and print the corresponding Attributes
-            for(FCAObject<O,A> o : c.getContextObjects()){
+            for(ObjectAPI<O,A> o : c.getContextObjects()){
                 //Get the length of the name (formatting purposes)
                 int nameLength = o.getObjectID().toString().length();
                 //Print name of Object
@@ -114,7 +118,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
                 }
                 //Go through each Attribute and check if Object has Attribute
                 //If it does Print X else -
-                for(FCAAttribute<O,A> a : c.getContextAttributes()){
+                for(Attribute<O,A> a : c.getContextAttributes()){
                     if(o.getDualEntities().contains(a.getAttributeID())){
                         fileWriter.write("X ");
                     }else {
@@ -175,8 +179,8 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
             List<FCAConcept<O,A>> concepts = c.computeAllConcepts(c.computeAllClosures());
             //Go through each concept and display the extent and the intent
             for(FCAConcept<O,A> concept : concepts){
-                fileWriter.write("CONCEPT:"+concept.getExtent().stream().map(FCAObject::getObjectID).collect(Collectors.toList())+";");
-                fileWriter.write(concept.getIntent().stream().map(FCAAttribute::getAttributeID).collect(Collectors.toList())+"\n");
+                fileWriter.write("CONCEPT:"+concept.getExtent().stream().map(ObjectAPI::getObjectID).collect(Collectors.toList())+";");
+                fileWriter.write(concept.getIntent().stream().map(Attribute::getAttributeID).collect(Collectors.toList())+"\n");
             }
             //Display Success Message
             System.out.println("Writing Successful!");
