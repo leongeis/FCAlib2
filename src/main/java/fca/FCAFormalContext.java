@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
  *
  * @author Leon Geis
  */
-
-public abstract class FCAFormalContext<O,A> implements Context<O,A> {
+//TODO REWORK JavaDoc + getObject return any class implementing ObjectAPI interface
+public abstract class FCAFormalContext<O,A> implements Context<O,A>{
 
     /**
      * ID of the Context.
@@ -201,7 +201,7 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
      * Get all Objects of the context.
      * @return List of FCAObjects.
      */
-    public List<ObjectAPI<O,A>> getContextObjects(){
+    public List<? extends ObjectAPI<O,A>> getContextObjects(){
         return this.contextObjects;
     }
 
@@ -209,7 +209,7 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
      * Get all Attributes of the context.
      * @return List of FCAAttributes.
      */
-    public List<Attribute<O,A>> getContextAttributes(){
+    public List<? extends Attribute<O,A>> getContextAttributes(){
         return this.contextAttributes;
     }
 
@@ -371,12 +371,12 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
      * @param closures List of Closures
      * @return List of Concepts of the Context
      */
-    public List<FCAConcept<O,A>> computeAllConcepts(List<List<Attribute<O,A>>> closures){
+    public <T extends Attribute<O,A>> List<FCAConcept<O,A>> computeAllConcepts(List<List<T>> closures){
         //Create List of FCAConcepts that will be returned
         List<FCAConcept<O,A>> concepts = new ArrayList<>();
         //Go through List of closures and create a FCAConcept Object
         //for each closure. Also compute the prime and set the Extent accordingly.
-        for(List<Attribute<O,A>> list : closures){
+        for(List<? extends Attribute<O,A>> list : closures){
             FCAConcept<O,A> concept = new FCAConcept<>();
             concept.setIntent(list);
             concept.setExtent(computePrimeOfAttributes(list));
@@ -461,15 +461,15 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
      * Computes all Closures of the Context.
      * Note: Currently only Attribute Closures are computed.
      */
-    public List<List<Attribute<O,A>>> computeAllClosures(boolean... print){
+    public <T extends Attribute<O,A>> List<List<T>> computeAllClosures(boolean... print){
         //Setting the Optional Parameter to False
         boolean printBool = print.length >= 1 && print[0];
         //Create Lectical Order on all Attributes
-        IndexedList<Attribute<O,A>> indexedAttributes = new IndexedList<>(this.getContextAttributes());
+        IndexedList<T> indexedAttributes = new IndexedList<T>((List<T>) this.getContextAttributes());
         //Create List of Lists of Attributes (Closures) to be returned
-        List<List<Attribute<O,A>>> closures = new ArrayList<>();
+        List<List<T>> closures = new ArrayList<>();
         //Set the lectically first Set
-        IndexedList<Attribute<O,A>> A = firstClosure(indexedAttributes);
+        IndexedList<T> A = firstClosure(indexedAttributes);
         if(printBool)System.out.println("CLOSURES:");
         while(A != null){
             //Print (Optional)
@@ -487,12 +487,13 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
      * @param index Indexed Attribute List
      * @return First ClosureOperator as IndexedList
      */
-    private IndexedList<Attribute<O,A>> firstClosure(IndexedList<Attribute<O,A>> index){
+    private <T extends Attribute<O,A>> IndexedList<T> firstClosure(IndexedList<T> index){
         //Create a new IndexedList
-        IndexedList<Attribute<O,A>> closure = new IndexedList<>();
+        IndexedList<T> closure = new IndexedList<>();
         //Go through each Attribute of ∅'' and add the corresponding Pair to the
         //newly created IndexedList
-        for(Attribute<O,A> attr : computePrimeOfObjects(this.getContextObjects())){
+        List<T> primeOfObjects = computePrimeOfObjects(this.getContextObjects());
+        for(T attr : primeOfObjects){
             closure.add(index.getPair(index.getIndex(attr)));
         }
         //return ∅''
@@ -505,24 +506,24 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
      * @param indexed The Indexed Attribute List of the Context.
      * @return IndexedList of the Next ClosureOperator.
      */
-    private IndexedList<Attribute<O,A>> nextClosure(IndexedList<Attribute<O,A>> next, IndexedList<Attribute<O,A>> indexed){
+    private <T extends Attribute<O,A>> IndexedList<T> nextClosure(IndexedList<T> next, IndexedList<T> indexed){
         //Go through List of all Attributes in reverse Order
         //Provide listIterator Parameter with size of the List to get a pointer
         //to the end of the list.
-        ListIterator<Pair<Attribute<O,A>,Integer>> iterator = indexed.getIndexedList().listIterator(indexed.getIndexedList().size());
+        ListIterator<Pair<T,Integer>> iterator = indexed.getIndexedList().listIterator(indexed.getIndexedList().size());
         while(iterator.hasPrevious()){
             //Get the previous Pair of Attribute and Index
-            Pair<Attribute<O,A>,Integer> previous = iterator.previous();
+            Pair<T,Integer> previous = iterator.previous();
             //If the Attribute is contained in next remove it
             if(next.contains(previous.getLeft())){
                 next.remove(previous.getLeft());
             }else{
                 //Create union of the current List and the previous Attribute
-                IndexedList<Attribute<O,A>> union = new IndexedList<>();
+                IndexedList<T> union = new IndexedList<>();
                 union.add(previous);
                 union.addAll(next.getIndexedList());
                 //Compute the double Prime of the union and save it
-                List<Attribute<O,A>> B = computePrimeOfObjects(computePrimeOfAttributes(union.getObjects()));
+                List<T> B = computePrimeOfObjects(computePrimeOfAttributes(union.getObjects()));
                 //Remove all Attributes from B that are in next
                 B.removeAll(next.getObjects());
                 //Use a flag to verify if Attributes are < than previous (m)
@@ -530,7 +531,7 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
                 //Go through each Attribute left in B and check
                 //if it is smaller (lectically) than previous (m)
                 //If it is set the flag to false and stop.
-                for(Attribute<O,A> a : B){
+                for(T a : B){
                     //Use the indexed Attribute List to get the index
                     if(indexed.getIndex(a) < previous.getRight()){
                         flag = false;
@@ -541,10 +542,11 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
                 //which is smaller than previous (m), create a indexed List and return it.
                 if(flag){
                     //Create the List
-                    IndexedList<Attribute<O,A>> ret = new IndexedList<>();
+                    IndexedList<T> ret = new IndexedList<>();
                     //Again compute the double prime of the union and add each attribute as a pair
                     //Using the indexed Attribute List to get an index for each Attribute
-                    for(Attribute<O,A> a : computePrimeOfObjects(computePrimeOfAttributes(union.getObjects()))){
+                    List<T> doublePrime = computePrimeOfObjects(computePrimeOfAttributes(union.getObjects()));
+                    for(T a : doublePrime ){
                         ret.add(new Pair<>(a,indexed.getIndex(a)));
                     }
                     //Return the IndexedList
@@ -771,9 +773,7 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A> {
         return implList;
     }
 
-    public void nextIntent(){
-
-    }
+    public void nextIntent(){}
 
     public void nextExtent(){
 

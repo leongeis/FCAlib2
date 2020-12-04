@@ -49,7 +49,7 @@ public class FCAConcept<O,A> {
      * Set the Objects of an Concept.
      * @param extent New List of Objects for this Concept.
      */
-    public void setExtent(List<ObjectAPI<O, A>> extent) {
+    public void setExtent(List<? extends ObjectAPI<O, A>> extent) {
         this.extent = extent;
     }
 
@@ -65,7 +65,7 @@ public class FCAConcept<O,A> {
      * Set the Attributes of this Concept.
      * @param intent New List of Attributes for this Concept.
      */
-    public void setIntent(List<Attribute<O, A>> intent) {
+    public void setIntent(List<? extends Attribute<O, A>> intent) {
         this.intent = intent;
     }
 

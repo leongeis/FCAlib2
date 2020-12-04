@@ -36,8 +36,8 @@ public class FCAObject<O,A> implements ObjectAPI<O,A> {
      * List of Attributes.
      */
     public FCAObject(O o){
-        this.attributes = new ArrayList<>();
-        this.objectID = o;
+        this.attributes=new ArrayList<>();
+        this.objectID=o;
     }
 
     /**

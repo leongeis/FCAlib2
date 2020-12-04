@@ -1,6 +1,5 @@
 import fca.FCAFormalContext;
 import fca.FCAObject;
-import utils.ContextHelper;
 import utils.FCAOutputWriter;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class Testing {
         //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
 
-        FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
+        //FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
 
         //Here both Objects Attributes are of type Integer
         //FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>(Integer.class,Integer.class);
@@ -107,11 +106,9 @@ public class Testing {
         o.printStemBaseToConsole(testContext);
         o.writeStemBaseToFile(testContext,"test_stembase.txt");
 
-        //List<List<NEWAtt<String,String>>> l = testContext.computeAllClosures();
-
-        o.printCrosstableToConsole(context);
-        o.printConceptsToConsole(context);
-        o.printStemBaseToConsole(context);
+        //o.printCrosstableToConsole(context);
+        //o.printConceptsToConsole(context);
+        //o.printStemBaseToConsole(context);
 
     }
 }
