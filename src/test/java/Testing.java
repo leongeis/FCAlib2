@@ -1,9 +1,11 @@
-import fca.FCAFormalContext;
-import fca.FCAObject;
+import api.Attribute;
+import api.ObjectAPI;
+import fca.*;
 import utils.FCAOutputWriter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /*For further information on RDF4J connections:
@@ -95,6 +97,20 @@ public class Testing {
         testContext.addFCAObject(ob6);
         testContext.addFCAObject(ob7);
 
+        List<ObjectAPI<String,String>> tm = testContext.getContextObjects();
+        List<ObjectAPI<Integer,Integer>> ab = new ArrayList<>();
+        ab.add(new FCAObject<>(2));
+        //testContext.getContextAttributes().add(new AttFCA<>());
+        //List<PartObj<String,String>> pert = testContext.getContextObjects();
+
+        FCAFormalContext<Integer,Integer> context = new FCAFormalContext<Integer, Integer>() {};
+        context.createObject(2,FCAObject.class);
+        List<Integer> test = new ArrayList<>();
+        test.add(2);
+        List<ObjectAPI<Integer,Integer>> list = context.getObjects(test);
+        for(ObjectAPI<Integer,Integer> a : list){
+            System.out.println(a.getObjectID());
+        }
 
         //Print Context and all Concepts of TestContext
         o.printCrosstableToConsole(testContext);
@@ -109,6 +125,27 @@ public class Testing {
         //o.printCrosstableToConsole(context);
         //o.printConceptsToConsole(context);
         //o.printStemBaseToConsole(context);
+
+        List<ObjectAPI<String,String>> obl = new ArrayList<>();
+        List<test<String,String>> obm = new ArrayList<>();
+        test<String,String> k = new test<>();
+        k.setObjectID("Q2");
+        obl.add(ob1);
+        obm.add(k);
+        k.addAttribute("a");
+        List<atest<String,String>> aabl = new ArrayList<>();
+        atest<String,String> a = new atest<>();
+        a.addObject("Q7");
+        a.setAttributeID("a");
+        aabl.add(a);
+        System.out.println(FCAComputation.computePrimeOfObjects(obm,testContext).stream().map(Attribute::getAttributeID).collect(Collectors.toList()));
+        System.out.println(FCAComputation.computePrimeOfAttributes(aabl,testContext));
+
+        for(FCAConcept<String,String> com : FCAComputation.computeAllConcepts(testContext)){
+            com.printConcept();
+        }
+
+
 
     }
 }

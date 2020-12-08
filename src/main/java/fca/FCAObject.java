@@ -32,6 +32,14 @@ public class FCAObject<O,A> implements ObjectAPI<O,A> {
     private List<A> attributes;
 
     /**
+     * Default Constructor of the class.
+     */
+    public FCAObject(){
+        this.attributes=new ArrayList<>();
+        this.objectID=null;
+    }
+
+    /**
      * Constructor of the class. Creates a new and empty
      * List of Attributes.
      */

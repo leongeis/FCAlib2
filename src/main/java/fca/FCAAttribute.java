@@ -31,6 +31,11 @@ public class FCAAttribute<O,A> implements Attribute<O,A> {
      */
     private List<O> objects;
 
+    public FCAAttribute(){
+        this.objects=new ArrayList<>();
+        this.attributeID=null;
+    }
+
     /**
      * Constructor of the class, which creates a new
      * and empty List of Objects.

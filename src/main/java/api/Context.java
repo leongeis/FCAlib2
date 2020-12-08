@@ -1,5 +1,8 @@
 package api;
 
+import fca.FCAAttribute;
+import fca.FCAObject;
+
 import java.util.List;
 
 /**
@@ -7,14 +10,14 @@ import java.util.List;
  * @author Leon Geis
  */
 public interface Context<O,A> {
+
     /**
      * Get all Objects, which correspond to the List of IDs.
      * @param IDs List of IDs
-     * @param <T> ObjectAPI Interface or any subtype.
      * @return List of all Objects, corresponding to the List
      *          of IDs.
      */
-    <T extends ObjectAPI<O,A>> List<T> getObjects(List<O> IDs);
+    List<ObjectAPI<O,A>> getObjects(List<O> IDs);
 
     /**
      * Get all Attributes, which correspond to the List of IDs.
@@ -23,7 +26,7 @@ public interface Context<O,A> {
      * @return List of all Attributes, corresponding to the List
      *          of IDs.
      */
-    <T extends Attribute<O,A>> List<T> getAttributes(List<A> IDs);
+    List<Attribute<O,A>> getAttributes(List<A> IDs);
 
     /**
      * Compute the Prime of a List of FCAAttributes.
@@ -40,5 +43,18 @@ public interface Context<O,A> {
      * have in common.
      */
     <T extends Attribute<O,A>> List<T> computePrimeOfObjects(List<? extends ObjectAPI<O, A>> objects);
+
+    public <T extends ObjectAPI<O,A>> void createObject(O o, Class<T> clazz);
+    public void createFCAAttribute(A a);
+    boolean containsAttribute(A a);
+    boolean containsObject(O o);
+    void addFCAObject(FCAObject<O,A> o);
+    void addFCAAttribute(FCAAttribute<O,A> a);
+    List<ObjectAPI<O,A>> getContextObjects();
+    List<Attribute<O,A>> getContextAttributes();
+    Attribute<O,A> getAttribute(A a);
+    ObjectAPI<O,A> getObject(O o);
+
+
 
 }

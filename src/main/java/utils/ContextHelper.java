@@ -3,6 +3,7 @@ package utils;
 import api.Attribute;
 import api.ObjectAPI;
 import fca.FCAFormalContext;
+import fca.FCAObject;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import utils.exceptions.NoPropertiesDefinedException;
@@ -92,7 +93,7 @@ public class ContextHelper {
             //Checking if Object is already in Object List of the context
             //If not add it to the context.
             if(!c.containsObject(identifier)){
-                c.createFCAObject(identifier);
+                c.createObject(identifier, FCAObject.class);
             }
         }
         //Check for each Object, if it has an Attribute of the fca.FCAFormalContext
