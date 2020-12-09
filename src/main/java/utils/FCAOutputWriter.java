@@ -1,11 +1,6 @@
 package utils;
 
-import api.Attribute;
-import api.ObjectAPI;
-import api.OutputWriter;
-import fca.FCAConcept;
-import fca.FCAFormalContext;
-import fca.FCAImplication;
+import api.*;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -21,7 +16,7 @@ import java.util.stream.Collectors;
  * Class used only for Displaying/Writing to File.
  * @author Leon Geis
  */
-public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>> {
+public class FCAOutputWriter implements OutputWriter {
 
     /**
      * The fixed file path the files are created in.
@@ -33,24 +28,24 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
      * the console.
      */
     @Override
-    public void printCrosstableToConsole(FCAFormalContext<O,A> c){
+    public <T extends Context<O,A>,O,A> void printCrosstableToConsole(T context){
         //Headline of the Output
-        System.out.println("Crosstable of the context with ID: "+c.getContextID());
+        System.out.println("Crosstable of the context with ID: "+context.getContextID());
         System.out.println("The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute");
         //Initial space for formatting purposes
         //Using the Stream API to receive the longest ID (as a String) of an Object
-        int length = Collections.max(c.getContextObjects(),Comparator.comparing(object -> object.getObjectID().toString().length())).getObjectID().toString().length()+1;
+        int length = Collections.max(context.getContextObjects(),Comparator.comparing(object -> object.getObjectID().toString().length())).getObjectID().toString().length()+1;
         for (int i = 0; i < length; i++) {
             System.out.print(" ");
         }
         //Print each Attribute name
-        for(Attribute<O,A> a : c.getContextAttributes()){
+        for(Attribute<O,A> a : context.getContextAttributes()){
             System.out.print(a.getAttributeID()+" ");
         }
         //Newline
         System.out.println();
         //Go through each Object and print the corresponding Attributes
-        for(ObjectAPI<O,A> o : c.getContextObjects()){
+        for(ObjectAPI<O,A> o : context.getContextObjects()){
             //Get the length of the name (formatting purposes)
             int nameLength = o.getObjectID().toString().length();
             //Print name of Object
@@ -62,7 +57,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
             }
             //Go through each Attribute and check if Object has Attribute
             //If it does Print X else -
-            for(Attribute<O,A> a : c.getContextAttributes()){
+            for(Attribute<O,A> a : context.getContextAttributes()){
                 if(o.getDualEntities().contains(a.getAttributeID())){
                     System.out.print("X ");
                 }else {
@@ -84,29 +79,29 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
      * is specified via a String parameter ("example.txt")
      */
     @Override
-    public void writeCrosstableToFile(FCAFormalContext<O,A> c, String fileName){
+    public <T extends Context<O,A>,O,A> void writeCrosstableToFile(T context, String fileName){
         //Append file name to path
         String name = filepath+fileName;
         //Print to Console
         System.out.println("Writing to File: "+name);
         try (Writer fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(name), StandardCharsets.UTF_8))){
             //Headline of the Output
-            fileWriter.write("Crosstable of the context with ID: "+c.getContextID()+"\n");
+            fileWriter.write("Crosstable of the context with ID: "+context.getContextID()+"\n");
             fileWriter.write("The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute\n");
             //Initial space for formatting purposes
             //Using the Stream API to receive the longest ID (as a String) of an Object
-            int length = Collections.max(c.getContextObjects(),Comparator.comparing(object -> object.getObjectID().toString().length())).getObjectID().toString().length()+1;
+            int length = Collections.max(context.getContextObjects(),Comparator.comparing(object -> object.getObjectID().toString().length())).getObjectID().toString().length()+1;
             for (int i = 0; i < length; i++) {
                 fileWriter.write(" ");
             }
             //Print each Attribute name
-            for(Attribute<O,A> a : c.getContextAttributes()){
+            for(Attribute<O,A> a : context.getContextAttributes()){
                 fileWriter.write(a.getAttributeID()+" ");
             }
             //Newline
             fileWriter.write("\n");
             //Go through each Object and print the corresponding Attributes
-            for(ObjectAPI<O,A> o : c.getContextObjects()){
+            for(ObjectAPI<O,A> o : context.getContextObjects()){
                 //Get the length of the name (formatting purposes)
                 int nameLength = o.getObjectID().toString().length();
                 //Print name of Object
@@ -118,7 +113,7 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
                 }
                 //Go through each Attribute and check if Object has Attribute
                 //If it does Print X else -
-                for(Attribute<O,A> a : c.getContextAttributes()){
+                for(Attribute<O,A> a : context.getContextAttributes()){
                     if(o.getDualEntities().contains(a.getAttributeID())){
                         fileWriter.write("X ");
                     }else {
@@ -146,26 +141,27 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
     /**
      * Displays all Concepts of the current Context on
      * the console. It uses nextClosure to compute all concepts.
-     * @param c The Context Object.
+     * @param context The Context Object.
      */
     @Override
-    public void printConceptsToConsole(FCAFormalContext<O, A> c) {
-        System.out.println("Concepts of the context with ID: "+c.getContextID());
+    public <T extends Context<O,A>,O,A> void printConceptsToConsole(T context) {
+        System.out.println("Concepts of the context with ID: "+context.getContextID());
         System.out.println("Concepts (A,B) with A⊆G and B⊆M. G is the set of all Objects and M the set of all Attributes.");
-        List<FCAConcept<O,A>> concepts = c.computeAllConcepts(c.computeAllClosures());
-        for(FCAConcept<O,A> concept : concepts){
+        List<List<Attribute<O,A>>> closures = Computation.computeAllClosures(context);
+        List<Concept<O,A>> concepts = Computation.computeAllConcepts(closures,context);
+        for(Concept<O,A> concept : concepts){
             concept.printConcept();
         }
     }
 
     /**
      * Writes all Concepts of the given Context to the specific file.
-     * @param c The Context from which all Concepts will be computed
+     * @param context The Context from which all Concepts will be computed
      * @param name The Name of the File ("example.txt")
      * Note: Uses NextClosure to compute all Concepts.
      */
     @Override
-    public void writeConceptsToFile(FCAFormalContext<O, A> c, String name) {
+    public <T extends Context<O,A>,O,A> void writeConceptsToFile(T context, String name) {
         //Append the file name
         String fileName = filepath+name;
         //Print to Console
@@ -173,12 +169,12 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
         //Create Writer Object
         try(Writer fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8))){
             //Write Headline of the file
-            fileWriter.write("Concepts of the context with ID: "+c.getContextID()+"\n");
+            fileWriter.write("Concepts of the context with ID: "+context.getContextID()+"\n");
             fileWriter.write("Concepts (A,B) with A⊆G and B⊆M. G is the set of all Objects and M the set of all Attributes.\n");
             //Get the List of all Concepts
-            List<FCAConcept<O,A>> concepts = c.computeAllConcepts(c.computeAllClosures());
+            List<Concept<O,A>> concepts = Computation.computeAllConcepts(Computation.computeAllClosures(context),context);
             //Go through each concept and display the extent and the intent
-            for(FCAConcept<O,A> concept : concepts){
+            for(Concept<O,A> concept : concepts){
                 fileWriter.write("CONCEPT:"+concept.getExtent().stream().map(ObjectAPI::getObjectID).collect(Collectors.toList())+";");
                 fileWriter.write(concept.getIntent().stream().map(Attribute::getAttributeID).collect(Collectors.toList())+"\n");
             }
@@ -194,21 +190,21 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
     /**
      * Displays all Implications of the Stem Base of the Context
      * on the console.
-     * @param c The Context from which the Stem Base will be computed
+     * @param context The Context from which the Stem Base will be computed
      */
-    public void printStemBaseToConsole(FCAFormalContext<O,A> c){
-        System.out.println("Stem Base of the context with ID: "+c.getContextID());
+    public <T extends Context<O,A>,O,A> void printStemBaseToConsole(T context){
+        System.out.println("Stem Base of the context with ID: "+context.getContextID());
         System.out.println("Implications with the premise on the left and the conclusion on the right.");
-        for(FCAImplication<O,A> impl : c.computeStemBase()){
+        for(Implication<O,A> impl : Computation.computeStemBase(context)){
             System.out.print("IMPLICATION:"+impl.toString()+"\n");
         }
     }
     /**
      * Writes all Implications of the Stem Base of the given Context to the specific file.
-     * @param c The Context from the Stem Base will be computed.
+     * @param context The Context from the Stem Base will be computed.
      * @param name The Name of the File ("example.txt")
      */
-    public void writeStemBaseToFile(FCAFormalContext<O, A> c, String name){
+    public <T extends Context<O,A>,O,A> void writeStemBaseToFile(T context, String name){
         //Append the file name
         String fileName = filepath+name;
         //Print to Console
@@ -216,10 +212,10 @@ public class FCAOutputWriter<O,A> implements OutputWriter<FCAFormalContext<O,A>>
         //Create Writer Object
         try(Writer fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8))){
             //Write Headline of the file
-            fileWriter.write("Stem Base of the context with ID: "+c.getContextID()+"\n");
+            fileWriter.write("Stem Base of the context with ID: "+context.getContextID()+"\n");
             fileWriter.write("Implications with the premise on the left and the conclusion on the right.\n");
             //Go through each Implication and display the premise and the conclusion
-            for(FCAImplication<O,A> impl : c.computeStemBase()){
+            for(Implication<O,A> impl : Computation.computeStemBase(context)){
                 fileWriter.write("IMPLICATION:"+impl.toString()+"\n");
             }
             //Display Success Message

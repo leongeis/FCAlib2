@@ -8,6 +8,7 @@ package fca;
  */
 
 import api.Attribute;
+import api.Implication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
  * a Context.
  * @author Leon Geis
  */
-public class FCAImplication<O,A> {
+public class FCAImplication<O,A> implements Implication<O,A> {
 
     /**
      * Premise of an Implication.
@@ -54,6 +55,14 @@ public class FCAImplication<O,A> {
      */
     public List<? extends Attribute<O, A>> getPremise() {
         return premise;
+    }
+
+    public void setPremise(List<? extends Attribute<O,A>> premise){
+        this.premise=premise;
+    }
+
+    public void setConclusion(List<? extends Attribute<O,A>> conclusion){
+        this.conclusion=conclusion;
     }
 
     /**

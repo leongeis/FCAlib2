@@ -1,5 +1,6 @@
 package wikidata;
 
+import api.WikidataAccess;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
@@ -23,7 +24,7 @@ import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
  * Frankfurt University of Applied Sciences
  * lgeis@stud.fra-uas.de
  */
-public class WikidataExtraction {
+public class WikidataExtraction implements WikidataAccess {
 
     /**
      * URL for the used SPARQL Endpoint.

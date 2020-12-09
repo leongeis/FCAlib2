@@ -1,6 +1,7 @@
 package fca;
 
 import api.Attribute;
+import api.Concept;
 import api.ObjectAPI;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
  * @param <A> Type of the Attributes
  * @author Leon Geis
  */
-public class FCAConcept<O,A> {
+public class FCAConcept<O,A> implements Concept<O,A> {
 
     /**
      * List of Objects of an Concept.

@@ -2,6 +2,7 @@ package utils;
 
 import api.Attribute;
 import api.ObjectAPI;
+import fca.FCAAttribute;
 import fca.FCAFormalContext;
 import fca.FCAObject;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -73,7 +74,7 @@ public class ContextHelper {
         }
         //Initialize fca.FCAAttribute List
         for(String s : prop.getProperties()){
-            c.createFCAAttribute(s);
+            c.createAttribute(s, FCAAttribute.class);
         }
         //Perform SELECT Query
         TupleQueryResult t = wa.selectQuery(query);

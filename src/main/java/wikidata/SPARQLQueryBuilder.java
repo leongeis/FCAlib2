@@ -1,5 +1,6 @@
 package wikidata;
 
+import api.WikidataSPARQLQueryBuilder;
 import utils.PropertyIO;
 import utils.exceptions.TooManyPropertiesException;
 
@@ -23,7 +24,7 @@ import java.util.List;
  * of a SPARQL Query.
  * @author Leon Geis
  */
-public class SPARQLQueryBuilder {
+public class SPARQLQueryBuilder implements WikidataSPARQLQueryBuilder {
 
     /**
      * The Limit specifies the amount of queried individuals.

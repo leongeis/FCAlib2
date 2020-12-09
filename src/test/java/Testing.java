@@ -1,11 +1,10 @@
-import api.Attribute;
 import api.ObjectAPI;
-import fca.*;
+import fca.FCAFormalContext;
+import fca.FCAObject;
 import utils.FCAOutputWriter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /*For further information on RDF4J connections:
@@ -39,7 +38,7 @@ public class Testing {
         //FCAFormalContext<Character,Double> exampleContext2 = new FCAFormalContext<>();
 
         //Display Crosstable on Console and Write output to File
-        FCAOutputWriter<String,String> o = new FCAOutputWriter<>();
+        FCAOutputWriter o = new FCAOutputWriter();
         //o.printToConsole(context);
         //o.writeToFile(context,"context_output.txt");
 
@@ -125,27 +124,6 @@ public class Testing {
         //o.printCrosstableToConsole(context);
         //o.printConceptsToConsole(context);
         //o.printStemBaseToConsole(context);
-
-        List<ObjectAPI<String,String>> obl = new ArrayList<>();
-        List<test<String,String>> obm = new ArrayList<>();
-        test<String,String> k = new test<>();
-        k.setObjectID("Q2");
-        obl.add(ob1);
-        obm.add(k);
-        k.addAttribute("a");
-        List<atest<String,String>> aabl = new ArrayList<>();
-        atest<String,String> a = new atest<>();
-        a.addObject("Q7");
-        a.setAttributeID("a");
-        aabl.add(a);
-        System.out.println(FCAComputation.computePrimeOfObjects(obm,testContext).stream().map(Attribute::getAttributeID).collect(Collectors.toList()));
-        System.out.println(FCAComputation.computePrimeOfAttributes(aabl,testContext));
-
-        for(FCAConcept<String,String> com : FCAComputation.computeAllConcepts(testContext)){
-            com.printConcept();
-        }
-
-
 
     }
 }
