@@ -7,18 +7,41 @@
 [![Github top language][language-shield]][language-url]
 
 # FCAlib2
+> Is the Project finished ?
+- [ ] Yes
+- [x] No
+
+> Is the README finished?
+- [ ] Yes
+- [x] No
+
+##### TODO
+- [ ] Use Data from DBPedia
+- [ ] Use Data from YAGO
+- [ ] Finish Performance Interface
+- [x] Include Support of Implications
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
 * [About the Project](#about-the-project)
+  * [Project Structure](#project-structure)
   * [Built With](#built-with)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 * [Tutorial](#tutorial)
-  * [Creating an Object](#objectcreation)
-* [Roadmap](#roadmap)
+  * [Creating an Object](#1creating-an-object-fcaobject)
+  * [Creating an Attribute](#2creating-an-attribute-fcaattribute)
+  * [Creating a Formal Context](#3creating-a-formal-context-fcaformalcontext)
+  * [Interaction between Object and Attribute](#4interaction-between-fcaobject-and-fcaattribute)
+  * [Interaction between Context and Attribute/Object](#5interaction-between-fcaformalcontext-and-fcaattributefcaobject)
+  * [Using the Computation Interface](#6using-the-computation-interface)
+  * [Extending the Project](#7extending)
+* [Knowledge Graphs](#knowledge-graphs)
+  * [Wikidata](#wikidata)
+  * [DBPedia](#dbpedia)
+  * [YAGO](#yago)
 * [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
@@ -27,8 +50,31 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This project is an enhanced version of FCAlib originally developed by Baris Sertkaya.
+This project is an enhanced version of FCAlib originally developed by Baris Sertkaya. The aim of this project is to
+develop an open-source library, which is easy to use and easy to extend. 
 
+### Project Structure
+
+The Project is divided into a `api` and a `lib` part. Here, one can use the provided interfaces in the api package. The
+lib package contains all classes implementing the interfaces from the api package. In the following we will explain each package
+inside api and lib and their purpose.
+
+#### Packages from .api.*
+* [api.fca](#api.fca) 
+  > 
+* [api.utils](#api.utils)
+  >
+#### Packages from .lib.*
+* [lib.dbpedia](#lib.dbpedia)
+  >
+* [lib.fca](#lib.fca)
+  >
+* [lib.utils](#lib.utils)
+  >
+* [lib.wikidata](#lib.wikidata)
+  >
+* [lib.yago](#lib.yago)
+  >
 ### Built With
 
 * []()
@@ -51,7 +97,9 @@ This project is an enhanced version of FCAlib originally developed by Baris Sert
 ## Tutorial
 The flavour of FCA comes into play, when considering Objects and Attributes of a formal Context.
 Thus, below is a quick guide on how to create an Object/Attribute/Context and how to use the
-implemented algorithms. 
+implemented algorithms. The steps below make use of the implemented classes in the `lib` package. One
+can also implement new classes, by simply implementing the corresponding interfaces or extending the existing
+classes. Steps on how to extend the project are given at the end.
 #### 1.Creating an Object (`FCAObject`)
 >First we need to create an Object and specify the type of the Object itself (first type parameter)
 >, and the type of the Attributes the Object holds (second type parameter). Both the Object itself and
@@ -59,23 +107,23 @@ implemented algorithms.
 >We provide the Constructor of the FCAObject Class with an ID for our new FCAObject ob1, which is here "Q1".
 ><br/>Note: The ID and the type of the Object itself have to be the same!
 ```java
-FCAObject<String,String> ob1 = new FCAObject<>("Q1");
+ObjectAPI<String,String> ob1 = new FCAObject<>("Q1");
 ```
 #### 2.Creating an Attribute (`FCAAttribute`)
->When creating a new Attribute, the type parameter are (similar to the FCAObject type parameter) first the type
+>When creating a new Attribute, the type parameter are (similar to the ObjectAPI type parameter) first the type
 >of the Attribute itself and secondly the type of the Objects the Attribute holds. Again, both the Attribute itself
 >and its Objects are of type `String`.
 >We provide the Constructor of the FCAAttribute Class with an ID for our new FCAAttribute atr1, which is here just "a".
 ><br/>Note: Again, both the ID and the type of the Attribute itself have to be the same!
 ```java
-FCAAttribute<String,String> atr1 = new FCAAttribute<>("a");
+Attribute<String,String> atr1 = new FCAAttribute<>("a");
 ```
 #### 3.Creating a Formal Context (`FCAFormalContext`)
 >Similar to the Object and Attribute type parameter, the first type parameter specifies the type of the Objects (G) of
 >the context and the second type parameter specifies the type of the Attributes (M) of the context. Here, both
 >the Objects and the Attributes of the context are of type `String`.
 ```java
-FCAFormalContext<String,String> testContext = new FCAFormalContext<>();
+Context<String,String> testContext = new FCAFormalContext<>();
 ```
 #### 4.Interaction between `FCAObject` and `FCAAttribute`
 >An Object without any Attribute describing the Object is almost worthless. Thus, below is the easiest and quickest way
@@ -106,7 +154,7 @@ testContext.addFCAObject(ob3);
 ```
 >Here we add the FCAObjects `ob1`,`ob2` and `ob3` to the earlier created FCAFormalContext Object. Again the Attributes
 >of each individual Object are also added to the context. Thus, one could also use the method `addFCAAttribute()`.
-#### 6.Algorithms
+#### 6.Using the Computation Interface
 >The usefulness of FCA comes from the existing algorithms. There is an implemented approach for using these. First we create
 >an `FCAOutputWriter` Object to display each computed result on the Console.
 ```java
@@ -143,9 +191,18 @@ CONCEPT:[];[a, b, c, d]
 >The Algorithm used in the method above is `NextClosure`. One can also use an naive implementation
 >of computing all concepts implemented in the `FCAFormalContext` class.
 ><br/>FCAFormalContext: https://github.com/leongeis/FCAlib2/blob/main/src/main/java/fca/FCAFormalContext.java
-<!-- ROADMAP -->
-## Roadmap
 
+#### 7.Extending
+
+## Knowledge Graphs
+<!-- Wikidata -->
+### Wikidata
+
+### DBPedia
+
+### YAGO
+
+<!-- DBPedia -->
 
 
 <!-- CONTRIBUTING -->
@@ -159,9 +216,9 @@ CONCEPT:[];[a, b, c, d]
 <!-- CONTACT -->
 ## Contact
 
-Leon Geis - [lgeis@stud.fra-uas.de](https://twitter.com/twitter_handle)
+Leon Geis - [lgeis@stud.fra-uas.de](lgeis@stud.fra-uas.de)
 
-Project Link: [https://github.com/leongeis/FCAlib2](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/leongeis/FCAlib2](https://github.com/leongeis/FCAlib2)
 
 
 

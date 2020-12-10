@@ -1,7 +1,10 @@
-import api.ObjectAPI;
-import fca.FCAFormalContext;
-import fca.FCAObject;
-import utils.FCAOutputWriter;
+import api.fca.Computation;
+import api.fca.Implication;
+import api.fca.ObjectAPI;
+import api.utils.OutputPrinter;
+import api.utils.Performance;
+import lib.fca.FCAFormalContext;
+import lib.fca.FCAObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,7 @@ import java.util.List;
 
 public class Testing {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         //Create a FCAFormalContext Object and initialize it with Data from Wikidata
         //first parameter: a SPARQLQueryBuilder Object is used for generating a query
@@ -29,7 +32,7 @@ public class Testing {
         //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
 
-        //FCAFormalContext<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
+        //Context<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
 
         //Here both Objects Attributes are of type Integer
         //FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>(Integer.class,Integer.class);
@@ -37,14 +40,13 @@ public class Testing {
         //They do not have to be of the same type
         //FCAFormalContext<Character,Double> exampleContext2 = new FCAFormalContext<>();
 
-        //Display Crosstable on Console and Write output to File
-        FCAOutputWriter o = new FCAOutputWriter();
         //o.printToConsole(context);
         //o.writeToFile(context,"context_output.txt");
 
         //Option to delete file from properties package
         //PropertyIO p = new PropertyIO();
         //p.deleteFile("test.txt");
+        long a1 = Performance.setTimeStamp();
 
         //Create new TestContext
         FCAFormalContext<String,String> testContext = new FCAFormalContext<String,String>(){};
@@ -102,28 +104,34 @@ public class Testing {
         //testContext.getContextAttributes().add(new AttFCA<>());
         //List<PartObj<String,String>> pert = testContext.getContextObjects();
 
-        FCAFormalContext<Integer,Integer> context = new FCAFormalContext<Integer, Integer>() {};
-        context.createObject(2,FCAObject.class);
+        //FCAFormalContext<Integer,Integer> context = new FCAFormalContext<Integer, Integer>() {};
+        //context.createObject(2,FCAObject.class);
         List<Integer> test = new ArrayList<>();
         test.add(2);
-        List<ObjectAPI<Integer,Integer>> list = context.getObjects(test);
-        for(ObjectAPI<Integer,Integer> a : list){
+        //List<ObjectAPI<Integer,Integer>> list = context.getObjects(test);
+        /*for(ObjectAPI<Integer,Integer> a : list){
             System.out.println(a.getObjectID());
+        }*/
+        for(Implication<String,String> impl : Computation.computeStemBase(testContext)){
+            System.out.println(impl.toString()+": "+Computation.computeImplicationSupport(impl,testContext));
         }
-
         //Print Context and all Concepts of TestContext
-        o.printCrosstableToConsole(testContext);
-        o.writeCrosstableToFile(testContext,"test_context.txt");
+        OutputPrinter.printCrosstableToConsole(testContext);
+        OutputPrinter.writeCrosstableToFile(testContext,"test_context.txt");
 
-        o.printConceptsToConsole(testContext);
-        o.writeConceptsToFile(testContext,"test_concepts.txt");
+        OutputPrinter.printConceptsToConsole(testContext);
+        OutputPrinter.writeConceptsToFile(testContext,"test_concepts.txt");
 
-        o.printStemBaseToConsole(testContext);
-        o.writeStemBaseToFile(testContext,"test_stembase.txt");
+        OutputPrinter.printStemBaseToConsole(testContext);
+        OutputPrinter.writeStemBaseToFile(testContext,"test_stembase.txt");
 
-        //o.printCrosstableToConsole(context);
-        //o.printConceptsToConsole(context);
-        //o.printStemBaseToConsole(context);
-
+        /*OutputPrinter.printCrosstableToConsole(context);
+        OutputPrinter.printConceptsToConsole(context);
+        OutputPrinter.printStemBaseToConsole(context);*/
+        /*for(Implication<String,String> impl : Computation.computeStemBase(context)){
+            System.out.println(impl.toString()+": "+Computation.computeImplicationSupport(impl,context));
+        }*/
+        long a2 = Performance.setTimeStamp();
+        System.out.println(Performance.getExecutionTime(a1,a2));
     }
 }
