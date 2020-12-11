@@ -11,7 +11,7 @@
 <!-- PROJECT LOGO -->
 <p align="center">
   <h1 align="center">FCAlib2</h1>
-  <img width="300" height="280" src="https://github.com/leongeis/FCAlib2/Logo.png">
+  <img width="300" height="280" src="https://github.com/leongeis/FCAlib2/blob/main/Logo.png">
   <h4 align="center">A library for FCA-Tool Developer.</h4>
 </p>
 
