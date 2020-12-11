@@ -10,7 +10,7 @@
 
 <!-- PROJECT LOGO -->
 <p align="center">
-  <img width="460" height="460" src="https://github.com/leongeis/FCAlib2/blob/main/Logo.png">
+  <img width="546" height="481" src="https://github.com/leongeis/FCAlib2/blob/main/Logo.png">
 </p>
 
 
