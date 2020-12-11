@@ -207,7 +207,7 @@ Here we add the FCAObjects `ob1`,`ob2` and `ob3` to the earlier created FCAForma
 of each individual Object are also added to the context. Thus, one could also use the method `addAttribute()`. However,
 this method creates ``FCAObject`` objects and adds them to the Context, if an object is not present in the Context object.
 <p align="center">
-<img width="600" height="342" src="https://github.com/leongeis/FCAlib2/images/testcontext.png">
+<img width="600" height="342" src="https://github.com/leongeis/FCAlib2/blob/main/images/testcontext.png">
 <h6 align="center">The created testContext Object after the first addObject(ob1) invocation.</h6>
 </p>
 
