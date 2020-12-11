@@ -1,8 +1,5 @@
 package api.fca;
 
-import lib.fca.FCAAttribute;
-import lib.fca.FCAObject;
-
 import java.util.List;
 
 /**
@@ -65,28 +62,37 @@ public interface Context<O,A> {
     boolean containsObject(O o);
 
     /**
-     * Adds an FCAObject Object to the Context, as well as the Attributes
-     * the FCAObject Object has.
-     * @param o FCAObject
+     * Adds an ObjectAPI object to the Context, as well as the Attributes
+     * the Object has. All existing Objects in the Context, will be checked,
+     * if they also have this Attribute. If they have, it will be added to
+     * their Attribute List.
+     * Note: If an Attribute is not present in the List of Attributes of
+     * the context, a new FCAAttribute will be created.
+     * @param o Object to be added
      */
-    void addFCAObject(FCAObject<O,A> o);
+    <T extends ObjectAPI<O,A>> void addObject(T o);
 
     /**
-     * Adds an FCAAttribute Object to the Context, as well as all the
-     * corresponding FCAObject Objects.
-     * @param a FCAAttribute
+     * Adds an Attribute Object to the Context, as well as all the
+     * corresponding Objects the Attribute has.
+     * All existing Attributes in the Context, will be checked,
+     * if they also have this Object. If they have, it will be added to
+     * their Object List.
+     * Note: If an Object is not present in the List of Objects of
+     * the context, a new FCAObject will be created.
+     * @param a Attribute to be added
      */
-    void addFCAAttribute(FCAAttribute<O,A> a);
+    <T extends Attribute<O,A>> void addAttribute(T a);
 
     /**
      * Get all Objects of the context.
-     * @return List of FCAObjects.
+     * @return List of Objects.
      */
     List<ObjectAPI<O,A>> getContextObjects();
 
     /**
      * Get all Attributes of the context.
-     * @return List of FCAAttributes.
+     * @return List of Attributes.
      */
     List<Attribute<O,A>> getContextAttributes();
 
@@ -101,7 +107,7 @@ public interface Context<O,A> {
     /**
      * Returns a single Object of the Context.
      * @param o The ID of the Object to be returned.
-     * @return FCAObject Object, if the Object is in the
+     * @return Object, if the Object is in the
      * Object List of the Context, <code>null</code> otherwise.
      */
     ObjectAPI<O,A> getObject(O o);

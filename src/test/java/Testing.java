@@ -1,4 +1,5 @@
 import api.fca.Computation;
+import api.fca.Context;
 import api.fca.Implication;
 import api.fca.ObjectAPI;
 import api.utils.OutputPrinter;
@@ -49,7 +50,7 @@ public class Testing {
         long a1 = Performance.setTimeStamp();
 
         //Create new TestContext
-        FCAFormalContext<String,String> testContext = new FCAFormalContext<String,String>(){};
+        Context<String,String> testContext = new FCAFormalContext<String,String>(){};
 
         //Create Objects and provide them with Attributes
         FCAObject<String,String> ob1 = new FCAObject<>("Q1");
@@ -70,9 +71,9 @@ public class Testing {
         //Note: If an Attribute of an Object is not present in the
         //Attribute List of the Context, a new FCAAttribute Object is created
         //and added to the Attribute List of the Context.
-        testContext.addFCAObject(ob1);
-        testContext.addFCAObject(ob2);
-        testContext.addFCAObject(ob3);
+        testContext.addObject(ob1);
+        testContext.addObject(ob2);
+        testContext.addObject(ob3);
 
         List<String> ID = new ArrayList<>();
         ID.add("Q1");
@@ -83,7 +84,7 @@ public class Testing {
         ob4.addAttribute("a");
         ob4.addAttribute("c");
         ob4.addAttribute("b");
-        testContext.addFCAObject(ob4);
+        testContext.addObject(ob4);
         FCAObject<String,String> ob5 = new FCAObject<>("Q5");
         ob5.addAttribute("d");
         //ob5.addAttribute("b");
@@ -94,9 +95,9 @@ public class Testing {
         ob7.addAttribute("e");
         //ob7.addAttribute("b");
 
-        testContext.addFCAObject(ob5);
-        testContext.addFCAObject(ob6);
-        testContext.addFCAObject(ob7);
+        testContext.addObject(ob5);
+        testContext.addObject(ob6);
+        testContext.addObject(ob7);
 
         List<ObjectAPI<String,String>> tm = testContext.getContextObjects();
         List<ObjectAPI<Integer,Integer>> ab = new ArrayList<>();
@@ -131,6 +132,11 @@ public class Testing {
         /*for(Implication<String,String> impl : Computation.computeStemBase(context)){
             System.out.println(impl.toString()+": "+Computation.computeImplicationSupport(impl,context));
         }*/
+        Computation.computePrimeOfObjects(testContext.getContextObjects(),testContext);
+        Computation.computeAllConcepts(testContext);
+        Computation.computeStemBase(testContext);
+
+
         long a2 = Performance.setTimeStamp();
         System.out.println(Performance.getExecutionTime(a1,a2));
     }

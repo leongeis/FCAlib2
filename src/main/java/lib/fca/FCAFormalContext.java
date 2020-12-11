@@ -151,19 +151,24 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A>{
     }
 
     /**
-     * Adds an FCAObject Object to the Context, as well as the Attributes
-     * the FCAObject Object has.
-     * @param o FCAObject
+     * Adds an ObjectAPI object to the Context, as well as the Attributes
+     * the Object has. All existing Objects in the Context, will be checked,
+     * if they also have this Attribute. If they have, it will be added to
+     * their Attribute List.
+     * Note: If an Attribute is not present in the List of Attributes of
+     * the context, a new FCAAttribute will be created.
+     * @param o Object to be added
      */
-    public void addFCAObject(FCAObject<O,A> o){
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectAPI<O,A>> void addObject(T o){
         //Add Object to Object List
         this.contextObjects.add(o);
         //For each Attribute of the new Object, check
         //if Attribute is already present in the Attribute List;
         //if not add the Attribute with the new Object to the Context.
-        for(A attr : o.getDualEntities()){
-            if(!this.containsAttribute(attr)){
-                FCAAttribute<O,A> newAttribute = new FCAAttribute<>(attr);
+        for(Object attr : o.getDualEntities()){
+            if(!this.containsAttribute((A) attr)){
+                Attribute<O,A> newAttribute = new FCAAttribute<>((A)attr);
                 newAttribute.addObject(o.getObjectID());
                 this.contextAttributes.add(newAttribute);
             }else {
@@ -172,8 +177,8 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A>{
                     //If an Object has this Attribute add it to the Object
                     //List of the Attribute. Care for the case that the Object List
                     //of the Attribute already contains the Object.
-                    if(object.getDualEntities().contains(attr) && !getAttribute(attr).getDualEntities().contains(object.getObjectID())){
-                        getAttribute(attr).addObject(object.getObjectID());
+                    if(object.getDualEntities().contains(attr) && !getAttribute((A)attr).getDualEntities().contains(object.getObjectID())){
+                        getAttribute((A)attr).addObject(object.getObjectID());
                     }
                 }
             }
@@ -181,19 +186,25 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A>{
     }
 
     /**
-     * Adds an FCAAttribute to the Context, as well as all corresponding
-     * FCAObjects.
-     * @param a FCAAttribute
+     * Adds an Attribute Object to the Context, as well as all the
+     * corresponding Objects the Attribute has.
+     * All existing Attributes in the Context, will be checked,
+     * if they also have this Object. If they have, it will be added to
+     * their Object List.
+     * Note: If an Object is not present in the List of Objects of
+     * the context, a new FCAObject will be created.
+     * @param a Attribute to be added
      */
-    public void addFCAAttribute(FCAAttribute<O,A> a){
+    @SuppressWarnings("unchecked")
+    public <T extends Attribute<O,A>> void addAttribute(T a){
         //Add Attribute to Attribute List
         this.contextAttributes.add(a);
         //For each Object of the new Attribute, check
         //if Object is already present in the Object List;
         //if not add the Object with the new Attribute to the Context.
-        for(O obj : a.getDualEntities()){
-            if(!this.containsObject((obj))){
-                FCAObject<O,A> newObject = new FCAObject<>(obj);
+        for(Object obj : a.getDualEntities()){
+            if(!this.containsObject(((O)obj))){
+                ObjectAPI<O,A> newObject = new FCAObject<>((O)obj);
                 newObject.addAttribute(a.getAttributeID());
                 this.contextObjects.add(newObject);
             }else{
@@ -202,8 +213,8 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A>{
                     //If an Attribute has this Object add it to the Attribute
                     //List of the Object. Care for the case that the Attribute List
                     //of the Object already contains the Attribute.
-                    if(atr.getDualEntities().contains(obj) && !getObject(obj).getDualEntities().contains(atr.getAttributeID())){
-                        getObject(obj).addAttribute(atr.getAttributeID());
+                    if(atr.getDualEntities().contains(obj) && !getObject((O)obj).getDualEntities().contains(atr.getAttributeID())){
+                        getObject((O)obj).addAttribute(atr.getAttributeID());
                     }
                 }
             }
