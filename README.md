@@ -9,7 +9,7 @@
 <!-- PROJECT LOGO -->
 <h1 align="center">FCAlib2</h1>
 <p align="center">
-  <img width="300" height="280" src="https://github.com/leongeis/FCAlib2/images/Logo.png">
+  <img width="300" height="280" src="https://github.com/leongeis/FCAlib2/blob/main/images/Logo.png">
   <h4 align="center">A library for FCA-Tool Developer.</h4>
 </p>
 
@@ -166,7 +166,7 @@ we defined the type of the Attributes of `ob1` to be of type `String`, we can on
 
 
 <p align="center">
-<img width="420" height="176" src="https://github.com/leongeis/FCAlib2/images/objectatt.png">
+<img width="420" height="176" src="https://github.com/leongeis/FCAlib2/blob/main/images/objectatt.png">
 <h6 align="center">The Object stores the Attribute IDs in a List.</h6>
 </p>
 
@@ -179,7 +179,7 @@ atr1.addObject("Q2");
 ```
 
 <p align="center">
-<img width="420" height="176" src="https://github.com/leongeis/FCAlib2/images/attrobject.png">
+<img width="420" height="176" src="https://github.com/leongeis/FCAlib2/blob/main/images/attrobject.png">
 <h6 align="center">The Attribute stores the Object IDs in a List.</h6>
 </p>
 
