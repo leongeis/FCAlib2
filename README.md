@@ -10,7 +10,7 @@
 
 <!-- PROJECT LOGO -->
 <p align="center">
-  <img width="460" height="300" src="src/images/fcalogo1.png">
+  <img width="460" height="300" src="Logo.png">
 </p>
 
 
