@@ -1,10 +1,11 @@
-package lib.utils;
+package api.utils;
 
 import api.fca.Attribute;
 import api.fca.ObjectAPI;
 import lib.fca.FCAAttribute;
 import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
+import lib.utils.PropertyIO;
 import lib.utils.exceptions.NoPropertiesDefinedException;
 import lib.wikidata.SPARQLQueryBuilder;
 import lib.wikidata.WikidataExtraction;
@@ -16,9 +17,7 @@ import java.util.List;
  * Used for creating a FCAFormalContext Object based on data from Wikidata.
  * @author Leon Geis
  */
-public class ContextHelper {
-
-    //TODO REWORK GENERICS
+public interface ContextHelper {
 
     /**
      * Method used for creating a new FormalContext. This Context is
@@ -33,7 +32,7 @@ public class ContextHelper {
      * @return A FCAFormalContext Object, which is set according to the specified data from Wikidata.
      */
     //Note: Currently only Plain Incidence is implemented! (4.11.20)
-    public static FCAFormalContext<String,String> createContextFromWikidata(boolean build, String qry, String file){
+    static FCAFormalContext<String,String> createContextFromWikidata(boolean build, String qry, String file){
         //Create new FormalContext
         FCAFormalContext<String,String> c = new FCAFormalContext<String,String>(){};
         //Create new Object of type WikidataExtraction
@@ -115,11 +114,11 @@ public class ContextHelper {
     }
 
     //TODO
-    public static FCAFormalContext<String,String> createContextFromDBPedia(){
+    static FCAFormalContext<String,String> createContextFromDBPedia(){
         return null;
     }
     //TODO
-    public static FCAFormalContext<String,String> createContextFromYAGO(){
+    static FCAFormalContext<String,String> createContextFromYAGO(){
         return null;
     }
 

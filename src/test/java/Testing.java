@@ -2,6 +2,7 @@ import api.fca.Computation;
 import api.fca.Context;
 import api.fca.Implication;
 import api.fca.ObjectAPI;
+import api.utils.ContextHelper;
 import api.utils.OutputPrinter;
 import api.utils.Performance;
 import lib.fca.FCAFormalContext;
@@ -32,9 +33,10 @@ public class Testing {
 
         //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
-
-        //Context<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
-
+        long a1 = Performance.setTimeStamp();
+        Context<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
+        long a2 = Performance.setTimeStamp();
+        System.out.println("Creating a Context from Wikidata took: "+Performance.convertToFormat(Performance.getExecutionTime(a1,a2)));
         //Here both Objects Attributes are of type Integer
         //FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>(Integer.class,Integer.class);
 
@@ -47,7 +49,8 @@ public class Testing {
         //Option to delete file from properties package
         //PropertyIO p = new PropertyIO();
         //p.deleteFile("test.txt");
-        long a1 = Performance.setTimeStamp();
+
+
 
         //Create new TestContext
         Context<String,String> testContext = new FCAFormalContext<String,String>(){};
@@ -136,8 +139,5 @@ public class Testing {
         Computation.computeAllConcepts(testContext);
         Computation.computeStemBase(testContext);
 
-
-        long a2 = Performance.setTimeStamp();
-        System.out.println(Performance.getExecutionTime(a1,a2));
     }
 }
