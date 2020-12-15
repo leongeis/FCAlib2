@@ -1,7 +1,6 @@
 package lib.utils;
 
 import lib.utils.exceptions.NoPropertiesDefinedException;
-import lib.wikidata.SPARQLQueryBuilder;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -162,7 +161,6 @@ public class PropertyIO {
         //Display Format for Input
         System.out.println("Format: P?,P?,P?,P?,P?");
         System.out.println("Where ? has to be replaced by an arbitrary Integer.");
-        System.out.println("Enter desired Properties (Amount of Properties should not be above "+SPARQLQueryBuilder.getPropertyCount()+"): ");
         //Get next Line and save it as a String
         String input=s.nextLine();
         //Display Msg on Console
@@ -206,5 +204,6 @@ public class PropertyIO {
             System.out.println("Canceled!");
         }
     }
+
 
 }

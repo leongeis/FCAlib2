@@ -2,7 +2,6 @@ package lib.wikidata;
 
 import api.utils.WikidataSPARQLQueryBuilder;
 import lib.utils.PropertyIO;
-import lib.utils.exceptions.TooManyPropertiesException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,24 +23,18 @@ import java.util.List;
  * of a SPARQL Query.
  * @author Leon Geis
  */
-public class SPARQLQueryBuilder implements WikidataSPARQLQueryBuilder {
+public class WikidataQueryBuilder implements WikidataSPARQLQueryBuilder {
 
     /**
      * The Limit specifies the amount of queried individuals.
      */
-    private static int LIMIT=1000;
-
-    /**
-     * Specifying the amount of properties.
-     */
-    private static int PROPERTY_COUNT=5;
+    private static int LIMIT=5;
 
     /**
      * Language of the Item Labels.
      * Standard: English
      */
     private String language;
-
 
     /**
      * A List of prefixes for the query.
@@ -58,7 +51,7 @@ public class SPARQLQueryBuilder implements WikidataSPARQLQueryBuilder {
     /**
      * The Constructor of the Class.
      */
-    public SPARQLQueryBuilder(){
+    public WikidataQueryBuilder(){
         prefixes = new ArrayList<>();
         variables = new ArrayList<>();
         this.language="en";
@@ -71,15 +64,6 @@ public class SPARQLQueryBuilder implements WikidataSPARQLQueryBuilder {
     public void setLimit(int limit){
         LIMIT = limit;
     }
-
-    /**
-     * Get the permitted amount of Properties.
-     * @return Number of Properties.
-     */
-    public static int getPropertyCount(){
-        return PROPERTY_COUNT;
-    }
-
 
     /**
      * Adding a Variable to the list.
@@ -97,12 +81,7 @@ public class SPARQLQueryBuilder implements WikidataSPARQLQueryBuilder {
      * @param properties The set of the specified properties.
      * @return A String representation of the SELECT Query.
      */
-    public String generateSelectQuery(PropertyIO properties) throws TooManyPropertiesException {
-
-        //Limiting the amount of properties to 5
-        if(properties.getSize()>PROPERTY_COUNT){
-            throw new TooManyPropertiesException("Too many Properties are specified. Currently permitted: "+PROPERTY_COUNT);
-        }
+    public String generateSelectQuery(PropertyIO properties) {
 
         //Initializing result query String
         String resultQuery="SELECT DISTINCT ";
@@ -154,6 +133,37 @@ public class SPARQLQueryBuilder implements WikidataSPARQLQueryBuilder {
      */
     public String generateAskQuery(String item, String property){
         return "ASK WHERE {wd:"+item+" wdt:"+property+" ?o.}";
+    }
+
+    /**
+     * Generates a SELECT Instance of Query base on the given input
+     * property.
+     * @param property String of the form (Q...)
+     * @return String representation of the Instance of SELECT Query.
+     */
+    public String generateInstanceOfQuery(String property){
+        return "select ?item where {?item wdt:P31 wd:" + property + ".}";
+    }
+
+    public String generateSelectBindQuery(String item, List<String> properties){
+        //Initialize String
+        String query = "";
+        //Add first part of the query
+        query += "select * where{ wd:";
+        //Add item identifier
+        query += item+" ?p ?o. ";
+        //Add BIND constraint
+        query += "BIND ((";
+        //For each property add the corresponding constraint
+        for(String prop : properties){
+            //If the current String is the last element add additional end of query
+            if(properties.indexOf(prop)==properties.size()-1){
+                query += "?p=wdt:"+prop+") AS ?result) FILTER (?result=true)}";
+            }else {
+                query += "?p=wdt:" + prop + " || ";
+            }
+        }
+        return query;
     }
 
 

@@ -7,12 +7,16 @@ import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
 import lib.utils.PropertyIO;
 import lib.utils.exceptions.NoPropertiesDefinedException;
-import lib.wikidata.SPARQLQueryBuilder;
 import lib.wikidata.WikidataExtraction;
+import lib.wikidata.WikidataQueryBuilder;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Used for creating a FCAFormalContext Object based on data from Wikidata.
  * @author Leon Geis
@@ -39,11 +43,11 @@ public interface ContextHelper {
         WikidataExtraction wa = new WikidataExtraction();
         //Establish a connection to the SPARQL Endpoint of Wikidata
         wa.establishConnection();
-        //If build is set to true, use SPARQLQueryBuilder object
+        //If build is set to true, use WikidataQueryBuilder object
         //Note: Limit cannot be set using this method. Has to be done beforehand.
-        SPARQLQueryBuilder builder=null;
+        WikidataQueryBuilder builder=null;
         if(build){
-            builder = new SPARQLQueryBuilder();
+            builder = new WikidataQueryBuilder();
         }
         //Create a PropertyIO object and read properties from file
         PropertyIO prop=null;
@@ -57,13 +61,28 @@ public interface ContextHelper {
         //If a file has been specified use the given String.
         assert prop != null;
         prop.readFromFile(file);
-
         //If query is null a query will be generated, otherwise the given query will be used.
         //(Optional) Generate a SELECT Query based on the properties
         String query= null;
         if(qry==null){
             try {
                 assert builder != null;
+                //If only one property is specified the class (instance of) properties will be
+                //queries and a new PropertyIO object is created
+                if(prop.getSize()==1){
+                    Iterator<String> iterator = prop.getProperties().iterator();
+                    String propertyClass = iterator.next();
+                    //Perform instance of Query to receive all associated properties
+                    TupleQueryResult classResult = wa.selectQuery(builder.generateInstanceOfQuery(propertyClass));
+                    //Create List of Bindings associated with the variables (?item)
+                    List<String> bindingNames = classResult.getBindingNames();
+                    //Get all Properties and save them in the PropertyIO object
+                    prop.getProperties().remove(propertyClass);
+                    for(BindingSet set : classResult){
+                        //Add each property to the property Object
+                        prop.addProperty(set.getValue(bindingNames.get(0)).toString().substring(set.getValue(bindingNames.get(0)).toString().lastIndexOf("/")+1));
+                    }
+                }
                 query = builder.generateSelectQuery(prop);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -75,6 +94,7 @@ public interface ContextHelper {
         for(String s : prop.getProperties()){
             c.createAttribute(s, FCAAttribute.class);
         }
+
         //Perform SELECT Query
         TupleQueryResult t = wa.selectQuery(query);
 
@@ -96,16 +116,27 @@ public interface ContextHelper {
                 c.createObject(identifier, FCAObject.class);
             }
         }
+        //Create Query Builder Object
+        builder = new WikidataQueryBuilder();
+        System.out.println(builder.generateSelectBindQuery("Q90227",c.getContextAttributes().stream().map(Attribute::getAttributeID).collect(Collectors.toList())));
         //Check for each Object, if it has an Attribute of the fca.FCAFormalContext
         for(ObjectAPI<String,String> o : c.getContextObjects()){
-            //For each Attribute specified in the context check if an object has it and
-            //if it has an Attribute add it to the Object Attribute List.
-            //This is done trough ASK Queries, which are generated respectively
-            for(Attribute<String,String> a : c.getContextAttributes()){
-                //Generate ASK Query based on Object Name(Q...) and the Property (P...)
-                if(wa.booleanQuery(builder.generateAskQuery(o.getObjectID(),a.getAttributeID()))){
-                    o.addAttribute(a.getAttributeID());
-                    a.addObject(o.getObjectID());
+            TupleQueryResult result = wa.selectQuery(builder.generateSelectBindQuery(o.getObjectID(),c.getContextAttributes().stream().map(Attribute::getAttributeID).collect(Collectors.toList())));
+            //Get the binding Names
+            List<String> bindingNames = result.getBindingNames();
+            //Create List which contains each binding
+            List<String> identifiers = new ArrayList<>();
+            //Iterate over results and add Attribute if it is contained in the results
+            for(BindingSet bindings : result){
+                //Get uri
+                String uri = bindings.getValue(bindingNames.get(0)).toString();
+                //Get value
+                String value = uri.substring(uri.lastIndexOf("/")+1);
+                if(!identifiers.contains(value)){
+                    identifiers.add(value);
+                    //Add corresponding Incidence
+                    o.addAttribute(value);
+                    c.getAttribute(value).addObject(o.getObjectID());
                 }
             }
         }

@@ -23,10 +23,10 @@ import java.util.List;
 
 public class Testing {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
 
         //Create a FCAFormalContext Object and initialize it with Data from Wikidata
-        //first parameter: a SPARQLQueryBuilder Object is used for generating a query
+        //first parameter: a WikidataQueryBuilder Object is used for generating a query
         //making the second parameter obsolete. Hence null.
         //third parameter: specifying a file name, the properties are read from. When null is provided,
         //the user can choose from a list of files.
@@ -34,9 +34,14 @@ public class Testing {
         //This approach always returns an object with both types as String.
         //Thus one can split this line to enable a more generic approach to create a FCAFormalContext Object.
         long a1 = Performance.setTimeStamp();
-        Context<String,String> context = ContextHelper.createContextFromWikidata(true,null,"family_properties.txt");
+        Context<String,String> context = ContextHelper.createContextFromWikidata(true,null,"human_relationships.txt");
         long a2 = Performance.setTimeStamp();
         System.out.println("Creating a Context from Wikidata took: "+Performance.convertToFormat(Performance.getExecutionTime(a1,a2)));
+        OutputPrinter.printCrosstableToConsole(context);
+        OutputPrinter.printConceptsToConsole(context);
+        for(Implication<String,String> impl : Computation.computeStemBase(context)){
+            System.out.println(impl.toString()+": "+Computation.computeImplicationSupport(impl,context));
+        }
         //Here both Objects Attributes are of type Integer
         //FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>(Integer.class,Integer.class);
 
