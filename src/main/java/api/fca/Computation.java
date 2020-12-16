@@ -557,7 +557,7 @@ public interface Computation {
      * @return The Support of this Implication ranging from
      * 0 to 1 [0,1].
      */
-    static <O,A,T extends Context<O,A>, S extends Implication<O,A>> float computeImplicationSupport(S implication, T context){
+    static <O,A,T extends Context<O,A>, S extends Implication<O,A>> double computeImplicationSupport(S implication, T context){
         //First check if the context has Objects,
         //if not return 0
         if(context.getContextObjects().isEmpty())return 0;
@@ -576,7 +576,7 @@ public interface Computation {
         //Compute the Prime of the Implication Attributes
         List<ObjectAPI<O,A>> implObjectPrime = computePrimeOfAttributes(new ArrayList<>(implAttributes),context);
         //Compute the support for this implication and return it
-        return ((float)implObjectPrime.size()/context.getContextObjects().size());
+        return ((double)implObjectPrime.size()/context.getContextObjects().size());
     }
 
 }

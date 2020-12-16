@@ -1,6 +1,5 @@
 package lib.wikidata;
 
-import api.utils.WikidataSPARQLQueryBuilder;
 import lib.utils.PropertyIO;
 
 import java.util.ArrayList;
@@ -23,12 +22,12 @@ import java.util.List;
  * of a SPARQL Query.
  * @author Leon Geis
  */
-public class WikidataQueryBuilder implements WikidataSPARQLQueryBuilder {
+public class WikidataQueryBuilder {
 
     /**
      * The Limit specifies the amount of queried individuals.
      */
-    private static int LIMIT=5;
+    private static int LIMIT=100;
 
     /**
      * Language of the Item Labels.
@@ -112,7 +111,6 @@ public class WikidataQueryBuilder implements WikidataSPARQLQueryBuilder {
         //Adding Wikidata Service Label Translation with specified language (HEAVILY DECREASES PERFORMANCE)
         //resultQuery=resultQuery.concat(" SERVICE wikibase:label { bd:serviceParam wikibase:language \"[AUTO_LANGUAGE],"+this.language+"\". ");
 
-        // TODO INCREASE QUERY PERFORMANCE
         //Specifying the Limit of individuals, which are returned by the query
         if(LIMIT>0){
             resultQuery=resultQuery.concat("} LIMIT "+LIMIT);
@@ -120,6 +118,7 @@ public class WikidataQueryBuilder implements WikidataSPARQLQueryBuilder {
             resultQuery=resultQuery.concat("}");
         }
         //Return the generated SELECT Query String
+        System.out.println(resultQuery);
         return resultQuery;
     }
 
@@ -138,11 +137,11 @@ public class WikidataQueryBuilder implements WikidataSPARQLQueryBuilder {
     /**
      * Generates a SELECT Instance of Query base on the given input
      * property.
-     * @param property String of the form (Q...)
+     * @param propertyClass String of the form (Q...)
      * @return String representation of the Instance of SELECT Query.
      */
-    public String generateInstanceOfQuery(String property){
-        return "select ?item where {?item wdt:P31 wd:" + property + ".}";
+    public String generateWikidataInstanceOfQuery(String propertyClass){
+        return "select ?item where {?item wdt:P31 wd:" + propertyClass + ".}";
     }
 
     public String generateSelectBindQuery(String item, List<String> properties){
@@ -163,6 +162,7 @@ public class WikidataQueryBuilder implements WikidataSPARQLQueryBuilder {
                 query += "?p=wdt:" + prop + " || ";
             }
         }
+        System.out.println(query);
         return query;
     }
 

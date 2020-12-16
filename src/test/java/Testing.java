@@ -5,6 +5,7 @@ import api.fca.ObjectAPI;
 import api.utils.ContextHelper;
 import api.utils.OutputPrinter;
 import api.utils.Performance;
+import api.utils.SPARQLQueryGenerator;
 import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
 
@@ -38,10 +39,11 @@ public class Testing {
         long a2 = Performance.setTimeStamp();
         System.out.println("Creating a Context from Wikidata took: "+Performance.convertToFormat(Performance.getExecutionTime(a1,a2)));
         OutputPrinter.printCrosstableToConsole(context);
-        OutputPrinter.printConceptsToConsole(context);
-        for(Implication<String,String> impl : Computation.computeStemBase(context)){
+        //OutputPrinter.printConceptsToConsole(context);
+        /*for(Implication<String,String> impl : Computation.computeStemBase(context)){
             System.out.println(impl.toString()+": "+Computation.computeImplicationSupport(impl,context));
-        }
+        }*/
+
         //Here both Objects Attributes are of type Integer
         //FCAFormalContext<Integer,Integer> exampleContext = new FCAFormalContext<>(Integer.class,Integer.class);
 
@@ -54,9 +56,11 @@ public class Testing {
         //Option to delete file from properties package
         //PropertyIO p = new PropertyIO();
         //p.deleteFile("test.txt");
-
-
-
+        List<String> props = new ArrayList<>();
+        props.add("dbp:date");
+        props.add("dbp:df");
+        //System.out.println(SPARQLQueryGenerator.generateSelectQuery(props,10));
+        SPARQLQueryGenerator.generatePropertyCheckQuery("dbr:Douglas_Adams",props);
         //Create new TestContext
         Context<String,String> testContext = new FCAFormalContext<String,String>(){};
 

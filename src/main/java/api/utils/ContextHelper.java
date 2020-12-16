@@ -73,7 +73,7 @@ public interface ContextHelper {
                     Iterator<String> iterator = prop.getProperties().iterator();
                     String propertyClass = iterator.next();
                     //Perform instance of Query to receive all associated properties
-                    TupleQueryResult classResult = wa.selectQuery(builder.generateInstanceOfQuery(propertyClass));
+                    TupleQueryResult classResult = wa.selectQuery(builder.generateWikidataInstanceOfQuery(propertyClass));
                     //Create List of Bindings associated with the variables (?item)
                     List<String> bindingNames = classResult.getBindingNames();
                     //Get all Properties and save them in the PropertyIO object
