@@ -1,66 +1,63 @@
-package lib.wikidata;
+package lib.utils;
 
-import api.utils.WikidataAccess;
+import api.utils.SPARQLEndpointAccess;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
-
-
-/*
- * This library is an enhanced version of the
- * FCAlib
- * @see <a href="https://github.com/julianmendez/fcalib">https://github.com/julianmendez/fcalib</a>
- * @author Leon Geis
- * @version 0.1
- */
-
-
-/**
- * Provides basic data extraction methods for the Wikidata Knowledge Graph.
- * <a href="https://www.wikidata.org/wiki/Wikidata:Main_Page">wikidata.org/</a>
- * @author Leon Geis
- * Frankfurt University of Applied Sciences
- * lgeis@stud.fra-uas.de
- */
-public class WikidataExtraction implements WikidataAccess {
+//"https://query.wikidata.org/sparql"
+//TODO REWORK
+public class KnowledgeGraphAccess implements SPARQLEndpointAccess {
 
     /**
      * URL for the used SPARQL Endpoint.
      */
-    private String sparqlEndpoint="https://query.wikidata.org/sparql";
+    private String sparqlEndpoint;
     /**
      * Repository Object of Wikidata.
      */
-    private Repository wikiRepo;
+    private Repository repository;
     /**
-     * Connection of this Extraction.
+     * Connection to the Wikidata Repository.
      */
-    private RepositoryConnection wikiconn;
+    private RepositoryConnection repositoryConnection;
 
     /**
-     * Constructor which sets Basic Logging to Console.
+     * Constructor of the Class setting the SPARQL Endpoint.
+     * @param sparqlEndpoint URL of the SPARQL Endpoint as
+     *                       a String.
      */
-    public WikidataExtraction(){
+    public KnowledgeGraphAccess(String sparqlEndpoint){
         //Set Up Basic Logging to Console
         org.apache.log4j.BasicConfigurator.configure();
+        //Set the Endpoint URL
+        this.sparqlEndpoint=sparqlEndpoint;
     }
 
     /**
      * Set URL of SPARQL Endpoint.
      * @param sparqlEndpoint String of the URL Endpoint.
      */
-    public void setSparqlEndpoint(String sparqlEndpoint) {
-        this.sparqlEndpoint = sparqlEndpoint;
+    public void setSparqlEndpoint(String sparqlEndpoint){
+        this.sparqlEndpoint=sparqlEndpoint;
     }
 
     /**
      * Get currently used SPARQL Endpoint URL.
      * @return URL as a String.
      */
-    public String getSparqlEndpoint() {
-        return sparqlEndpoint;
+    public String getSparqlEndpoint(){
+        return this.sparqlEndpoint;
+    }
+
+    /**
+     * Get RepositoryConnection object of
+     * the current connection.
+     * @return RepositoryConnection object.
+     */
+    public RepositoryConnection getConnection(){
+        return this.repositoryConnection;
     }
 
     /**
@@ -68,39 +65,29 @@ public class WikidataExtraction implements WikidataAccess {
      */
     public void establishConnection(){
         //Create Repository Object with SPARQL Endpoint
-        this.wikiRepo = new SPARQLRepository(sparqlEndpoint);
+        this.repository = new SPARQLRepository(sparqlEndpoint);
 
         //Create Connection Object to the specified Repository
-        this.wikiconn = wikiRepo.getConnection();
+        this.repositoryConnection = repository.getConnection();
     }
 
     /**
-     * Performs a CONSTRUCT Query on the Wikidata Knowledge Graph.
+     * Close the Connection to the Repository.
+     */
+    public void closeConnection(){
+        this.repositoryConnection.close();
+    }
+
+    /**
+     * Performs a CONSTRUCT Query on the Knowledge Graph.
      *
      * @param query SPARQL Query as String Object.
      * @return If no Exception occurred: Object of type {@link org.eclipse.rdf4j.query.GraphQueryResult}, otherwise <code>null</code>
-     *
      */
     public GraphQueryResult constructQuery(String query){
         try{
             //Return result of the specified SPARQL Query
-            return this.wikiconn.prepareGraphQuery(query).evaluate();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-    /**
-     * Performs a SELECT Query on the Wikidata Knowledge Graph.
-     *
-     * @param query SPARQL Query as String Object.
-     * @return If no Exception occurred: Object of type {@link org.eclipse.rdf4j.query.TupleQueryResult}, otherwise <code>null</code>
-     *
-     */
-    public TupleQueryResult selectQuery(String query){
-        try{
-            //Return result of the specified SPARQL Query
-            return this.wikiconn.prepareTupleQuery(query).evaluate();
+            return this.repositoryConnection.prepareGraphQuery(query).evaluate();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -108,14 +95,30 @@ public class WikidataExtraction implements WikidataAccess {
     }
 
     /**
-     * Performs a ASK Query on the Wikidata Knowledge Graph.
+     * Performs a SELECT Query on the Knowledge Graph.
      *
      * @param query SPARQL Query as String Object.
-     * @return If no Exception occurred: Either true or false, otherwise <code>null</code>
+     * @return If no Exception occurred: Object of type {@link org.eclipse.rdf4j.query.TupleQueryResult}, otherwise <code>null</code>
+     */
+    public TupleQueryResult selectQuery(String query){
+        try{
+            //Return result of the specified SPARQL Query
+            return this.repositoryConnection.prepareTupleQuery(query).evaluate();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Performs an ASK Query on the Knowledge Graph.
+     *
+     * @param query SPARQL Query as String Object.
+     * @return If no Exception occured: Either true or false, otherwise <code>null</code>
      */
     public Boolean booleanQuery(String query){
         try{
-            return this.wikiconn.prepareBooleanQuery(query).evaluate();
+            return this.repositoryConnection.prepareBooleanQuery(query).evaluate();
         }catch (Exception e){
             e.printStackTrace();
         }
