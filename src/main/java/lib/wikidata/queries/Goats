@@ -1,7 +1,0 @@
-#Select subjects of two types of "Goats".
-#@author Leon Geis
-SELECT ?s ?p ?o
-WHERE
-{
-  {?s wdt:P31 wd:Q2934} UNION {?s wdt:P31 wd:Q198516}
-}

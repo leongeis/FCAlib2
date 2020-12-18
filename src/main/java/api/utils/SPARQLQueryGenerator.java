@@ -12,7 +12,7 @@ import java.util.List;
  * SPARQL Queries, see <a href="https://www.w3.org/TR/rdf-sparql-query/">https://www.w3.org/TR/rdf-sparql-query/</a>
  * @author Leon Geis
  */
-//TODO JavaDoc
+//TODO JavaDoc + Builder Pattern
 public interface SPARQLQueryGenerator {
 
     String prefixes =
@@ -30,7 +30,7 @@ public interface SPARQLQueryGenerator {
             "PREFIX yago: <http://yago-knowledge.org/resource/>\n";
 
 
-    static String generateSelectQuery(List<String> properties, int limit){
+    static String generateSelectUnionQuery(List<String> properties, int limit){
         //Create String to be returned at the end
         String query = "";
         //First add the prefixes
@@ -41,9 +41,9 @@ public interface SPARQLQueryGenerator {
         int i=1;
         for(String prop : properties){
             if(i == properties.size()){
-                query += "{ ?s "+prop+" ?o.}} ";
+                query += "{ ?s <"+prop+"> ?o.}} ";
             }else {
-                query += "{ ?s "+prop+" ?o.} UNION ";
+                query += "{ ?s <"+prop+"> ?o.} UNION ";
             }
             i++;
         }
@@ -56,43 +56,64 @@ public interface SPARQLQueryGenerator {
     }
 
     static String generateAskQuery(String entity, String property){
-        return prefixes+"ASK WHERE {"+entity+" "+property+" ?o.}";
+        return prefixes+"ASK WHERE {<"+entity+"> <"+property+"> ?o.}";
     }
 
-    static String generateWikidataInstanceOfQuery(String propertyClassLabel){
-        return prefixes+"select * where {?s wdt:P31 wd:" + propertyClassLabel + ".}";
+    static String generateSelectWikidataInstanceOfQuery(String propertyClass){
+        return prefixes+"select * where {?s wdt:P31 <" + propertyClass + ">.}";
     }
 
-    static String generatePropertyCheckQuery(String entity,List<String> properties){
+    static String generateSelectPropertyCheckQuery(String entity, List<String> properties){
         //Create String to be returned
         String query = prefixes+"";
         //Add first part of the query
-        query += "select * where{ ";
+        query += "select * where{ <";
         //Add entity
-        query += entity+" ?p ?o. ";
+        query += entity+"> ?p ?o. ";
         //Add BIND constraint
         query += "BIND ((";
         //For each property add the corresponding constraint
         for(String prop : properties){
             //If the current String is the last element add additional end of query
             if(properties.indexOf(prop)==properties.size()-1){
-                query += "?p="+prop+") AS ?result) FILTER (?result=true)}";
+                query += "?p=<"+prop+">) AS ?result) FILTER (?result=true)}";
             }else {
-                query += "?p=" + prop + " || ";
+                query += "?p=<" + prop + "> || ";
             }
         }
-        System.out.println(query);
         return query;
     }
 
-    static String generateSameAsQuery(String entity){
-        return "SELECT * WHERE { ?s owl:sameAs "+entity+".}";
+    static String generateSelectPropertyCheckQuery(List<String> properties){
+        //Create String to be returned
+        String query = prefixes+"";
+        //Add first part of the query
+        query += "select * where{ ?s owl:equivalentProperty ?o.";
+        //Add BIND constraint
+        query += "BIND ((";
+        //For each property add the corresponding constraint
+        for(String prop : properties){
+            //If the current String is the last element add additional end of query
+            if(properties.indexOf(prop)==properties.size()-1){
+                query += "?o=<"+prop+">) AS ?result) FILTER (?result=true)}";
+            }else {
+                query += "?o=<" + prop + "> || ";
+            }
+        }
+        return query;
     }
 
-    static String generateWikidataEquivalentPropertyQuery(String property){
-        //owl:sameAs
-        //owl:equivalentProperty
-        return "SELECT * WHERE { "+property+" wdt:P1628 ?o.}";
+    static String generateSelectSameAsQuery(String entity){
+        return "SELECT * WHERE { ?s owl:sameAs <"+entity+">.}";
+    }
+
+    static String generateSelectEquivalentPropertyQuery(String property){
+        return prefixes+"SELECT * WHERE {?s owl:equivalentProperty <"+property+"> .}";
+    }
+
+    static String generateSelectWikidataEquivalentPropertyQuery(String property){
+        //wdt:P1628 is equivalent to owl:equivalentProperty
+        return "SELECT * WHERE { <"+property+"> wdt:P1628 ?o.}";
     }
 
 }

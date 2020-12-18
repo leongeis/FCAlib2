@@ -199,7 +199,8 @@ public interface OutputPrinter {
         }
     }
     /**
-     * Writes all Implications of the Stem Base of the given Context to the specific file.
+     * Writes all Implications of the Stem Base of the given Context with the corresponding
+     * support to the specific file.
      * @param context The Context from the Stem Base will be computed.
      * @param name The Name of the File ("example.txt")
      */
