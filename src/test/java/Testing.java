@@ -7,6 +7,7 @@ import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
 import lib.utils.KnowledgeGraphAccess;
 import lib.utils.Pair;
+import lib.utils.SPARQLQueryBuilder;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 
@@ -21,20 +22,24 @@ public class Testing {
 
     public static void main(String[] args) {
 
+        String a = new SPARQLQueryBuilder().select().
+                variable("*").where().subject("?s").predicate("owl:sameAs").object("?o").end().limit(100).build();
+        System.out.println(a);
+
         //*********EXPERIMENTAL*******************************************************
 
         //Look in utils.output to see the contexts of the created mappings
 
         //******************************************Wikidata
-        KnowledgeGraphAccess we = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
-        we.establishConnection();
+        KnowledgeGraphAccess wikidataAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
+        wikidataAccess.establishConnection();
         String property = "http://www.wikidata.org/entity/P";
         int i=1;
         List<Pair<String,List<String>>> wikidataPairs = new ArrayList<>();
         List<List<String>> predicates = new ArrayList<>();
         while(i<100){
             String query=SPARQLQueryGenerator.generateSelectWikidataEquivalentPropertyQuery(property+i);
-            TupleQueryResult result = we.selectQuery(query);
+            TupleQueryResult result = wikidataAccess.selectQuery(query);
             //just o
             List<String> bindingNames = result.getBindingNames();
 
@@ -50,7 +55,7 @@ public class Testing {
             result.close();
             i++;
         }
-        we.closeConnection();
+        wikidataAccess.closeConnection();
 
         //PRINT EQUAL PROPERTIES
         /*for(Pair<String,List<String>> p : wikidataPairs){
@@ -73,13 +78,13 @@ public class Testing {
         }
 
         //******************************************DBPedia
-        we.setSparqlEndpoint("https://dbpedia.org/sparql");
-        we.establishConnection();
+        wikidataAccess.setSparqlEndpoint("https://dbpedia.org/sparql");
+        wikidataAccess.establishConnection();
         Context<String,String> dbpediaMappingContext = new FCAFormalContext<String, String>() {};
         for(List<String> eqProperties : predicates){
             String query = SPARQLQueryGenerator.generateSelectPropertyCheckQuery(eqProperties);
             //System.out.println(SPARQLQueryGenerator.generateSelectPropertyCheckQuery(eqProperties));
-            TupleQueryResult result = we.selectQuery(query);
+            TupleQueryResult result = wikidataAccess.selectQuery(query);
             List<String> bindingNames = result.getBindingNames();
             String ID;
             for(BindingSet bindings : result){

@@ -16,11 +16,12 @@
 
 > Is the Project finished ?
 - [ ] Yes
-- [x] No
+- [X] No
 
 > Is the README finished?
 - [ ] Yes
-- [x] No
+- [X] Almost
+- [ ] No
 
 ##### TODO
 - [ ] Use Data from DBPedia
@@ -46,9 +47,10 @@
   * [Using the Computation Interface](#6using-the-computation-interface)
   * [Extending the Project](#7extending)
 * [Knowledge Graphs](#knowledge-graphs)
-  * [Wikidata](#wikidata)
-  * [DBPedia](#dbpedia)
-  * [YAGO](#yago)
+  * [Access a Knowledge Graph](#access-a-knowledge-graph)
+  * [SPARQL](#sparql)
+  * [Results](#results)
+  * [Combining with FCA](#combining-with-fca)
 * [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
@@ -80,8 +82,7 @@ inside `api` and `lib` and their purpose.<br/>The implementation and how to use 
   > print the crosstable of a context to the console or write it to a file. Also interfaces, which can be used to query
   > Wikidata (`WikidataAccess`) or YAGO (`YAGOAccess`) can be found here. <br/>Moreover, the interface `ContextHelper` can be used to create a context by querying Wikidata, YAGO or DBPedia.
 #### Packages from .lib.*
-* [lib.dbpedia](https://github.com/leongeis/FCAlib2/tree/main/src/main/java/lib/dbpedia)
-  >
+
 * [lib.fca](https://github.com/leongeis/FCAlib2/tree/main/src/main/java/lib/fca)
   > This package contains all classes implementing the interfaces from the `api.fca` package. One can simply use them as
   > they are or even extend them, to match the desired properties. 
@@ -92,11 +93,7 @@ inside `api` and `lib` and their purpose.<br/>The implementation and how to use 
   > This package contains small utility classes like `IndexedList`, which indexes a given List. Important to mention here
   > is the fact, that all files created by the `OutputPrinter` interface are saved in `lib.utils.output`. Also, different 
   > exceptions like `NoPropertiesDefinedException` can be found in the subpackage `lib.utils.exceptions`.
-* [lib.wikidata](https://github.com/leongeis/FCAlib2/tree/main/src/main/java/lib/wikidata)
-  > This package contains the classes implementing the `WikidataAccess` and `WikidataSPARQLQueryBuilder` interface.
-  > Additionally, different example `SPARQL` queries can be found in the subpackage `lib.wikidata.queries`.
-* [lib.yago](https://github.com/leongeis/FCAlib2/tree/main/src/main/java/lib/yago)
-  >
+
 ### Built With
 
 * []()
@@ -441,12 +438,40 @@ application. For further information check out the interfaces in [`api.fca`](htt
 and [`api.utils`](https://github.com/leongeis/FCAlib2/tree/main/src/main/java/api/utils) and the example implementations  
 in [`lib.fca`](https://github.com/leongeis/FCAlib2/tree/main/src/main/java/lib/fca).
 ## Knowledge Graphs
+The scope of this project not only covers FCA itself, but also Knowledge Graphs.
+Simply speaking, Knowledge Graphs are a collection of knowledge in form of a graph.
+Famous examples for already existing Knowledge Graphs are, e.g., Wikidata and DBPedia.
+To access this knowledge, one can either download a dump from the website of the specific
+Knowledge Graph or query its SPARQL-Endpoint. The results from both of the mentioned approaches can also
+be of different types like, e.g., XML or JSON. However, the question, which arises now is how to combine
+these Knowledge Graphs and FCA. This is where FCAlib2 comes into play.<br/>In the following, we will show how
+to access and query a Knowledge Graph and how to combine the delivered results with methods from FCA. Note, that
+we make extensive use of the RDF4J framework. For more information see [https://rdf4j.org/](https://rdf4j.org/).
 <!-- Wikidata -->
-### Wikidata
+### Access a Knowledge Graph
+Before we can query a Knowledge Graph we first need to access it. By accessing a Knowledge Graph we always
+refer to accessing the corresponding SPARQL-Endpoint. This is done by creating a `KnowledgeGraphAccess` object
+and provide as a parameter the specific URL of the SPARQL-Endpoint. A possible approach can be seen below.
+```java
+KnowledgeGraphAccess wikidataAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
+```
+Here we use the URL of the Wikidata Endpoint. One can also use other Endpoint URLs like, e.g., https://dbpedia.org/sparql for
+the DBPedia Endpoint or https://yago-knowledge.org/sparql for the YAGO Endpoint.
+<br/> Nevertheless, before performing queries on that endpoint, we need to establish a connection to the corresponding
+repository.
+```java
+wikidataAccess.establishConnection();
+```
+Now we can start to perform queries on that endpoint and further utilize the given results. For more information, check out
+the class used above: [`KnowledgeGraphAccess`](https://github.com/leongeis/FCAlib2/blob/main/src/main/java/lib/utils/KnowledgeGraphAccess.java).
+### SPARQL
+There is something all queries on those endpoints have in common, that is the language they are written in, which is SPARQL. Hence, this
+section on how to create SPARQL Queries with the implemented methods. Note that one can also write own SPARQL queries and passing them
+as a String to the corresponding `KnowledgeGraphAccess` object.
 
-### DBPedia
+### Results
 
-### YAGO
+### Combining with FCA
 
 <!-- DBPedia -->
 
