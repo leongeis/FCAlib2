@@ -29,6 +29,8 @@ public interface SPARQLEndpointAccess {
      */
     String getSparqlEndpoint();
 
+    void closeConnection();
+
     /**
      * Get RepositoryConnection object of
      * the current connection.

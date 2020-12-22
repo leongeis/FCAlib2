@@ -34,7 +34,7 @@ public interface ContextHelper {
      */
     //TODO REWORK
     //Note: Currently only Plain Incidence is implemented! (4.11.20)
-    static Context<String,String> createContextFromWikidata(Context<String,String> context,String propertyClass, int number){
+    static Context<String,String> createContextFromWikidata(Context<String,String> context, String propertyClass, int number){
         //Clear the List of Attributes and the List of Objects of the Context
         context.getContextObjects().clear();
         context.getContextAttributes().clear();

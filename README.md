@@ -446,14 +446,15 @@ Knowledge Graph or query its SPARQL-Endpoint. The results from both of the menti
 be of different types like, e.g., XML or JSON. However, the question, which arises now is how to combine
 these Knowledge Graphs and FCA. This is where FCAlib2 comes into play.<br/>In the following, we will show how
 to access and query a Knowledge Graph and how to combine the delivered results with methods from FCA. Note, that
-we make extensive use of the RDF4J framework. For more information see [https://rdf4j.org/](https://rdf4j.org/).
+we make extensive use of the RDF4J framework. For more information on the framework see [https://rdf4j.org/](https://rdf4j.org/).
 <!-- Wikidata -->
 ### Access a Knowledge Graph
 Before we can query a Knowledge Graph we first need to access it. By accessing a Knowledge Graph we always
-refer to accessing the corresponding SPARQL-Endpoint. This is done by creating a `KnowledgeGraphAccess` object
-and provide as a parameter the specific URL of the SPARQL-Endpoint. A possible approach can be seen below.
+refer to accessing the corresponding SPARQL-Endpoint. This is done by using the `SPARQLEndpointAccess` interface, which  
+is implemented by the class `KnowledgeGraphAccess`. Hence, we need, at least in our case, one could also extend it or use an
+inherent class, to create an `KnowledgeGraphAccess` object and provide as a parameter the specific URL of the SPARQL-Endpoint. A possible approach can be seen below.
 ```java
-KnowledgeGraphAccess wikidataAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
+SPARQLEndpointAccess wikidataAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
 ```
 Here we use the URL of the Wikidata Endpoint. One can also use other Endpoint URLs like, e.g., https://dbpedia.org/sparql for
 the DBPedia Endpoint or https://yago-knowledge.org/sparql for the YAGO Endpoint.
@@ -462,18 +463,179 @@ repository.
 ```java
 wikidataAccess.establishConnection();
 ```
-Now we can start to perform queries on that endpoint and further utilize the given results. For more information, check out
-the class used above: [`KnowledgeGraphAccess`](https://github.com/leongeis/FCAlib2/blob/main/src/main/java/lib/utils/KnowledgeGraphAccess.java).
+Now we can start to perform queries on that endpoint and further utilize the given results. It is also important to mention here, that  
+there can only be one active connection to the same repository at a time. One can use the `closeConnection()` method for this purpose. For more information, check out
+the class used above [`KnowledgeGraphAccess`](https://github.com/leongeis/FCAlib2/blob/main/src/main/java/lib/utils/KnowledgeGraphAccess.java)
+and the [RDF4J](https://rdf4j.org/) framework.
 ### SPARQL
 There is something all queries on those endpoints have in common, that is the language they are written in, which is SPARQL. Hence, this
-section on how to create SPARQL Queries with the implemented methods. Note that one can also write own SPARQL queries and passing them
+section is on how to create SPARQL Queries with the implemented methods. Note that one can also write own SPARQL queries and passing them
 as a String to the corresponding `KnowledgeGraphAccess` object.
+For more information on how to write SPARQL queries, check out [https://www.w3.org/TR/rdf-sparql-query/](https://www.w3.org/TR/rdf-sparql-query/).
+<br/>Nevertheless, we implemented a few methods in the `SPARQLQueryGenerator` interface, which can be used directly or one can also use the `SPARQLQueryBuilder` class,
+which enables the creation of simple and generic SPARQL queries.
+```java
+String query = new SPARQLQueryBuilder().select().
+                variable("*").where().subject("?s").predicate("owl:sameAs").
+                object("?o").end().limit(100).build();
+```
+Here, we used the `SPARQLQueryBuilder` class and a few of the available building blocks. Note that, when using this
+approach the last method call is always `.build()`. Printing the String `query` yields the following output:
+```
+SELECT * WHERE { ?s owl:sameAs ?o. }LIMIT 100
+```
+The approach, using the `SPARQLQueryGenerator` interface can be seen below:
+```java
+String query = SPARQLQueryGenerator.generateSelectSameAsQuery("http://www.wikidata.org/entity/Q42");
+```
+Now, we print the String `query` and the result can be seen below:
+```
+SELECT * WHERE { ?s owl:sameAs <http://www.wikidata.org/entity/Q42>.}
+```
+Note that only a few restricted cases are implemented in the `SPARQLQueryGenerator` interface. For more
+information check out the [`SPARQLQueryGenerator`](https://github.com/leongeis/FCAlib2/blob/main/src/main/java/api/utils/SPARQLQueryGenerator.java)  
+interface and the [`SPARQLQueryBuilder`](https://github.com/leongeis/FCAlib2/blob/main/src/main/java/lib/utils/SPARQLQueryBuilder.java) class.
 
 ### Results
+We have seen how to use the implemented approaches on creating a SPARQL query. However, we also need
+to evaluate the results we get from the SPARQL-Endpoint. But before getting results from any
+arbitrary endpoint, we need to query it.  
+<br/>Hence, below is the implemented approach to query an endpoint with
+a `SELECT` query.
+```java
+//Create List of properties
+List<String> properties = new ArrayList<>();
+
+//Add property P21 and P25 from wikidata to the list
+properties.add("http://www.wikidata.org/prop/direct/P21");
+properties.add("http://www.wikidata.org/prop/direct/P25");
+
+//Generate Query and set limit to 10
+String query = SPARQLQueryGenerator.generateSelectUnionQuery(properties,10);
+
+//Perform SELECT query and save result
+TupleQueryResult result = wikidataAccess.selectQuery(query);
+```
+
+Here we used our earlier created `wikidataAccess` object and performed a `SELECT` query. The result of
+this query is now stored in the `TupleQueryResult` object `result`.  
+Furthermore, the object `result` contains the result in form of tuples, which we need to iterate.
+<p align="center">
+<img width="600" height="222" src="https://github.com/leongeis/FCAlib2/blob/main/images/wikidataresult.PNG">
+<h6 align="center">The result we get when using the Wikidata Query Service.</h6>
+</p>
+
+The figure above illustrates not only how the `Wikidata Query Service` delivers the result of the query, but also
+how the result of the query is stored in the `TupleQueryResult` object. In fact, we need to iterate over each tuple,
+which consists here of the variables `s` and `o` and their corresponding values.
+
+```java
+//Store the binding Names of the result (here only s and o)
+List<String> bindingNames = result.getBindingNames();
+
+//Iterate over each tuple and print the values from s and o
+for(BindingSet bindingSet : result){
+    System.out.println("s: "+bindingSet.getValue(bindingNames.get(0))+" o: "+bindingSet.getValue(bindingNames.get(1)));
+}
+```
+
+The result has an internal List of `BindingSets`, which we iterate and print the values, making use
+of the stored List `bindingNames`. The output of the for-loop above is the following:
+
+```
+s: http://www.wikidata.org/entity/Q82356 o: http://www.wikidata.org/entity/Q43445
+s: http://www.wikidata.org/entity/Q138153 o: http://www.wikidata.org/entity/Q43445
+s: http://www.wikidata.org/entity/Q155695 o: http://www.wikidata.org/entity/Q43445
+s: http://www.wikidata.org/entity/Q170379 o: http://www.wikidata.org/entity/Q43445
+s: http://www.wikidata.org/entity/Q171433 o: http://www.wikidata.org/entity/Q43445
+s: http://www.wikidata.org/entity/Q182790 o: http://www.wikidata.org/entity/Q43445
+s: http://www.wikidata.org/entity/Q193115 o: http://www.wikidata.org/entity/Q43445
+s: http://www.wikidata.org/entity/Q218422 o: http://www.wikidata.org/entity/Q43445
+s: http://www.wikidata.org/entity/Q223025 o: http://www.wikidata.org/entity/Q43445
+s: http://www.wikidata.org/entity/Q269349 o: http://www.wikidata.org/entity/Q43445
+```
+One can see that these results are equivalent with the results delivered from the
+`Wikidata Query Service`.
+
+
+PICTURE
+
+
+
+
+
+Furthermore, the approach above is only an example on how to
+evaluate the result and compute it further. Again, the interested reader is refered to
+the [`RDF4J`](https://rdf4j.org/) framework. The remaining question is now, how we can
+combine these results with methods from FCA, which is explained in the following section.
 
 ### Combining with FCA
+We have seen above how to access a SPARQL-Endpoint, generate a query and get the results from the
+corresponding endpoint. Now, there is only one question left to answer and that is how do we
+combine these results with FCA. This will be explained in this section, starting with the usage
+of the `ContextHelper` interface. Afterwards, we will show how to manually create a `Context` object with data from a result.
 
-<!-- DBPedia -->
+When using the `ContextHelper` interface, one can easily create a context from, e.g., ``Wikidata`` using the
+`createContextFromWikidata` method.
+
+```java
+//Create a new Context object
+Context<String,String> wikidataContext = new FCAFormalContext<String, String>(){};
+
+//Get the URI of a property class (here property for items about people)
+String propertyClass = "https://www.wikidata.org/entity/Q18608871";
+
+//"fill" the context with results from the query
+wikidataContext = ContextHelper.createContextFromWikidata(wikidataContext,propertyClass,100);
+```
+
+The steps above show how to use the mentioned method `createContextFromWikidata`. First, we start with the creation
+of a new `Context` object. Note that the types for the `Objects` and `Attributes` here have to be of type `String` to use the
+method. Aferwards, we save the URI of a property class, which is here the property class for all items about people. Then
+we use this `Context` object, the String of the property class and a limit for queried items as parameters for `createContextFromWikidata`.
+Internally, this method uses all properties from the given class, which is here https://www.wikidata.org/entity/Q18608871, and
+simply queries all items, which have at least one of those properties as a predicate. The limit of queried items here is set to 100.
+<br/>Lets simply print the `Crosstable` of the `Context` object `wikidataContext` and see, if this approach worked.
+
+```
+                                         http://www.wikidata.org/prop/direct/P19 http://www.wikidata.org/prop/direct/P20 http://www.wikidata.org/prop/direct/P21 http://www.wikidata.org/prop/direct/P27 http://www.wikidata.org/prop/direct/P39
+http://www.wikidata.org/entity/Q76999    X                                       X                                       X                                       X                                       -                                                     
+http://www.wikidata.org/entity/Q91207    X                                       X                                       X                                       X                                       X                                                     
+http://www.wikidata.org/entity/Q96410    X                                       X                                       X                                       X                                       -                                                        
+http://www.wikidata.org/entity/Q198276   X                                       X                                       X                                       X                                       -                                                      
+http://www.wikidata.org/entity/Q320618   X                                       X                                       X                                       X                                       -                                                                          
+http://www.wikidata.org/entity/Q351904   X                                       X                                       X                                       X                                       X                                                                 
+http://www.wikidata.org/entity/Q388194   X                                       X                                       X                                       -                                       -                                                        
+http://www.wikidata.org/entity/Q458783   X                                       X                                       X                                       X                                       -                                                            
+http://www.wikidata.org/entity/Q550616   -                                       X                                       X                                       X                                       -                                                          
+http://www.wikidata.org/entity/Q619317   -                                       X                                       X                                       X                                       X                                                           
+http://www.wikidata.org/entity/Q630425   X                                       X                                       X                                       X                                       -                                           
+
+```
+
+This output is just an excerpt of the crosstable, because the crosstable itself would be too large to display here. Lets print then
+the amount of `Objects` and `Attributes` of the context to verify the result.
+
+```java
+System.out.println("Amount of Objects: "+wikidataContext.getContextObjects().size());
+System.out.println("Amount of Attributes: "+wikidataContext.getContextAttributes().size());
+```
+This code yields the following output:
+
+```
+Amount of Objects: 100
+Amount of Attributes: 187
+```
+
+Hence, we can see that the context has in fact, 100 `Objects` and 187 `Attributes`. Now one can use any method and approach
+explained earlier in the [Tutorial](#tutorial) section.
+<br/>Furthermore, this is not the only approach available to create a `Context` object from results of a query. One can simply
+iterate over each `BindingSet` of a result and, e.g., add the corresponding values to the `List of Objects` or to the
+`List of Attributes` of a Context.
+
+```java
+
+```
 
 
 <!-- CONTRIBUTING -->

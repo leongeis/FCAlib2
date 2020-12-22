@@ -2,6 +2,7 @@ import api.fca.Computation;
 import api.fca.Context;
 import api.fca.Implication;
 import api.utils.OutputPrinter;
+import api.utils.SPARQLEndpointAccess;
 import api.utils.SPARQLQueryGenerator;
 import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
@@ -26,13 +27,34 @@ public class Testing {
                 variable("*").where().subject("?s").predicate("owl:sameAs").object("?o").end().limit(100).build();
         System.out.println(a);
 
+        String b = SPARQLQueryGenerator.generateSelectSameAsQuery("http://www.wikidata.org/entity/Q42");
+        System.out.println(b);
+
+        List<String> properties = new ArrayList<>();
+        properties.add("http://www.wikidata.org/prop/direct/P21");
+        properties.add("http://www.wikidata.org/prop/direct/P25");
+
+        String test = SPARQLQueryGenerator.generateSelectUnionQuery(properties,10);
+        System.out.println(test);
+
+
+
+
         //*********EXPERIMENTAL*******************************************************
 
         //Look in utils.output to see the contexts of the created mappings
 
         //******************************************Wikidata
-        KnowledgeGraphAccess wikidataAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
+        SPARQLEndpointAccess wikidataAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
         wikidataAccess.establishConnection();
+
+        TupleQueryResult r = wikidataAccess.selectQuery(test);
+        List<String> binding = r.getBindingNames();
+
+        for(BindingSet bindingSet : r){
+            System.out.println("s: "+bindingSet.getValue(binding.get(0))+" o: "+bindingSet.getValue(binding.get(1)));
+        }
+
         String property = "http://www.wikidata.org/entity/P";
         int i=1;
         List<Pair<String,List<String>>> wikidataPairs = new ArrayList<>();
@@ -58,9 +80,11 @@ public class Testing {
         wikidataAccess.closeConnection();
 
         //PRINT EQUAL PROPERTIES
+
         /*for(Pair<String,List<String>> p : wikidataPairs){
             if(!p.getRight().isEmpty()) System.out.println(p.getLeft()+" : "+p.getRight());
         }*/
+
         //SAVE MAPPING AS CONTEXT
         Context<String,String> wikidataMappingContext = new FCAFormalContext<String, String>(){};
         for(Pair<String,List<String>> p : wikidataPairs){
@@ -111,6 +135,7 @@ public class Testing {
 
         //TODO
         //***************************************YAGO
+
 
 
     }
