@@ -558,10 +558,10 @@ One can see that these results are equivalent with the results delivered from th
 `Wikidata Query Service`.
 
 
-PICTURE
-
-
-
+<p align="center">
+<img width="700" height="423" src="https://github.com/leongeis/FCAlib2/blob/main/images/resultdiagram.png">
+<h6 align="center">The used terms explained on the result from the Wikdata Query Service.</h6>
+</p>
 
 
 Furthermore, the approach above is only an example on how to
@@ -631,12 +631,109 @@ Hence, we can see that the context has in fact, 100 `Objects` and 187 `Attribute
 explained earlier in the [Tutorial](#tutorial) section.
 <br/>Furthermore, this is not the only approach available to create a `Context` object from results of a query. One can simply
 iterate over each `BindingSet` of a result and, e.g., add the corresponding values to the `List of Objects` or to the
-`List of Attributes` of a Context.
+`List of Attributes` of a Context.  
+<br/>Lets take the approach from earlier:
 
 ```java
+//Create a List of properties
+List<String> properties = new ArrayList<>();
+properties.add("http://www.wikidata.org/prop/direct/P21");
+properties.add("http://www.wikidata.org/prop/direct/P25");
 
+//Generate SPARQL query and set the limit to 10
+String query = SPARQLQueryGenerator.generateSelectUnionQuery(properties,10);
+
+//Create KnowledgeGraphAccess Object
+SPARQLEndpointAccess wikidataAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
+
+//Establish the connection
+wikidataAccess.establishConnection();
+
+//Perform the query
+TupleQueryResult result = wikidataAccess.selectQuery(query);
+
+//Save the Bindings
+List<String> bindings = result.getBindingNames();
+
+//Create Context Object and store the Attributes
+Context<String,String> sparqlContext = new FCAFormalContext<String, String>() {};
+sparqlContext.addAttribute(new FCAAttribute<>("http://www.wikidata.org/prop/direct/P21"));
+sparqlContext.addAttribute(new FCAAttribute<>("http://www.wikidata.org/prop/direct/P25"));
+
+//Iterate over the results and save each subject as an object for the context
+for(BindingSet bindingSet : result){
+    sparqlContext.addObject(new FCAObject<>(bindingSet.getValue(bindings.get(0)).stringValue()));
+}
 ```
 
+Now to see if this approach worked, let us just print the crosstable of the our newly created `Context` object `sparqlContext`, by
+using the `OutputPrinter` interface, as explained in the [Tutorial](#tutorial) section.
+This will yield the following crosstable:
+
+```
+                                       http://www.wikidata.org/prop/direct/P21 http://www.wikidata.org/prop/direct/P25 
+http://www.wikidata.org/entity/Q82356  -                                       -                                       
+http://www.wikidata.org/entity/Q138153 -                                       -                                       
+http://www.wikidata.org/entity/Q155695 -                                       -                                       
+http://www.wikidata.org/entity/Q170379 -                                       -                                       
+http://www.wikidata.org/entity/Q171433 -                                       -                                       
+http://www.wikidata.org/entity/Q182790 -                                       -                                       
+http://www.wikidata.org/entity/Q193115 -                                       -                                       
+http://www.wikidata.org/entity/Q218422 -                                       -                                       
+http://www.wikidata.org/entity/Q223025 -                                       -                                       
+http://www.wikidata.org/entity/Q269349 -                                       - 
+```
+
+One can clearly see, that this crosstable is not accurate and lacks the important
+`Incidence` between `Objects` and `Attributes`. Hence, we could now query the SPARQL-Endpoint,
+about the incidence of each Object and the listed Attributes. We will now generate
+a query for each `Object` of the `Context` object and check if this object
+has an incidence with the given `Attributes`.
+
+```java
+for(ObjectAPI<String,String> object : sparqlContext.getContextObjects()) {
+    
+    //Generate query for this object and the attributes of the Context
+    //Making use of the Stream API to get all Attribute IDs as a List
+    String objectQuery = SPARQLQueryGenerator.
+                 generateSelectPropertyCheckQuery(object.getObjectID(),sparqlContext.getContextAttributes().stream().
+                 map(Attribute::getAttributeID).collect(Collectors.toList()));
+
+    //Get the result, using the earlier created TupleQueryResult object
+    result = wikidataAccess.selectQuery(objectQuery);
+
+    //Save the Bindings
+    List<String> bindingNames = r.getBindingNames();
+
+    //Iterate over the results and add the corresponding incidence
+    for(BindingSet bindingSet : r){
+        object.addAttribute(bindingSet.getValue(bindingNames.get(0)).stringValue());
+    }
+}
+```
+
+Printing the crosstable now yields the following output:
+
+```
+                                       http://www.wikidata.org/prop/direct/P21 http://www.wikidata.org/prop/direct/P25 
+http://www.wikidata.org/entity/Q82356  X                                       -                                       
+http://www.wikidata.org/entity/Q138153 X                                       -                                       
+http://www.wikidata.org/entity/Q155695 X                                       -                                       
+http://www.wikidata.org/entity/Q170379 X                                       X                                       
+http://www.wikidata.org/entity/Q171433 X                                       -                                       
+http://www.wikidata.org/entity/Q182790 X                                       -                                       
+http://www.wikidata.org/entity/Q193115 X                                       X                                       
+http://www.wikidata.org/entity/Q218422 X                                       -                                       
+http://www.wikidata.org/entity/Q223025 X                                       X                                       
+http://www.wikidata.org/entity/Q269349 X                                       -   
+```
+
+Finally, we have a context with `Objects`, `Attributes` and their corresponding `Incidence`. Note that this
+is only an example and there are many possibilities to create a `Context` from an `SPARQL-Endpoint`. The key here
+are always the formulated queries and how one operates with the results of such a query. Note that this is actually not the
+only approach one could use. One can also use an own implementation to access a Knowledge Graph. This implementation is heavily
+based on the [RDF4J](https://rdf4j.org/) framework, but there are also other framework one could easily use to achieve the same results, like e.g.,
+[Apache Jena](https://jena.apache.org/) or the [OWL API](https://github.com/owlcs/owlapi).
 
 <!-- CONTRIBUTING -->
 ## Contributing

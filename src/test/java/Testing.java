@@ -1,9 +1,8 @@
-import api.fca.Computation;
-import api.fca.Context;
-import api.fca.Implication;
+import api.fca.*;
 import api.utils.OutputPrinter;
 import api.utils.SPARQLEndpointAccess;
 import api.utils.SPARQLQueryGenerator;
+import lib.fca.FCAAttribute;
 import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
 import lib.utils.KnowledgeGraphAccess;
@@ -14,6 +13,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 //ONLY USED FOR TESTING PURPOSES;
 //WILL BE DELETED IN LATER RELEASES
@@ -40,6 +40,7 @@ public class Testing {
 
 
 
+
         //*********EXPERIMENTAL*******************************************************
 
         //Look in utils.output to see the contexts of the created mappings
@@ -50,10 +51,39 @@ public class Testing {
 
         TupleQueryResult r = wikidataAccess.selectQuery(test);
         List<String> binding = r.getBindingNames();
+        Context<String,String> sparqlContext = new FCAFormalContext<String, String>() {};
+        sparqlContext.addAttribute(new FCAAttribute<>("http://www.wikidata.org/prop/direct/P21"));
+        sparqlContext.addAttribute(new FCAAttribute<>("http://www.wikidata.org/prop/direct/P25"));
+
 
         for(BindingSet bindingSet : r){
-            System.out.println("s: "+bindingSet.getValue(binding.get(0))+" o: "+bindingSet.getValue(binding.get(1)));
+            sparqlContext.addObject(new FCAObject<>(bindingSet.getValue(binding.get(0)).stringValue()));
+            //sparqlContext.addAttribute(new FCAAttribute<>(bindingSet.getValue(binding.get(1)).stringValue()));
+            //System.out.println("s: "+bindingSet.getValue(binding.get(0))+" o: "+bindingSet.getValue(binding.get(1)));
         }
+
+        for(ObjectAPI<String,String> object : sparqlContext.getContextObjects()) {
+
+            String objectQuery = SPARQLQueryGenerator.
+                    generateSelectPropertyCheckQuery(object.getObjectID(),sparqlContext.getContextAttributes().stream().map(Attribute::getAttributeID).collect(Collectors.toList()));
+
+            r = wikidataAccess.selectQuery(objectQuery);
+
+            List<String> bindingNames = r.getBindingNames();
+
+            for(BindingSet bindingSet : r){
+                object.addAttribute(bindingSet.getValue(bindingNames.get(0)).stringValue());
+                //sparqlContext.addAttribute(new FCAAttribute<>(bindingSet.getValue(binding.get(1)).stringValue()));
+                //System.out.println("s: "+bindingSet.getValue(binding.get(0))+" o: "+bindingSet.getValue(binding.get(1)));
+            }
+
+        }
+
+
+
+        OutputPrinter.printCrosstableToConsole(sparqlContext);
+
+
 
         String property = "http://www.wikidata.org/entity/P";
         int i=1;
