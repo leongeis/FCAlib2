@@ -583,7 +583,7 @@ When using the `ContextHelper` interface, one can easily create a context from, 
 Context<String,String> wikidataContext = new FCAFormalContext<String, String>(){};
 
 //Get the URI of a property class (here property for items about people)
-String propertyClass = "https://www.wikidata.org/entity/Q18608871";
+String propertyClass = "http://www.wikidata.org/entity/Q18608871";
 
 //"fill" the context with results from the query
 wikidataContext = ContextHelper.createContextFromWikidata(wikidataContext,propertyClass,100);

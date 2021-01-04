@@ -1,21 +1,16 @@
 import api.fca.Attribute;
-import api.fca.Computation;
 import api.fca.Context;
+import api.fca.ObjectAPI;
+import api.utils.ContextHelper;
 import api.utils.OutputPrinter;
-import api.utils.Performance;
-import api.utils.SPARQLEndpointAccess;
 import api.utils.SPARQLQueryGenerator;
+import lib.fca.FCAAttribute;
 import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
 import lib.utils.KnowledgeGraphAccess;
-import lib.utils.Pair;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 //ONLY USED FOR TESTING PURPOSES;
@@ -26,6 +21,55 @@ public class Testing {
 
     public static void main(String[] args) {
 
+        //Property class URI
+        String uri = "http://www.wikidata.org/entity/Q57633168";
+
+        //Create context for wikidata by using the property class for animals/zoology
+        Context<String, String> wikidataAnimalContext = ContextHelper.createContextFromWikidata(new FCAFormalContext<String, String>(){},uri,10);
+
+        OutputPrinter.printCrosstableToConsole(wikidataAnimalContext);
+
+        //Get all equivalent entities from DBPedia
+        Context<String,String> dbpediaAnimalContext = new FCAFormalContext<String, String>() {};
+
+        KnowledgeGraphAccess knowledgeGraphAccess = new KnowledgeGraphAccess("https://dbpedia.org/sparql");
+
+
+        knowledgeGraphAccess.establishConnection();
+        for(ObjectAPI<String,String> object : wikidataAnimalContext.getContextObjects()){
+            FCAObject<String,String> newObject = new FCAObject<>();
+            TupleQueryResult result = knowledgeGraphAccess.selectQuery(SPARQLQueryGenerator.generateSelectSameAsQuery(object.getObjectID()));
+
+            List<String> bindingNames = result.getBindingNames();
+            for(BindingSet bindings : result){
+                newObject.setObjectID(bindings.getValue(bindingNames.get(0)).stringValue());
+            }
+            dbpediaAnimalContext.addObject(newObject);
+        }
+
+        //Iterate over each Attribute of the Wikidata Context and get the equivalent dbpedia property
+        for(Attribute<String,String> attribute : wikidataAnimalContext.getContextAttributes()){
+            FCAAttribute<String,String> newAttribute = new FCAAttribute<>();
+            TupleQueryResult result = knowledgeGraphAccess.selectQuery(SPARQLQueryGenerator.generateSelectEquivalentPropertyQuery(newAttribute.getAttributeID()));
+            List<String> bindingNames = result.getBindingNames();
+            for(BindingSet bindings : result){
+                //ERROR
+                newAttribute.setAttributeID(bindings.getValue(bindingNames.get(0)).stringValue());
+            }
+            dbpediaAnimalContext.addAttribute(newAttribute);
+
+        }
+
+        OutputPrinter.printCrosstableToConsole(dbpediaAnimalContext);
+
+
+
+
+
+
+
+
+/*
 
         //*********EXPERIMENTAL*******************************************************
 
@@ -76,9 +120,11 @@ public class Testing {
                 propSet.add(bset.getValue(bindingNames.get(0)).toString());
             }
             wikidataPairs.add(new Pair<>(properties.get(i), propSet));
-                /*List<String> eqProps = new ArrayList<>();
+                */
+/*List<String> eqProps = new ArrayList<>();
                 eqProps.add(property + i);
-                eqProps.addAll(propSet);*/
+                eqProps.addAll(propSet);*//*
+
                 //predicates.add(eqProps);
             i++;
 
@@ -91,9 +137,11 @@ public class Testing {
         System.out.println(Performance.convertToFormat(Performance.getExecutionTime(a1,a2)));
         //PRINT EQUAL PROPERTIES
 
-        /*for(Pair<String,List<String>> p : wikidataPairs){
+        */
+/*for(Pair<String,List<String>> p : wikidataPairs){
             if(!p.getRight().isEmpty()) System.out.println(p.getLeft()+" : "+p.getRight());
-        }*/
+        }*//*
+
 
         //SAVE MAPPING AS CONTEXT
         Context<String,String> wikidataMappingContext = new FCAFormalContext<String, String>(){};
@@ -107,10 +155,12 @@ public class Testing {
         }
         OutputPrinter.writeCrosstableToFile(wikidataMappingContext,"wikidataMapping2.txt");
 
-        /*OutputPrinter.writeStemBaseToFile(wikidataMappingContext,"wikidataMappingStemBase.txt");
+        */
+/*OutputPrinter.writeStemBaseToFile(wikidataMappingContext,"wikidataMappingStemBase.txt");
         for(Implication<String,String> im : Computation.computeStemBase(wikidataMappingContext)){
             System.out.println(Computation.computeImplicationSupport(im,wikidataMappingContext));
-        }*/
+        }*//*
+
 
 
         for(Attribute<String,String> attr : wikidataMappingContext.getContextAttributes()){
@@ -128,7 +178,8 @@ public class Testing {
 
 
         //******************************************DBPedia
-        /*wikidataAccess.setSparqlEndpoint("https://dbpedia.org/sparql");
+        */
+/*wikidataAccess.setSparqlEndpoint("https://dbpedia.org/sparql");
         wikidataAccess.establishConnection();
         Context<String,String> dbpediaMappingContext = new FCAFormalContext<String, String>() {};
         for(List<String> eqProperties : predicates){
@@ -158,11 +209,13 @@ public class Testing {
         for(Implication<String,String> im : Computation.computeStemBase(dbpediaMappingContext)){
             System.out.println(im.toString()+" "+Computation.computeImplicationSupport(im,dbpediaMappingContext));
         }
-*/
+*//*
+
         //TODO
         //***************************************YAGO
 
 
+*/
 
     }
 }

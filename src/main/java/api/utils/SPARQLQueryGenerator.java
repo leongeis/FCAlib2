@@ -39,6 +39,7 @@ public interface SPARQLQueryGenerator {
      * Generates a SELECT Query with the Keyword UNION. This can be used to
      * query subjects (or objects), which share at least on of the properties in the
      * properties List.
+     * Note: When passing a negative limit, the limit parameter will not be used.
      * @param properties List of properties.
      * @param limit Determines the amount of subjects (or objects), that are returned by the query.
      * @return The Query as a String.
@@ -120,7 +121,7 @@ public interface SPARQLQueryGenerator {
 
     /**
      * Generates a SELECT Query one can use to get all equivalent Properties, by using
-     * the owl.equivalentProperty Keyword.
+     * the owl:equivalentProperty Keyword.
      * @param properties List of properties.
      * @return The Query as a String.
      */

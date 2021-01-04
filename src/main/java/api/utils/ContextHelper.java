@@ -50,6 +50,8 @@ public interface ContextHelper {
 
         //Perform instance of Query to receive all associated properties
         TupleQueryResult classResult = wa.selectQuery(SPARQLQueryGenerator.generateSelectWikidataInstanceOfQuery(propertyClass));
+        System.out.println("asdasdasdasdasdasd");
+        System.out.println(SPARQLQueryGenerator.generateSelectWikidataInstanceOfQuery(propertyClass));
         //Create List of Bindings associated with the variables (?s)
         List<String> bindingNames = classResult.getBindingNames();
         //Create corresponding prefix
@@ -60,9 +62,9 @@ public interface ContextHelper {
             String uri = bindingSet.getValue(bindingNames.get(0)).stringValue();
             context.createAttribute(prefix+ uri.substring(uri.lastIndexOf('/')+1),FCAAttribute.class);
         }
+        System.out.println(context.getContextAttributes().stream().map(Attribute::getAttributeID).collect(Collectors.toList()));
         //Close Result object
         classResult.close();
-
         //Now Perform SELECT Query and get the Objects according to the Attributes of the Context
         //Note the use of the propertyURI List, this is due to the result of a query, e.g., for the property
         //P25 is: http://www.wikidata.org/entity/P25, but to use them as a predicate we need
