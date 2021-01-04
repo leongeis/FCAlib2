@@ -6,8 +6,12 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
-//"https://query.wikidata.org/sparql"
-//TODO REWORK
+/**
+ * Class describing the Access to a Knowledge Graph. Each
+ * object has an own SPARQL-Endpoint URI String, which is used
+ * to establish a connection and perform queries on.
+ * @author Leon Geis
+ */
 public class KnowledgeGraphAccess implements SPARQLEndpointAccess {
 
     /**

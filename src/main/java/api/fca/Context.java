@@ -39,10 +39,28 @@ public interface Context<O,A> {
      */
     int getContextID();
 
-    //TODO
+    /**
+     * Creates a new Object and adds it to the Context.
+     * Note: The class used to create an object needs to have
+     * a default constructor without parameter, which will be
+     * invoked when executing this method.
+     * @param o ID of the Object.
+     * @param clazz Class of the Object.
+     * @param <T> Class implementing the ObjectAPI interface or
+     *           subclass of the FCAObject class.
+     */
     <T extends ObjectAPI<O,A>> void createObject(O o, Class<T> clazz);
 
-    //TODO
+    /**
+     * Creates a new Attribute and adds it to the Context.
+     * Note: The class used to create an attribute needs to have
+     * a default constructor without parameter, which will be
+     * invoked when executing this method.
+     * @param a ID of the Attribute.
+     * @param clazz Class of the Attribute.
+     * @param <T> Class implementing the Attribute interface or
+     *           subclass of the FCAAttribute class.
+     */
     <T extends Attribute<O,A>> void createAttribute(A a, Class<T> clazz);
 
     /**

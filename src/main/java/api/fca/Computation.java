@@ -416,7 +416,6 @@ public interface Computation {
                             //and the 'updated' List
                             attributes.addAll(conclusionCopy);
                             updated.addAll(conclusionCopy);
-                            //TODO Check for redundant elements
                         }
                     }
                 }

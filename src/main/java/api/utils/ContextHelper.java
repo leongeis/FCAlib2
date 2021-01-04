@@ -14,26 +14,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 //TODO Rework JavaDoc
+
 /**
- * Used for creating a FCAFormalContext Object based on data from Wikidata.
+ * Interface, which can be used to easily create a Context
+ * from a Knowledge Graph. When using a method from
+ * this interface, only subjects of the queries are
+ * stored as objects in the Context.
  * @author Leon Geis
  */
 public interface ContextHelper {
 
     /**
-     * Method used for creating a new FormalContext. This Context is
-     * then "filled" with data from wikidata. If the first parameter is true, then
-     * a query as the second parameter is obsolete. Thus to use a custom query, set the first
-     * parameter to false and provide a String of the query as the second parameter.
-     * If the third parameter is
-     * null, the user can choose from a list of files in the package properties.
-     * @param build If a Builder Object should be used. If not a query has to be provided.
-     * @param qry String of the query, which is used at the SPARQL Endpoint of Wikidata.
-     * @param file String of the file name the properties should be extracted from.
-     * @return A FCAFormalContext Object, which is set according to the specified data from Wikidata.
+     * Creates (or "fills") a Context object with data from Wikidata.
+     * The first parameter is a Context Object, which can be of any class
+     * implementing the Context interface. The second parameter is the URI
+     * of a property class. The third one specifies the number of objects
+     * that are stored in the Context object.
+     * @param context Context Object.
+     * @param propertyClass String of the URI of the property Class.
+     * @param number Number of Objects.
+     * @return Context Object with subjects of the query as objects of the Context
+     * and subproperties of the property Class as Attributes.
      */
-    //TODO REWORK
-    //Note: Currently only Plain Incidence is implemented! (4.11.20)
     static Context<String,String> createContextFromWikidata(Context<String,String> context, String propertyClass, int number){
         //Clear the List of Attributes and the List of Objects of the Context
         context.getContextObjects().clear();

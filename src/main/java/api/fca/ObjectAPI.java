@@ -3,7 +3,7 @@ package api.fca;
 /**
  * Interface describing a single Object.
  * An Object has a List of the Attributes
- * describing the Object and a ID, which can
+ * describing the Object and an ID, which can
  * be used as an identifier for this Object.
  * Note: Multiple Objects with the same ID are possible,
  * but these cases are handled by the implementation in the

@@ -1,19 +1,22 @@
-import api.fca.*;
+import api.fca.Attribute;
+import api.fca.Computation;
+import api.fca.Context;
 import api.utils.OutputPrinter;
+import api.utils.Performance;
 import api.utils.SPARQLEndpointAccess;
 import api.utils.SPARQLQueryGenerator;
-import lib.fca.FCAAttribute;
 import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
 import lib.utils.KnowledgeGraphAccess;
 import lib.utils.Pair;
-import lib.utils.SPARQLQueryBuilder;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 //ONLY USED FOR TESTING PURPOSES;
 //WILL BE DELETED IN LATER RELEASES
@@ -22,23 +25,6 @@ import java.util.stream.Collectors;
 public class Testing {
 
     public static void main(String[] args) {
-
-        String a = new SPARQLQueryBuilder().select().
-                variable("*").where().subject("?s").predicate("owl:sameAs").object("?o").end().limit(100).build();
-        System.out.println(a);
-
-        String b = SPARQLQueryGenerator.generateSelectSameAsQuery("http://www.wikidata.org/entity/Q42");
-        System.out.println(b);
-
-        List<String> properties = new ArrayList<>();
-        properties.add("http://www.wikidata.org/prop/direct/P21");
-        properties.add("http://www.wikidata.org/prop/direct/P25");
-
-        String test = SPARQLQueryGenerator.generateSelectUnionQuery(properties,10);
-        System.out.println(test);
-
-
-
 
 
         //*********EXPERIMENTAL*******************************************************
@@ -49,66 +35,60 @@ public class Testing {
         SPARQLEndpointAccess wikidataAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
         wikidataAccess.establishConnection();
 
-        TupleQueryResult r = wikidataAccess.selectQuery(test);
-        List<String> binding = r.getBindingNames();
-        Context<String,String> sparqlContext = new FCAFormalContext<String, String>() {};
-        sparqlContext.addAttribute(new FCAAttribute<>("http://www.wikidata.org/prop/direct/P21"));
-        sparqlContext.addAttribute(new FCAAttribute<>("http://www.wikidata.org/prop/direct/P25"));
-
-
-        for(BindingSet bindingSet : r){
-            sparqlContext.addObject(new FCAObject<>(bindingSet.getValue(binding.get(0)).stringValue()));
-            //sparqlContext.addAttribute(new FCAAttribute<>(bindingSet.getValue(binding.get(1)).stringValue()));
-            //System.out.println("s: "+bindingSet.getValue(binding.get(0))+" o: "+bindingSet.getValue(binding.get(1)));
-        }
-
-        for(ObjectAPI<String,String> object : sparqlContext.getContextObjects()) {
-
-            String objectQuery = SPARQLQueryGenerator.
-                    generateSelectPropertyCheckQuery(object.getObjectID(),sparqlContext.getContextAttributes().stream().map(Attribute::getAttributeID).collect(Collectors.toList()));
-
-            r = wikidataAccess.selectQuery(objectQuery);
-
-            List<String> bindingNames = r.getBindingNames();
-
-            for(BindingSet bindingSet : r){
-                object.addAttribute(bindingSet.getValue(bindingNames.get(0)).stringValue());
-                //sparqlContext.addAttribute(new FCAAttribute<>(bindingSet.getValue(binding.get(1)).stringValue()));
-                //System.out.println("s: "+bindingSet.getValue(binding.get(0))+" o: "+bindingSet.getValue(binding.get(1)));
-            }
-
-        }
-
-
-
-        OutputPrinter.printCrosstableToConsole(sparqlContext);
-
-
-
         String property = "http://www.wikidata.org/entity/P";
-        int i=1;
+
+        //Create a List for all Properties of wikidata
+        List<String> properties = new ArrayList<>();
+
+        //Use own SPARQL Query to get all properties from wikidata
+        String query = "SELECT ?property WHERE {\n" +
+                "    ?property a wikibase:Property .\n" +
+                " }\n" +
+                "GROUP BY ?property";
+
+        //Perform query and save result
+        TupleQueryResult propResult = wikidataAccess.selectQuery(query);
+
+        //Binding names
+        List<String> bindingN = propResult.getBindingNames();
+
+
+
+        //Iterate over each result and add property to the list
+        for(BindingSet bindings : propResult){
+            properties.add(bindings.getValue(bindingN.get(0)).stringValue());
+            System.out.println(bindings.getValue(bindingN.get(0)).stringValue());
+        }
+
         List<Pair<String,List<String>>> wikidataPairs = new ArrayList<>();
-        List<List<String>> predicates = new ArrayList<>();
-        while(i<100){
-            String query=SPARQLQueryGenerator.generateSelectWikidataEquivalentPropertyQuery(property+i);
+        //List<List<String>> predicates = new ArrayList<>();
+        long a1 = Performance.setTimeStamp();
+        int i = 0;
+        while(i<properties.size()){
+            //Query equivalent properties
+            query=SPARQLQueryGenerator.generateSelectWikidataEquivalentPropertyQuery(properties.get(i));
             TupleQueryResult result = wikidataAccess.selectQuery(query);
-            //just o
+            //just property
             List<String> bindingNames = result.getBindingNames();
 
-            List<String> propse = new ArrayList<>();
+            List<String> propSet = new ArrayList<>();
             for(BindingSet bset : result){
-                propse.add(bset.getValue(bindingNames.get(0)).toString());
+                propSet.add(bset.getValue(bindingNames.get(0)).toString());
             }
-            wikidataPairs.add(new Pair<>(property+i,propse));
-            List<String> eqProps = new ArrayList<>();
-            eqProps.add(property+i);
-            eqProps.addAll(propse);
-            predicates.add(eqProps);
-            result.close();
+            wikidataPairs.add(new Pair<>(properties.get(i), propSet));
+                /*List<String> eqProps = new ArrayList<>();
+                eqProps.add(property + i);
+                eqProps.addAll(propSet);*/
+                //predicates.add(eqProps);
             i++;
+
+            result.close();
         }
         wikidataAccess.closeConnection();
+        long a2 = Performance.setTimeStamp();
 
+        System.out.println("*************************************");
+        System.out.println(Performance.convertToFormat(Performance.getExecutionTime(a1,a2)));
         //PRINT EQUAL PROPERTIES
 
         /*for(Pair<String,List<String>> p : wikidataPairs){
@@ -125,14 +105,30 @@ public class Testing {
             }
             wikidataMappingContext.addObject(mapping);
         }
-        OutputPrinter.writeCrosstableToFile(wikidataMappingContext,"wikidataMapping.txt");
-        OutputPrinter.writeStemBaseToFile(wikidataMappingContext,"wikidataMappingStemBase.txt");
+        OutputPrinter.writeCrosstableToFile(wikidataMappingContext,"wikidataMapping2.txt");
+
+        /*OutputPrinter.writeStemBaseToFile(wikidataMappingContext,"wikidataMappingStemBase.txt");
         for(Implication<String,String> im : Computation.computeStemBase(wikidataMappingContext)){
             System.out.println(Computation.computeImplicationSupport(im,wikidataMappingContext));
+        }*/
+
+
+        for(Attribute<String,String> attr : wikidataMappingContext.getContextAttributes()){
+            //Compute how many objects have this attribute in percent
+            BigDecimal objects = new BigDecimal(Computation.computePrimeOfAttributes(Collections.singletonList(attr),wikidataMappingContext).size());
+            BigDecimal allobjects = new BigDecimal(wikidataMappingContext.getContextObjects().size());
+            BigDecimal percent = objects.divide(allobjects,5, RoundingMode.HALF_UP);
+            System.out.println(attr.getAttributeID()+" "+percent);
         }
 
+
+
+
+
+
+
         //******************************************DBPedia
-        wikidataAccess.setSparqlEndpoint("https://dbpedia.org/sparql");
+        /*wikidataAccess.setSparqlEndpoint("https://dbpedia.org/sparql");
         wikidataAccess.establishConnection();
         Context<String,String> dbpediaMappingContext = new FCAFormalContext<String, String>() {};
         for(List<String> eqProperties : predicates){
@@ -162,7 +158,7 @@ public class Testing {
         for(Implication<String,String> im : Computation.computeStemBase(dbpediaMappingContext)){
             System.out.println(im.toString()+" "+Computation.computeImplicationSupport(im,dbpediaMappingContext));
         }
-
+*/
         //TODO
         //***************************************YAGO
 

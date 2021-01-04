@@ -17,31 +17,31 @@ public interface Concept<O,A> {
      * Get the Extent of this Concept.
      * @return List of Objects for this Concept.
      */
-    public List<? extends ObjectAPI<O,A>> getExtent();
+    List<? extends ObjectAPI<O,A>> getExtent();
 
     /**
      * Set the Extent of an Concept.
      * @param extent List of Objects for this Concept.
      */
-    public void setExtent(List<? extends ObjectAPI<O, A>> extent);
+    void setExtent(List<? extends ObjectAPI<O, A>> extent);
 
     /**
      * Get the Intent of this Concept.
      * @return List of Attributes for this Concept.
      */
-    public List<? extends Attribute<O,A>> getIntent();
+    List<? extends Attribute<O,A>> getIntent();
 
     /**
      * Set the Intent of this Concept.
      * @param intent New List of Attributes for this Concept.
      */
-    public void setIntent(List<? extends Attribute<O, A>> intent);
+    void setIntent(List<? extends Attribute<O, A>> intent);
 
     /**
      * Prints first the extent of this Concept
      * and afterwards the intent.
      */
-    public void printConcept();
+    void printConcept();
 
 
 

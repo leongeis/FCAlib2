@@ -26,7 +26,6 @@ import java.util.List;
  *
  * @author Leon Geis
  */
-//TODO REWORK JavaDoc
 public abstract class FCAFormalContext<O,A> implements Context<O,A>{
 
     /**

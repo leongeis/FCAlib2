@@ -1,4 +1,4 @@
-Stem Base of the context with ID: 2
+Stem Base of the context with ID: 1
 Implications with the premise on the left and the conclusion on the right.
 IMPLICATION:[http://purl.org/ontology/mo/]->[http://d-nb.info/standards/elementset/]
 IMPLICATION:[http://purl.org/ontology/po/]->[http://id.loc.gov/vocabulary/relators/, https://schema.org/, http://gov.genealogy.net/, http://d-nb.info/standards/elementset/, http://data.bnf.fr/vocabulary/roles/]
