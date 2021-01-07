@@ -54,7 +54,7 @@ public interface Computation {
             }
             //Create List to be returned
             List<Attribute<O,A>> attributes = new ArrayList<>();
-            //Get corresponding List of Objects
+            //Get corresponding List of Attributes
             for(A a : IDs){
                 attributes.add(context.getAttribute(a));
             }
@@ -577,5 +577,53 @@ public interface Computation {
         //Compute the support for this implication and return it
         return ((double)implObjectPrime.size()/context.getContextObjects().size());
     }
+
+
+    /**
+     * Reduces the given context, i.e., removes all empty rows and columns, as well
+     * as all full rows and columns.
+     * @param context The context to be reduced.
+     * @param <O> Type of the Objects
+     * @param <A> Type of the Attributes
+     * @param <T> Type of the Context, which needs
+     *           to implement the Context interface.
+     */
+    static <O,A,T extends Context<O,A>> void reduceContext(T context){
+        //Remove all "empty" rows
+        context.getContextObjects().removeIf(object -> Computation.computePrimeOfObjects(Collections.singletonList(object), context).size() == 0);
+        //Remove all "empty" columns
+        context.getContextAttributes().removeIf(attribute -> Computation.computePrimeOfAttributes(Collections.singletonList(attribute), context).size() == 0);
+
+        //Get the List of Objects
+        List<ObjectAPI<O,A>> contextObjects = new ArrayList<>(context.getContextObjects());
+
+        //Now remove all rows, where an object has every attribute
+        for(ObjectAPI<O,A> objectAPI : contextObjects){
+            if(Computation.computePrimeOfObjects(Collections.singletonList(objectAPI),context).size() == context.getContextAttributes().size()){
+                //First remove this object from every attribute
+                for(Attribute<O,A> attribute : context.getContextAttributes()){
+                    attribute.getDualEntities().remove(objectAPI.getObjectID());
+                }
+                //Afterwards remove the objects itself
+                context.getContextObjects().remove(objectAPI);
+            }
+        }
+
+        //Get the List of Attributes
+        List<Attribute<O,A>> attributes = new ArrayList<>(context.getContextAttributes());
+
+        //Now remove all columns, where every object has a specific attribute
+        for(Attribute<O,A> attribute : attributes){
+            if(Computation.computePrimeOfAttributes(Collections.singletonList(attribute),context).size() == context.getContextObjects().size()){
+                //First remove this attribute from every object
+                for(ObjectAPI<O,A> objectAPI : context.getContextObjects()){
+                    objectAPI.getDualEntities().remove(attribute.getAttributeID());
+                }
+                //Afterwards remove the attribute itself
+                context.getContextAttributes().remove(attribute);
+            }
+        }
+    }
+
 
 }

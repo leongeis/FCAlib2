@@ -24,9 +24,10 @@
 - [ ] No
 
 ##### TODO
-- [ ] Use Data from DBPedia
-- [ ] Use Data from YAGO
-- [ ] Finish Performance Interface
+- [ ] Add possible removal of rows/columns
+- [X] Use Data from DBPedia
+- [X] Use Data from YAGO
+- [X] Finish Performance Interface
 - [x] Include Support of Implications
 
 <!-- TABLE OF CONTENTS -->
@@ -595,6 +596,8 @@ method. Aferwards, we save the URI of a property class, which is here the proper
 we use this `Context` object, the String of the property class and a limit for queried items as parameters for `createContextFromWikidata`.
 Internally, this method uses all properties from the given class, which is here https://www.wikidata.org/entity/Q18608871, and
 simply queries all items, which have at least one of those properties as a predicate. The limit of queried items here is set to 100.
+Additionally, the `ContextHelper` interface also contains another method, which enables the creation of a Context from any SPARQL-Endpoint. This
+approach is not discussed further, but one can check out the [interface](https://github.com/leongeis/FCAlib2/blob/main/src/main/java/api/utils/ContextHelper.java) for more information.
 <br/>Lets simply print the `Crosstable` of the `Context` object `wikidataContext` and see, if this approach worked.
 
 ```

@@ -4,7 +4,6 @@ import api.fca.Attribute;
 import api.fca.Context;
 import api.fca.ObjectAPI;
 import lib.fca.FCAAttribute;
-import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
 import lib.utils.KnowledgeGraphAccess;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -13,7 +12,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-//TODO Rework JavaDoc
+//TODO JavaDoc
 
 /**
  * Interface, which can be used to easily create a Context
@@ -50,8 +49,6 @@ public interface ContextHelper {
 
         //Perform instance of Query to receive all associated properties
         TupleQueryResult classResult = wa.selectQuery(SPARQLQueryGenerator.generateSelectWikidataInstanceOfQuery(propertyClass));
-        System.out.println("asdasdasdasdasdasd");
-        System.out.println(SPARQLQueryGenerator.generateSelectWikidataInstanceOfQuery(propertyClass));
         //Create List of Bindings associated with the variables (?s)
         List<String> bindingNames = classResult.getBindingNames();
         //Create corresponding prefix
@@ -62,7 +59,6 @@ public interface ContextHelper {
             String uri = bindingSet.getValue(bindingNames.get(0)).stringValue();
             context.createAttribute(prefix+ uri.substring(uri.lastIndexOf('/')+1),FCAAttribute.class);
         }
-        System.out.println(context.getContextAttributes().stream().map(Attribute::getAttributeID).collect(Collectors.toList()));
         //Close Result object
         classResult.close();
         //Now Perform SELECT Query and get the Objects according to the Attributes of the Context
@@ -118,13 +114,62 @@ public interface ContextHelper {
         return context;
     }
 
-    //TODO
-    static FCAFormalContext<String,String> createContextFromDBPedia(){
-        return null;
-    }
-    //TODO
-    static FCAFormalContext<String,String> createContextFromYAGO(){
-        return null;
+    //TODO Verify
+    static Context<String,String> createContextFromKnowledgeGraph(Context<String,String> context, String sparqlEndpoint ,List<String> properties, int number){
+        //Clear the List of Attribute and Objects
+        context.getContextObjects().clear();
+        context.getContextAttributes().clear();
+
+        //Create new KnowledgeGraphAccess Object and set URI to the DBPedia SPARQL-Endpoint
+        KnowledgeGraphAccess wikidataAccess = new KnowledgeGraphAccess(sparqlEndpoint);
+
+        //Establish a connection
+        wikidataAccess.establishConnection();
+
+        //Create a query based on the given property list
+        String query = SPARQLQueryGenerator.generateSelectUnionQuery(properties,number);
+
+        //Execute query
+        TupleQueryResult result = wikidataAccess.selectQuery(query);
+
+        //Get Binding Names
+        List<String> bindingNames = result.getBindingNames();
+
+        //Iterate over results
+        for(BindingSet bindingSet : result){
+            //Create object and store it in the context
+            context.createObject(bindingSet.getValue(bindingNames.get(0)).stringValue(), FCAObject.class);
+        }
+        result.close();
+
+        //Now for each Object perform query and check, which of the given attributes it has
+        for(ObjectAPI<String,String> objectAPI : context.getContextObjects()){
+
+            //Generate query
+            query = SPARQLQueryGenerator.generateSelectPropertyCheckQuery(objectAPI.getObjectID(),properties);
+
+            //Perform query
+            result = wikidataAccess.selectQuery(query);
+
+            //Get binding names
+            bindingNames = result.getBindingNames();
+
+            //Iterate over results
+            for(BindingSet bindingSet : result){
+                //Create new Attribute
+                Attribute<String,String> attribute = new FCAAttribute<>(bindingSet.getValue(bindingNames.get(0)).stringValue());
+
+                //Add incidence
+                attribute.addObject(objectAPI.getObjectID());
+                objectAPI.addAttribute(attribute.getAttributeID());
+
+                //Add attribute to context
+                context.addAttribute(attribute);
+            }
+        }
+
+        return context;
+
     }
 
 }

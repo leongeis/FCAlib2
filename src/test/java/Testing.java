@@ -1,16 +1,12 @@
-import api.fca.Attribute;
+import api.fca.Computation;
 import api.fca.Context;
-import api.fca.ObjectAPI;
+import api.fca.Implication;
 import api.utils.ContextHelper;
 import api.utils.OutputPrinter;
-import api.utils.SPARQLQueryGenerator;
-import lib.fca.FCAAttribute;
+import api.utils.Performance;
 import lib.fca.FCAFormalContext;
-import lib.fca.FCAObject;
-import lib.utils.KnowledgeGraphAccess;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.TupleQueryResult;
 
+import java.io.IOException;
 import java.util.List;
 
 //ONLY USED FOR TESTING PURPOSES;
@@ -19,57 +15,223 @@ import java.util.List;
 
 public class Testing {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        //Property class URI
-        String uri = "http://www.wikidata.org/entity/Q57633168";
+        //Get 3000 humans
 
-        //Create context for wikidata by using the property class for animals/zoology
-        Context<String, String> wikidataAnimalContext = ContextHelper.createContextFromWikidata(new FCAFormalContext<String, String>(){},uri,10);
+        //****************WIKIDATA*********************
+        //Property class
+        String property = "http://www.wikidata.org/entity/Q18608871";
+        Context<String,String> wikidataHumanContext = ContextHelper.createContextFromWikidata(new FCAFormalContext<String, String>() {},property,1000);
+        System.out.println(wikidataHumanContext.getContextAttributes().size());
+        OutputPrinter.printCrosstableToConsole(wikidataHumanContext);
 
-        OutputPrinter.printCrosstableToConsole(wikidataAnimalContext);
+        /*KnowledgeGraphAccess knowledgeGraphAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
 
-        //Get all equivalent entities from DBPedia
-        Context<String,String> dbpediaAnimalContext = new FCAFormalContext<String, String>() {};
-
-        KnowledgeGraphAccess knowledgeGraphAccess = new KnowledgeGraphAccess("https://dbpedia.org/sparql");
-
+        Context<String,String> wikidataHumanContext = new FCAFormalContext<String, String>() {};
 
         knowledgeGraphAccess.establishConnection();
-        for(ObjectAPI<String,String> object : wikidataAnimalContext.getContextObjects()){
-            FCAObject<String,String> newObject = new FCAObject<>();
-            TupleQueryResult result = knowledgeGraphAccess.selectQuery(SPARQLQueryGenerator.generateSelectSameAsQuery(object.getObjectID()));
 
-            List<String> bindingNames = result.getBindingNames();
-            for(BindingSet bindings : result){
-                newObject.setObjectID(bindings.getValue(bindingNames.get(0)).stringValue());
-            }
-            dbpediaAnimalContext.addObject(newObject);
-        }
+        String query = "select * where{\n" +
+                "  ?s wdt:P31 wd:Q5.} Limit 12";
 
-        //Iterate over each Attribute of the Wikidata Context and get the equivalent dbpedia property
-        for(Attribute<String,String> attribute : wikidataAnimalContext.getContextAttributes()){
-            FCAAttribute<String,String> newAttribute = new FCAAttribute<>();
-            TupleQueryResult result = knowledgeGraphAccess.selectQuery(SPARQLQueryGenerator.generateSelectEquivalentPropertyQuery(newAttribute.getAttributeID()));
-            List<String> bindingNames = result.getBindingNames();
-            for(BindingSet bindings : result){
-                //ERROR
-                newAttribute.setAttributeID(bindings.getValue(bindingNames.get(0)).stringValue());
-            }
-            dbpediaAnimalContext.addAttribute(newAttribute);
+        TupleQueryResult result = knowledgeGraphAccess.selectQuery(query);
+
+        List<String> bindingNames = result.getBindingNames();
+
+        for(BindingSet bindingSet : result){
+
+            ObjectAPI<String,String> object = new FCAObject<>(bindingSet.getValue(bindingNames.get(0)).stringValue());
+            wikidataHumanContext.addObject(object);
 
         }
+        result.close();
 
-        OutputPrinter.printCrosstableToConsole(dbpediaAnimalContext);
+        //Get ALL properties of these humans
+        for(ObjectAPI<String,String> objectAPI : wikidataHumanContext.getContextObjects()){
+            String objectQuery = new SPARQLQueryBuilder().select().variable("?p").where().variable("<"+objectAPI.getObjectID()+">").
+                    variable("?p ").variable("?o .").end().groupBy("?p").build();
+            result = knowledgeGraphAccess.selectQuery(objectQuery);
+            bindingNames=result.getBindingNames();
+            for(BindingSet bindingSet : result){
+                if(!wikidataHumanContext.containsAttribute(bindingSet.getValue(bindingNames.get(0)).stringValue())){
+                    Attribute<String,String> attribute = new FCAAttribute<>(bindingSet.getValue(bindingNames.get(0)).stringValue());
+                    wikidataHumanContext.addAttribute(attribute);
+                }
+            }
+            result.close();
+        }
+
+        //OutputPrinter.printCrosstableToConsole(wikidataHumanContext);
+        System.out.println(wikidataHumanContext.getContextAttributes().size());
+
+        int start=0, finish=10;
+        List<List<Attribute<String,String>>> blocks = new ArrayList<>();
+        while(start<1010){
+            blocks.add(wikidataHumanContext.getContextAttributes().subList(start,finish));
+            start += 10;
+            finish += 10;
+        }
+        System.out.println(blocks.size());
 
 
+        //Now go through each object and perform bind query for each block and add incidence to context
+        for(ObjectAPI<String,String> objectAPI : wikidataHumanContext.getContextObjects()){
+            List<String> results = new ArrayList<>();
+            for(List<Attribute<String,String>> block : blocks){
+                query = SPARQLQueryGenerator.generateSelectPropertyCheckQuery(objectAPI.getObjectID(),block.stream().map(Attribute::getAttributeID).collect(Collectors.toList()));
+                result = knowledgeGraphAccess.selectQuery(query);
+                bindingNames = result.getBindingNames();
+                for(BindingSet bindingSet : result){
+                    if(!results.contains(bindingSet.getValue(bindingNames.get(0)).stringValue())){
+                        results.add(bindingSet.getValue(bindingNames.get(0)).stringValue());
+                        objectAPI.addAttribute(bindingSet.getValue(bindingNames.get(0)).stringValue());
+                        wikidataHumanContext.getAttribute(bindingSet.getValue(bindingNames.get(0)).stringValue()).addObject(objectAPI.getObjectID());
+                    }
+                }
+            }
+        }
+        */
+        /*long a1 = Performance.setTimeStamp();
+        List<Implication<String,String>> implications = Computation.computeStemBase(wikidataHumanContext);
+
+        //Save RESULTS
+        FileWriter fw = new FileWriter("WikidataHumanStemBase.txt");
+
+        //minsupp = 70%
+        for(Implication<String,String> implication : implications){
+            double support = Computation.computeImplicationSupport(implication,wikidataHumanContext);
+            if(support >= 0.7){
+                fw.write(implication.toString()+" "+support);
+                fw.write("\n");
+            }
+            //System.out.println(implication.toString()+" "+support);
+
+        }
+        fw.close();
+        long a2 = Performance.setTimeStamp();
+
+        System.out.println("Computing Stem Base took: "+Performance.convertToFormat(Performance.getExecutionTime(a1,a2)));*/
+
+        long b1 = Performance.setTimeStamp();
+        Computation.reduceContext(wikidataHumanContext);
+        OutputPrinter.printCrosstableToConsole(wikidataHumanContext);
+        List<Implication<String,String>> implications = Computation.computeStemBase(wikidataHumanContext);
+        for(Implication<String,String> implication : implications){
+            double support = Computation.computeImplicationSupport(implication,wikidataHumanContext);
+            if(support >= 0.7) System.out.println(implication.toString()+" "+support);
+
+        }
+        long b2 = Performance.setTimeStamp();
+        //OutputPrinter.printCrosstableToConsole(wikidataHumanContext);
+        System.out.println(Performance.convertToFormat(Performance.getExecutionTime(b1,b2)));
+        System.out.println(wikidataHumanContext.getContextAttributes().size());
+
+        //The approach below caused a server time out after ~2 hours
+        /*long a1 = Performance.setTimeStamp();
+       //Create KnowledgeGraphAccess object
+        KnowledgeGraphAccess knowledgeGraphAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
+
+        Context<String,String> wikidataContext = new FCAFormalContext<String, String>() {};
+
+        knowledgeGraphAccess.establishConnection();
+
+        //Use own SPARQL Query to get all properties from wikidata
+        String query = "SELECT ?property WHERE {\n" +
+                "    ?property a wikibase:Property .\n" +
+                " }\n" +
+                "GROUP BY ?property";
+
+        TupleQueryResult result = knowledgeGraphAccess.selectQuery(query);
+
+        List<String> bindingNames = result.getBindingNames();
+
+        String propertyPrefix = "http://www.wikidata.org/prop/direct/";
+        //Only take first 2000 properties
+        int i=0;
+        for (BindingSet bindingSet : result) {
+            if(i==8000)break;
+            //System.out.println(bindingSet.getValue(bindingNames.get(0)));
+            String attr = bindingSet.getValue(bindingNames.get(0)).stringValue();
+            FCAAttribute<String, String> attribute = new FCAAttribute<>(propertyPrefix + attr.substring(attr.lastIndexOf("/") + 1));
+            wikidataContext.addAttribute(attribute);
+            ++i;
+        }
+        result.close();
+
+        List<String> wikprops = wikidataContext.getContextAttributes().stream().map(Attribute::getAttributeID).collect(Collectors.toList());
+        System.out.println(wikprops.size());
+        List<List<String>> propblocks = new ArrayList<>();
+        int a = 0, b=50;
+        while(a<wikprops.size()){
+            propblocks.add(wikprops.subList(a,b));
+            a += 50;
+            b += 50;
+        }
+        for(List<String> prop : propblocks) {
+            query = SPARQLQueryGenerator.generateSelectUnionQuery(prop, 10000);
+
+            result = knowledgeGraphAccess.selectQuery(query);
+
+            bindingNames = result.getBindingNames();
+
+            for (BindingSet bindingSet : result) {
+                //System.out.println(bindingSet.getValue(bindingNames.get(0)).stringValue());
+                //Add each object to the context
+                FCAObject<String, String> object = new FCAObject<>();
+                object.setObjectID(bindingSet.getValue(bindingNames.get(0)).stringValue());
+                wikidataContext.addObject(object);
+            }
+            result.close();
+        }
+
+        //Split the Attributes due to time exception
+        List<List<Attribute<String,String>>> blocks = new ArrayList<>();
+        int start = 0, finish = 50;
+        while(start<wikidataContext.getContextAttributes().size()){
+            blocks.add(wikidataContext.getContextAttributes().subList(start,finish));
+            start += 50;
+            finish += 50;
+        }
 
 
+        for(ObjectAPI<String,String> objectAPI : wikidataContext.getContextObjects()){
+            for(List<Attribute<String,String>> block : blocks) {
+                query = SPARQLQueryGenerator.generateSelectPropertyCheckQuery(objectAPI.getObjectID(), block.stream().map(Attribute::getAttributeID).collect(Collectors.toList()));
+                result = knowledgeGraphAccess.selectQuery(query);
+                bindingNames = result.getBindingNames();
+
+                //System.out.println(objectAPI.getObjectID());
+                for (BindingSet bindingSet : result) {
+                    //System.out.println(bindingSet.getValue(bindingNames.get(0)).stringValue());
+                    objectAPI.addAttribute(bindingSet.getValue(bindingNames.get(0)).stringValue());
+                    wikidataContext.getAttribute(bindingSet.getValue(bindingNames.get(0)).stringValue()).addObject(objectAPI.getObjectID());
+                }
+            }
 
 
+        }
+        List<Implication<String,String>> implications = Computation.computeStemBase(wikidataContext);
 
+        //Save RESULTS
+        FileWriter fw = new FileWriter("WikidataStemBase.txt");
 
-/*
+        //minsupp = 70%
+        for(Implication<String,String> implication : implications){
+            double support = Computation.computeImplicationSupport(implication,wikidataContext);
+            if(support >= 0.7){
+                fw.write(implication.toString()+" "+support);
+                fw.write("\n");
+            }
+                //System.out.println(implication.toString()+" "+support);
+
+        }
+        fw.close();
+
+        long a2 = Performance.setTimeStamp();
+        System.out.println("This all took: "+Performance.convertToFormat(Performance.getExecutionTime(a1,a2)));
+        */
+        /*
 
         //*********EXPERIMENTAL*******************************************************
 

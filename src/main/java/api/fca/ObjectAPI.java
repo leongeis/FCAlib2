@@ -22,13 +22,13 @@ public interface ObjectAPI<O,A> extends ClosureOperator {
     /**
      * @param objectID String of the ID.
      */
-    public void setObjectID(O objectID);
+    void setObjectID(O objectID);
 
     /**
      * Adds an Attribute to the Object.
      * @param attribute ID of the Attribute that
      *                 has to be added.
      */
-    public void addAttribute(A attribute);
+    void addAttribute(A attribute);
 
 }
