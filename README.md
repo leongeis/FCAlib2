@@ -123,7 +123,7 @@ entities and how to use the implemented algorithms by using the `Computation` in
 <br/>The steps below make use of the implemented classes in the [`lib`](https://github.com/leongeis/FCAlib2/tree/main/src/main/java/lib) package. One
 can also implement new classes, by simply implementing the corresponding interfaces or extending the existing
 classes in the `lib.fca` package. Before we start it is save to mention here, that we will always  
- speak of creating an Object and hereby refer to our `ObjectAPI` interface and __not__ creating a object of type `java.lang.Object`. Steps on [how to extend](#7extending) the project are given at the end of the Tutorial.
+ speak of creating an Object and hereby refer to our `ObjectAPI` interface and __not__ creating an object of type `java.lang.Object`. Steps on [how to extend](#7extending) the project are given at the end of the Tutorial.
 #### 1.Creating an Object (`FCAObject`)
 First we need to create an Object and specify the type of the Object itself (first type parameter)
 , and the type of the Attributes the Object holds (second type parameter). Both the Object itself and
@@ -136,14 +136,21 @@ ObjectAPI<String,String> ob1 = new FCAObject<>("Q1");
 
 #### 2.Creating an Attribute (`FCAAttribute`)
 When creating a new Attribute, the type parameter are (similar to the ``ObjectAPI`` type parameter) first the type
-of the Attribute itself and secondly the type of the Objects the Attribute holds. Again, both the Attribute itself
+of the Objects the Attribute holds and secondly the type of the Attribute itself. Again, both the Attribute itself
 and its Objects are of type `String`.
 We provide the Constructor of the FCAAttribute Class with an ID for our new FCAAttribute ``atr1``,
 which is here ``"a"``.
-<br/><br/>Note: Again, the ID we provide has to be of the same type as the Attribute itself (first parameter),which is here ``String``.
+<br/><br/>Note: Again, the ID we provide has to be of the same type as the Attribute itself (second parameter),which is here ``String``.
 ```java
 Attribute<String,String> atr1 = new FCAAttribute<>("a");
 ```
+
+<p align="center">
+<img width="420" height="206" src="https://github.com/leongeis/FCAlib2/blob/main/images/parametertypepattern.png">
+<h6 align="center">The pattern of the types is the same throughout the whole library.</h6>
+</p>
+
+
 #### 3.Creating a Formal Context (`FCAFormalContext`)
 Similar to the Object and Attribute type parameter, the first type parameter specifies the type of the Objects (G) of
 the context, and the second type parameter specifies the type of the Attributes (M) of the context. Here, both
@@ -153,7 +160,7 @@ always have to be placed there when creating a ``FCAFormalContext`` Object.
 Context<String,String> testContext = new FCAFormalContext<>(){};
 ```
 <p align="center">
-<img width="430" height="81" src="https://github.com/leongeis/FCAlib2/blob/main/images/contextattrobj.png">
+<img width="470" height="154" src="https://github.com/leongeis/FCAlib2/blob/main/images/contextattrobj.png">
 <h6 align="center">The types of the Context and the Objects/Attributes have to match.</h6>
 </p>
 
@@ -207,7 +214,7 @@ testContext.addObject(ob1);
 testContext.addObject(ob2);
 testContext.addObject(ob3);
 ```
-Here we add the FCAObjects `ob1`,`ob2` and `ob3` to the earlier created FCAFormalContext Object. Again the Attributes
+Here we add the FCAObjects `ob1`,`ob2` and `ob3` to the earlier created FCAFormalContext Object. Again, the Attributes
 of each individual Object are also added to the context. Thus, one could also use the method `addAttribute()`. However,
 this method creates ``FCAObject`` objects and adds them to the Context, if an object is not present in the Context object.
 <p align="center">

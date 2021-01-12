@@ -1,13 +1,14 @@
 import api.fca.Computation;
 import api.fca.Context;
 import api.fca.Implication;
-import api.utils.ContextHelper;
-import api.utils.OutputPrinter;
 import api.utils.Performance;
 import lib.fca.FCAFormalContext;
+import lib.fca.FCAObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 //ONLY USED FOR TESTING PURPOSES;
 //WILL BE DELETED IN LATER RELEASES
@@ -17,15 +18,83 @@ public class Testing {
 
     public static void main(String[] args) throws IOException {
 
-        //Get 3000 humans
+        FCAObject<String,String> ob1 = new FCAObject<>("1");
+        ob1.addAttribute("b");
+        ob1.addAttribute("d");
+        FCAObject<String,String> ob2 = new FCAObject<>("2");
+        ob2.addAttribute("b");
+        ob2.addAttribute("e");
+        FCAObject<String,String> ob3 = new FCAObject<>("3");
+        ob3.addAttribute("c");
+
+        FCAObject<String,String> ob4 = new FCAObject<>("4");
+        ob4.addAttribute("a");
+        ob4.addAttribute("b");
+        ob4.addAttribute("c");
+        FCAObject<String,String> ob5 = new FCAObject<>("5");
+
+        ob5.addAttribute("d");
+        FCAObject<String,String> ob6 = new FCAObject<>("6");
+        ob6.addAttribute("b");
+        ob6.addAttribute("c");
+        FCAObject<String,String> ob7 = new FCAObject<>("7");
+        ob7.addAttribute("e");
+
+        Context<String,String> context = new FCAFormalContext<String, String>() {};
+        context.addObject(ob1);
+        context.addObject(ob2);
+        context.addObject(ob3);
+        context.addObject(ob4);
+        context.addObject(ob5);
+        context.addObject(ob6);
+        context.addObject(ob7);
+
+        List<Implication<String,String>> impls = Computation.computeStemBase(context);
+        for(Implication<String,String> impl : impls){
+            System.out.println(impl.toString());
+        }
 
         //****************WIKIDATA*********************
         //Property class
-        String property = "http://www.wikidata.org/entity/Q18608871";
-        Context<String,String> wikidataHumanContext = ContextHelper.createContextFromWikidata(new FCAFormalContext<String, String>() {},property,1000);
-        System.out.println(wikidataHumanContext.getContextAttributes().size());
-        OutputPrinter.printCrosstableToConsole(wikidataHumanContext);
+        //String property = "http://www.wikidata.org/entity/Q19829914";
+        //Context<String,String> wikidataHumanContext = ContextHelper.createContextFromWikidata(new FCAFormalContext<String, String>() {},property,8192);
+        List<String> properties = new ArrayList<>();
+        char a = 'a';
+        for(int i=0; i<25;++i){
+            properties.add(Character.toString(a+i));
+        }
+        System.out.println(properties);
+        //properties.add("d");
+        //Add Objects with random incidence
+        int amountObjects = 5;
+        while(amountObjects <= 100) {
+            Context<String,String> wikidataHumanContext = new FCAFormalContext<String, String>() {};
+            for (int i = 0; i < amountObjects; ++i) {
+                FCAObject<String, String> object = new FCAObject<>(String.valueOf(i));
+                for (String prop : properties) {
+                    int randomNum = ThreadLocalRandom.current().nextInt(1, 101);
+                    if (randomNum >= 50) {
+                        object.addAttribute(prop);
+                    }
+                }
+                wikidataHumanContext.addObject(object);
+            }
 
+            long b1 = Performance.setTimeStamp();
+            //Computation.reduceContext(wikidataHumanContext);
+            System.out.println("**********************OBJECTS==" + amountObjects);
+            //OutputPrinter.printCrosstableToConsole(wikidataHumanContext);
+            List<Implication<String, String>> implications = Computation.computeStemBase(wikidataHumanContext);
+            /*for (Implication<String, String> implication : implications) {
+                double support = Computation.computeImplicationSupport(implication, wikidataHumanContext);
+                System.out.println(implication.toString() + " " + support);
+            }*/
+            long b2 = Performance.setTimeStamp();
+            //OutputPrinter.printCrosstableToConsole(wikidataHumanContext);
+            System.out.println(Performance.convertToFormat(Performance.getExecutionTime(b1, b2)));
+            System.out.println(implications.size());
+            amountObjects +=5;
+        }
         /*KnowledgeGraphAccess knowledgeGraphAccess = new KnowledgeGraphAccess("https://query.wikidata.org/sparql");
 
         Context<String,String> wikidataHumanContext = new FCAFormalContext<String, String>() {};
@@ -113,19 +182,7 @@ public class Testing {
 
         System.out.println("Computing Stem Base took: "+Performance.convertToFormat(Performance.getExecutionTime(a1,a2)));*/
 
-        long b1 = Performance.setTimeStamp();
-        Computation.reduceContext(wikidataHumanContext);
-        OutputPrinter.printCrosstableToConsole(wikidataHumanContext);
-        List<Implication<String,String>> implications = Computation.computeStemBase(wikidataHumanContext);
-        for(Implication<String,String> implication : implications){
-            double support = Computation.computeImplicationSupport(implication,wikidataHumanContext);
-            if(support >= 0.7) System.out.println(implication.toString()+" "+support);
 
-        }
-        long b2 = Performance.setTimeStamp();
-        //OutputPrinter.printCrosstableToConsole(wikidataHumanContext);
-        System.out.println(Performance.convertToFormat(Performance.getExecutionTime(b1,b2)));
-        System.out.println(wikidataHumanContext.getContextAttributes().size());
 
         //The approach below caused a server time out after ~2 hours
         /*long a1 = Performance.setTimeStamp();

@@ -4,7 +4,10 @@ import lib.fca.FCAConcept;
 import lib.fca.FCAImplication;
 import lib.utils.IndexedList;
 import lib.utils.Pair;
+import org.apache.commons.collections4.CollectionUtils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -351,7 +354,6 @@ public interface Computation {
                 attributes.addAll((Collection<? extends S>) implication.getConclusion());
 
                 //Remove duplicate Elements using Stream API
-                //TODO Rework assigned data structure (currently simple ArrayList 20.10.20)
                 attributes = attributes.stream().distinct().collect(Collectors.toList());
             }
             //Go through each Attribute in the Premise of the Implication
@@ -361,7 +363,6 @@ public interface Computation {
                 //If this List contains the variable 'attribute', get the Pair of that variable and
                 //add the Implication to the right side
                 if(lhsAttributes.contains(attribute)){
-                    //TODO DECREASE COMPLEXITY OF THIS STEP BELOW
                     //Go through each Pair of the attrList and if the left side of a pair,
                     //matches the variable 'attribute', add the implication to the right side.
                     for(Pair<S,List<Implication<O,A>>> p : attrList){
@@ -446,7 +447,7 @@ public interface Computation {
         }
         //Get the Attribute with the highest Index in the Attribute List
         Attribute<O,A> max = indexedAttributes.getMaxElement();
-        while (!A.equals(indexedAttributes.getObjects())){
+        while (!CollectionUtils.isEqualCollection(A,indexedAttributes.getObjects())){
             //Get all attributes smaller than 'max' and traverse them in reverse order
             List<Attribute<O,A>> smallerAttributes = new ArrayList<>();
             for(Pair<Attribute<O,A>,Integer> indexed : indexedAttributes.getIndexedList()){
@@ -455,7 +456,6 @@ public interface Computation {
                 }
             }
             //Reverse the order
-            //Collections.reverse(smallerAttributes);
             ListIterator<Attribute<O,A>> iterator = smallerAttributes.listIterator(smallerAttributes.size());
             while(iterator.hasPrevious()){
                 Attribute<O,A> atr = iterator.previous();
@@ -465,7 +465,7 @@ public interface Computation {
                     //Create Copy of A and add the current Attribute 'atr'
                     List<Attribute<O,A>> attrCopy = new ArrayList<>(A);
                     attrCopy.add(atr);
-                    //Compute the ClosureOperator of this copy List
+                    //Compute the Closure of this copy List
                     List<Attribute<O,A>> B = computeLinClosure(attrCopy,implList);
                     //Remove A from B
                     B.removeAll(A);
@@ -494,7 +494,7 @@ public interface Computation {
             //if A is not equal its closure add corresponding Implication
             //Compute ClosureOperator of A
             List<Attribute<O,A>> closureA = computePrimeOfObjects(computePrimeOfAttributes(A,context),context);
-            if(!A.containsAll(closureA) && A.size()!=closureA.size()){
+            if(!CollectionUtils.isEqualCollection(A,closureA)){
                 //Check if the size of the Closure is not equal the size of all Attributes
                 //If it is remove all Attribute from the Conclusion that are contained in the premise
                 if(closureA.size()!=context.getContextAttributes().size())closureA.removeAll(A);
@@ -556,10 +556,10 @@ public interface Computation {
      * @return The Support of this Implication ranging from
      * 0 to 1 [0,1].
      */
-    static <O,A,T extends Context<O,A>, S extends Implication<O,A>> double computeImplicationSupport(S implication, T context){
+    static <O,A,T extends Context<O,A>, S extends Implication<O,A>> BigDecimal computeImplicationSupport(S implication, T context){
         //First check if the context has Objects,
         //if not return 0
-        if(context.getContextObjects().isEmpty())return 0;
+        if(context.getContextObjects().isEmpty())return new BigDecimal(0);
         //Check if the premise and the conclusion of the implication
         //are contained in the Attribute List of the context
         //Create HashSet, which contains both premise and conclusion attributes
@@ -570,12 +570,15 @@ public interface Computation {
         //Now check if each Attribute is also contained in the context
         //If an Attribute is not contained return 0
         for(Attribute<O,A> attribute : implAttributes){
-            if(!context.containsAttribute(attribute.getAttributeID()))return 0;
+            if(!context.containsAttribute(attribute.getAttributeID()))return new BigDecimal(0);
         }
         //Compute the Prime of the Implication Attributes
         List<ObjectAPI<O,A>> implObjectPrime = computePrimeOfAttributes(new ArrayList<>(implAttributes),context);
         //Compute the support for this implication and return it
-        return ((double)implObjectPrime.size()/context.getContextObjects().size());
+        //Create BigDecimal objects
+        BigDecimal primeSize = new BigDecimal(implObjectPrime.size());
+        BigDecimal contextSize = new BigDecimal(context.getContextObjects().size());
+        return primeSize.divide(contextSize, RoundingMode.CEILING);
     }
 
 
@@ -625,5 +628,36 @@ public interface Computation {
         }
     }
 
-
+    /**
+     * Computes the Confidence of an Implication w.r.t. a given Context Object.
+     * This method enables association rule mining.
+     * @param implication The Implication from which the Confidence should be computed.
+     * @param context Context Object used to compute the Prime of the
+     *                Attributes of the Implication.
+     * @param <O> Type of the Objects
+     * @param <A> Type of the Attributes
+     * @param <T> Type of the Context
+     * @param <S> Type of the Implication
+     * @return A double value with the range between 0 and 1. It always returns 1, if
+     * the prime of the premise of the Implication is empty.
+     */
+    static <O,A, T extends Context<O,A>, S extends Implication<O,A>> BigDecimal computeConfidence(S implication, T context){
+        //First compute the Prime of the premise of the implication
+        //and check if it is empty:
+        List<ObjectAPI<O,A>> prime = Computation.computePrimeOfAttributes(implication.getPremise(),context);
+        if(prime.isEmpty()){
+            //Return 1
+            return new BigDecimal(1);
+        }else{
+            //Compute the confidence
+            //Add the Attributes of the premise and the conclusion together
+            List<Attribute<O,A>> implicationAttributes = new ArrayList<>(implication.getPremise());
+            implicationAttributes.addAll(implication.getConclusion());
+            //Compute the prime of the List of all Attributes of the Implication
+            //and divide the result with the prime of the premise, return the result
+            BigDecimal implSize = new BigDecimal(Computation.computePrimeOfAttributes(implicationAttributes,context).size());
+            BigDecimal premiseSize = new BigDecimal(Computation.computePrimeOfAttributes(implication.getPremise(),context).size());
+            return implSize.divide(premiseSize,RoundingMode.CEILING);
+        }
+    }
 }
