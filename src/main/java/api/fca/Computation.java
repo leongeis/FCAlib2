@@ -117,9 +117,9 @@ public interface Computation {
      * @param context Context Object from which the
      *                Concepts will be computed.
      */
-    static <O,A,T extends Context<O,A>> List<FCAConcept<O,A>> computeAllConcepts(T context){
+    static <O,A,T extends Context<O,A>> List<Concept<O,A>> computeAllConcepts(T context){
         //Create List of all Concepts of this Context, which will be returned at the end.
-        List<FCAConcept<O,A>> concepts = new ArrayList<>();
+        List<Concept<O,A>> concepts = new ArrayList<>();
 
         //First add smallest extent (All Objects and the Attributes they have in common)
         FCAConcept<O,A> first = new FCAConcept<>();
@@ -140,16 +140,16 @@ public interface Computation {
             //Calculate the Intersection of the prime and each set of Objects in the list
             //--> A ∩ m'
             //Create Temporary List to save new sets of Objects
-            List<FCAConcept<O,A>> temp = new ArrayList<>();
-            for(FCAConcept<O,A> con : concepts){
+            List<Concept<O,A>> temp = new ArrayList<>();
+            for(Concept<O,A> con : concepts){
                 //Copy prime FCAObject List
                 List<ObjectAPI<O,A>> intersection = new ArrayList<>(prime);
                 //Perform Intersection using retainAll and the set of Objects of each concept
                 intersection.retainAll(con.getExtent());
                 //Check if Intersection is contained in List of all current Objects;
                 //if not add it to the temporary List
-                if(!concepts.stream().map(FCAConcept::getExtent).collect(Collectors.toList()).contains(intersection)){
-                    FCAConcept<O,A> concept = new FCAConcept<>();
+                if(!concepts.stream().map(Concept::getExtent).collect(Collectors.toList()).contains(intersection)){
+                    Concept<O,A> concept = new FCAConcept<>();
                     concept.setExtent(intersection);
                     //Check if Extent is empty
                     //If it is: Add Intent as (∅,∅')
@@ -163,8 +163,8 @@ public interface Computation {
                 }
             }
             //Only add non-redundant sets
-            for(FCAConcept<O,A> c : temp){
-                if(!concepts.stream().map(FCAConcept::getExtent).collect(Collectors.toList()).contains(c.getExtent())){
+            for(Concept<O,A> c : temp){
+                if(!concepts.stream().map(Concept::getExtent).collect(Collectors.toList()).contains(c.getExtent())){
                     concepts.add(c);
                 }
             }
@@ -578,7 +578,7 @@ public interface Computation {
         //Create BigDecimal objects
         BigDecimal primeSize = new BigDecimal(implObjectPrime.size());
         BigDecimal contextSize = new BigDecimal(context.getContextObjects().size());
-        return primeSize.divide(contextSize, RoundingMode.CEILING);
+        return primeSize.divide(contextSize,5, RoundingMode.UP);
     }
 
 

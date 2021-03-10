@@ -195,7 +195,7 @@ public interface OutputPrinter {
         System.out.println("Stem Base of the context with ID: "+context.getContextID());
         System.out.println("Implications with the premise on the left and the conclusion on the right.");
         for(Implication<O,A> impl : Computation.computeStemBase(context)){
-            System.out.print("IMPLICATION:"+impl.toString()+"\n");
+            System.out.print(impl.toString()+" "+Computation.computeImplicationSupport(impl,context)+"\n");
         }
     }
     /**
@@ -216,7 +216,7 @@ public interface OutputPrinter {
             fileWriter.write("Implications with the premise on the left and the conclusion on the right.\n");
             //Go through each Implication and display the premise and the conclusion
             for(Implication<O,A> impl : Computation.computeStemBase(context)){
-                fileWriter.write("IMPLICATION:"+impl.toString()+"\n");
+                fileWriter.write(impl.toString()+" "+Computation.computeImplicationSupport(impl,context)+"\n");
             }
             //Display Success Message
             System.out.println("Writing Successful!");

@@ -4,11 +4,15 @@ import api.fca.Attribute;
 import api.fca.Context;
 import api.fca.ObjectAPI;
 import lib.fca.FCAAttribute;
+import lib.fca.FCAFormalContext;
 import lib.fca.FCAObject;
 import lib.utils.KnowledgeGraphAccess;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,8 +20,8 @@ import java.util.stream.Collectors;
 
 /**
  * Interface, which can be used to easily create a Context
- * from a Knowledge Graph. When using a method from
- * this interface, only subjects of the queries are
+ * from a Knowledge Graph or from File. When using a method from
+ * this interface to query Knowledge Graphs, only subjects of the queries are
  * stored as objects in the Context.
  * @author Leon Geis
  */
@@ -171,5 +175,59 @@ public interface ContextHelper {
         return context;
 
     }
+
+    //TODO Enable Generic Types from File
+
+    /**
+     * Creates a Context from File. The Format has to be the same
+     * as the Output Format of OutputPrinter Interface. This
+     * could look like the following.
+     *   a b c
+     * 1 X - X
+     * 2 - - X
+     * 3 X - -
+     * Note that the amount of whitespaces in the first line is
+     * irrelevant.
+     * @param FilePath Path to the .txt File
+     * @return Context Object build from the given File
+     * @throws IOException - When file can't be found.
+     */
+    static Context<String,String> createContextFromFile(String FilePath) throws IOException {
+        //Create Reader Object
+        BufferedReader reader = new BufferedReader(new FileReader(FilePath));
+        //Read in first line attributes
+        String firstLine = reader.readLine();
+        //Create Context
+        Context<String,String> context = new FCAFormalContext<String, String>() {};
+        String[] attributes = firstLine.trim().split("\\s+");
+        //Create for each Attribute in the table an Attribute in the Context
+        for (int i = 0; i < attributes.length; i++) {
+            Attribute<String,String> atr = new FCAAttribute<>(attributes[i]);
+            context.addAttribute(atr);
+        }
+        //Go through each remaining line and add first the object
+        //with its ID and afterwards all corresponding incidences
+        String line = reader.readLine();
+        while(line!=null){
+            String[] objInc = line.split("\\s+");
+            //Create Object
+            ObjectAPI<String,String> object = new FCAObject<>(objInc[0]);
+            for (int i = 1; i < objInc.length; i++) {
+                if(objInc[i].equals("X")){
+                    //Add Incidence
+                    object.addAttribute(context.getContextAttributes().get(i-1).getAttributeID());
+                    context.getContextAttributes().get(i-1).addObject(object.getObjectID());
+                }
+            }
+            context.addObject(object);
+            //Read next line
+            line = reader.readLine();
+        }
+        //Close Reader
+        reader.close();
+        //Return Context
+        return context;
+    }
+
 
 }
