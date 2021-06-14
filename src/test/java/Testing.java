@@ -1,19 +1,15 @@
-import api.fca.Attribute;
-import api.fca.Computation;
-import api.fca.Context;
-import api.fca.ObjectAPI;
+import api.fca.*;
 import api.utils.ContextHelper;
 import api.utils.OutputPrinter;
-import api.utils.TTLParser;
-import lib.fca.FCAAttribute;
-import lib.fca.FCAFormalContext;
-import lib.fca.FCAObject;
+import lib.fca.*;
 import lib.utils.IndexedList;
 import lib.utils.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 //ONLY USED FOR TESTING PURPOSES;
 //WILL BE DELETED IN LATER RELEASES
@@ -78,6 +74,7 @@ public class Testing {
         atr1.addObject(6);
 
 
+
         Context<Integer, String> cxt = new FCAFormalContext<>(){};
         cxt.addObject(gst1);
         cxt.addAttribute(atr1);
@@ -88,17 +85,51 @@ public class Testing {
         cxt.getObject(6).addAttribute("Blütezeit Juni");
         cxt.getObject(6).addAttribute("Wuchshöhe größer als 15cm");
 
+
+
         OutputPrinter.printCrosstableToConsole(cxt);
         OutputPrinter.printStemBaseToConsole(cxt);
 
-        List<Pair<String,String>> s = TTLParser.getNamespaces("C:\\Users\\lgeis\\Desktop\\Uni\\Bachelor-Thesis\\SiemensUseCase\\httpwww.siemens.comsi-dsgraphswitchgear-level-interlockings.ttl");
+        /*List<Pair<String,String>> s = TTLParser.getNamespaces("C:\\Users\\lgeis\\Desktop\\Uni\\Bachelor-Thesis\\SiemensUseCase\\httpwww.siemens.comsi-dsgraphswitchgear-level-interlockings.ttl");
         for(Pair<String,String> p : s){
             System.out.println(p.getLeft() + " "+p.getRight());
         }
         List<String> trip = TTLParser.getAllTriples("C:\\Users\\lgeis\\Desktop\\Uni\\Bachelor-Thesis\\SiemensUseCase\\httpwww.siemens.comsi-dsgraphswitchgear-level-interlockings.ttl");
         for(String string : trip){
             System.out.println("TRIPLE:" +string);
-        }
+        }*/
 
+
+        MultiValuedObject<String,String,String> ob = new FCAMultiValuedObject<>("1");
+        MultiValuedAttribute<String,String,String> atr = new FCAMultiValuedAttribute<>("a");
+        atr.addObject(ob, Collections.singletonList("stark"));
+        ob.addAttribute(atr, Collections.singletonList("stark"));
+        ob.addAttribute(atr, Collections.singletonList("stark"));
+        ob.addAttribute(atr, Collections.singletonList("staascascark"));
+        System.out.println(ob.getObjectID());
+        for(Pair<MultiValuedAttribute<String,String,String>, List<String>> p : ob.getDualEntities()){
+            System.out.println(p.getLeft().getAttributeID()+" "+p.getRight());
+        }
+        System.out.println(atr.getDualEntities().stream().map(Pair::getLeft).collect(Collectors.toList()));
+
+        MultiValuedContext<String,String,String> context1 = new FCAMultiValuedFormalContext<>(){};
+        context1.addMultiValuedObject(ob);
+        System.out.println(context1.getContextObjects().size()+" "+ context1.getContextAttributes().size()+" "+context1.getValues().size());
+        context1.addMultiValuedAttribute(atr);
+        MultiValuedAttribute<String,String,String> atr2 = new FCAMultiValuedAttribute<>("b");
+        atr2.addObject(ob, Collections.singletonList("nice"));
+        context1.addMultiValuedAttribute(atr2);
+        MultiValuedObject<String,String,String> ob1 = new FCAMultiValuedObject<>("5");
+        ob1.addAttribute(atr2, Collections.singletonList("super"));
+        context1.addMultiValuedObject(ob1);
+        System.out.println(context1.getContextObjects().size()+" "+ context1.getContextAttributes().size()+" "+context1.getValues().size());
+        System.out.println(context1.getContextObjects().stream().map(MultiValuedObject::getObjectID).collect(Collectors.toList()));
+        System.out.println(context1.getContextAttributes().stream().map(MultiValuedAttribute::getAttributeID).collect(Collectors.toList()));
+        System.out.println(context1.getValues());
+        MultiValuedObject<String,String,String> ob2 = new FCAMultiValuedObject<>("2");
+        ob2.addAttribute(atr2, Collections.singletonList("super"));
+        context1.addMultiValuedObject(ob2);
+        System.out.println();
+        OutputPrinter.printMultiValuedTableToConsole(context1);
     }
 }

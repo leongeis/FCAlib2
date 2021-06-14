@@ -1,6 +1,7 @@
 package api.utils;
 
 import api.fca.*;
+import lib.utils.Pair;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -38,7 +39,8 @@ public interface OutputPrinter {
         System.out.println("The Crosstable of the current context: X:Object has Attribute; -:Object does not have Attribute");
         //Initial space for formatting purposes
         //Using the Stream API to receive the longest ID (as a String) of an Object
-        int length = Collections.max(context.getContextObjects(), Comparator.comparing(object -> object.getObjectID().toString().length())).getObjectID().toString().length()+1;
+        int length = Collections.max(context.getContextObjects(), Comparator.comparing(object -> object.getObjectID().toString().length())).
+                getObjectID().toString().length()+1;
         for (int i = 0; i < length; i++) {
             System.out.print(" ");
         }
@@ -66,6 +68,60 @@ public interface OutputPrinter {
                     System.out.print("X ");
                 }else {
                     System.out.print("- ");
+                }
+                //Printing whitespaces for formatting of the table
+                for (int i = 0; i < a.getAttributeID().toString().length()-1; i++) {
+                    System.out.print(" ");
+                }
+            }
+            //Newline for each Object
+            System.out.println();
+        }
+    }
+
+    static <T extends MultiValuedContext<O,A,V>, O,A,V> void printMultiValuedTableToConsole(T context){
+        //Headline of the Output
+        System.out.println("Crosstable of the multi-valued context with ID: "+context.getContextID());
+        System.out.println("The Table of the current context: ");
+        //Initial space for formatting purposes
+        //Using the Stream API to receive the longest ID (as a String) of an Object
+        int length = Collections.max(context.getContextObjects(), Comparator.comparing(object -> object.getObjectID().toString().length())).
+                getObjectID().toString().length()+1;
+        for (int i = 0; i < length; i++) {
+            System.out.print(" ");
+        }
+        //Print each Attribute name
+        //Get longest List of Values
+        int valueLength = 0;
+        for(MultiValuedObject<O,A,V> o : context.getContextObjects()){
+            for(Pair<MultiValuedAttribute<O,A,V>, List<V>> pair : o.getDualEntities()){
+                if(pair.getRight().toString().length() > valueLength) valueLength = pair.getRight().toString().length();
+            }
+        }
+        valueLength--;
+        for(MultiValuedAttribute<O,A,V> a : context.getContextAttributes()){
+            System.out.print(a.getAttributeID()+ String.format("%1$"+valueLength+"s", ""));
+        }
+        //Newline
+        System.out.println();
+        //Go through each Object and print the corresponding Attributes
+        for(MultiValuedObject<O,A,V> o : context.getContextObjects()){
+            //Get the length of the name (formatting purposes)
+            int nameLength = o.getObjectID().toString().length();
+            //Print name of Object
+            System.out.print(o.getObjectID());
+            //Printing whitespaces for formatting
+            while(nameLength<length){
+                System.out.print(" ");
+                nameLength++;
+            }
+            //Go through each Attribute and check if Object has Attribute
+            //If it does Print X else -
+            for(MultiValuedAttribute<O,A,V> a : context.getContextAttributes()){
+                if(o.containsAttribute(a)){
+                    System.out.print(o.getAttribute(a).getRight());
+                }else {
+                    System.out.print("-"+ String.format("%1$"+valueLength+"s", ""));
                 }
                 //Printing whitespaces for formatting of the table
                 for (int i = 0; i < a.getAttributeID().toString().length()-1; i++) {

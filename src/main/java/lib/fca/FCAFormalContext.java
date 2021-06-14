@@ -320,4 +320,9 @@ public abstract class FCAFormalContext<O,A> implements Context<O,A>{
         }
     }
 
+    //TODO
+    void update(){
+
+    }
+
 }

@@ -93,7 +93,7 @@ public interface TTLParser {
             currentLine = reader.readLine();
 
         }
-
+        reader.close();
         return triples;
     }
 
