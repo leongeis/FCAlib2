@@ -1,8 +1,0 @@
-   b d e c a
-Q1 X X - - - 
-Q2 X - X - - 
-Q3 - - - X - 
-Q4 X - - X X 
-Q5 - X - - - 
-Q6 X - - X - 
-Q7 - - X - - 

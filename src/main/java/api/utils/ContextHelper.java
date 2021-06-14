@@ -9,11 +9,15 @@ import lib.fca.FCAObject;
 import lib.utils.KnowledgeGraphAccess;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 //TODO JavaDoc
@@ -227,6 +231,67 @@ public interface ContextHelper {
         reader.close();
         //Return Context
         return context;
+    }
+
+    static Context<String,String> createContextFromJSONFile(String filepath){
+
+        JSONParser parser = new JSONParser();
+
+        Context<String,String> jsonContext = new FCAFormalContext<String, String>() {};
+
+        try{
+            Object object = parser.parse(new FileReader(filepath));
+
+            JSONObject jsonObject = (JSONObject) object;
+
+            System.out.println(jsonObject);
+
+            System.out.println(jsonObject.get("head"));
+
+            System.out.println(jsonObject.get("results"));
+
+            JSONObject bindings = (JSONObject) jsonObject.get("results");
+
+            JSONArray results = (JSONArray) bindings.get("bindings");
+            System.out.println(results);
+
+            Iterator<JSONObject> iterator = results.iterator();
+            while(iterator.hasNext()){
+
+                JSONObject currentTriple = iterator.next();
+                System.out.println(currentTriple);
+                System.out.println("\n\n\n");
+
+                System.out.println(currentTriple.get("s"));
+                JSONObject subject = (JSONObject) currentTriple.get("s");
+                JSONObject predicate = (JSONObject) currentTriple.get("p");
+                System.out.println(subject.get("value"));
+
+
+                FCAObject<String,String> fcaObject = new FCAObject<>(subject.get("value").toString());
+                FCAAttribute<String,String> fcaAttribute = new FCAAttribute<>(predicate.get("value").toString());
+
+                fcaObject.addAttribute(predicate.get("value").toString());
+                jsonContext.addObject(fcaObject);
+
+
+            }
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        //Return Context object
+        return jsonContext;
+
+    }
+
+    //TODO
+    static Context<String,String> createContextFromRDFFile(String filepath) throws IOException{
+        return null;
     }
 
 
