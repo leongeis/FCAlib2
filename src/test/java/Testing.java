@@ -102,8 +102,12 @@ public class Testing {
 
         MultiValuedObject<String,String,String> ob = new FCAMultiValuedObject<>("1");
         MultiValuedAttribute<String,String,String> atr = new FCAMultiValuedAttribute<>("a");
+        List<String> vals = new ArrayList<>();
+        vals.add("super");
+        vals.add("geil");
+        vals.add("yesman");
         atr.addObject(ob, Collections.singletonList("stark"));
-        ob.addAttribute(atr, Collections.singletonList("stark"));
+        ob.addAttribute(atr, vals);
         ob.addAttribute(atr, Collections.singletonList("stark"));
         ob.addAttribute(atr, Collections.singletonList("staascascark"));
         System.out.println(ob.getObjectID());
@@ -131,5 +135,10 @@ public class Testing {
         context1.addMultiValuedObject(ob2);
         System.out.println();
         OutputPrinter.printMultiValuedTableToConsole(context1);
+        for(ObjectAPI<String,String> o : Computation.nominalScaleAttribute(context1.getContextAttributes().get(0))){
+            System.out.println(o.getDualEntities());
+        }
+        Context<String,String> newcont = Computation.nominalScaleContext(context1);
+        OutputPrinter.printCrosstableToConsole(newcont);
     }
 }

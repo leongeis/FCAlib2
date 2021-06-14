@@ -1,7 +1,6 @@
 package api.fca;
 
-import lib.fca.FCAConcept;
-import lib.fca.FCAImplication;
+import lib.fca.*;
 import lib.utils.IndexedList;
 import lib.utils.Pair;
 import org.apache.commons.collections4.CollectionUtils;
@@ -659,5 +658,61 @@ public interface Computation {
             BigDecimal premiseSize = new BigDecimal(Computation.computePrimeOfAttributes(implication.getPremise(),context).size());
             return implSize.divide(premiseSize,RoundingMode.CEILING);
         }
+    }
+
+    //TODO JAVADOC
+    @SuppressWarnings("unchecked")
+    static <O,A,V> Context<O,V> nominalScaleContext(MultiValuedContext<O,A,V> multiValuedContext){
+
+        //Create Single-Valued Context to be returned
+        Context<O,V> context = new FCAFormalContext<>(){};
+
+        //Iterate over each Attribute and scale it nominally
+        //Add the scaled attribute to the context object
+        for(MultiValuedAttribute<O,A,V> attribute : multiValuedContext.getContextAttributes()){
+            List<ObjectAPI<O,V>> objects = nominalScaleAttribute(attribute);
+            System.out.println(attribute.getAttributeID()+" "+objects.stream().map(ObjectAPI::getObjectID).collect(Collectors.toList()));
+            for(ObjectAPI<O,V> object : objects){
+                if(context.containsObject(object.getObjectID())){
+                    for(Object atr : object.getDualEntities()){
+                        context.getObject(object.getObjectID()).addAttribute((V)atr);
+                        Attribute<O,V> newAttribute = new FCAAttribute<>((V)atr);
+                        newAttribute.addObject(object.getObjectID());
+                        context.addAttribute(newAttribute);
+                    }
+                }else {
+                    context.addObject(object);
+                }
+            }
+        }
+        return context;
+    }
+
+    //TODO JAVADOC
+    static <O,A,V> List<ObjectAPI<O,V>> nominalScaleAttribute(MultiValuedAttribute<O,A,V> attribute){
+
+        //Create List to be returned
+        //This List contains Pairs of Incidences with an Object and an Attribute
+        List<ObjectAPI<O,V>> binaryIncidences = new ArrayList<>();
+
+        //Go through each Pair of the dual entities of the multi-valued attribute
+        for(Pair<MultiValuedObject<O,A,V>, List<V>> p : attribute.getDualEntities()){
+            ObjectAPI<O,V> objectAPI = new FCAObject<>(p.getLeft().getObjectID());
+            for(V v : p.getRight()){
+                objectAPI.addAttribute(v);
+            }
+            binaryIncidences.add(objectAPI);
+        }
+        return binaryIncidences;
+    }
+
+    //TODO
+    static boolean dichotomScaleContext(){
+        return true;
+    }
+
+    //TODO
+    static void dichotomScaleAttribute(){
+
     }
 }
