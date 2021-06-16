@@ -661,32 +661,28 @@ public interface Computation {
     }
 
     //TODO JAVADOC + Enable Generic Attribute Type instead of "String"
-    static <O,A,V> Context<O,String> nominalScaleContext(MultiValuedContext<O,A,V> multiValuedContext){
+    static <O,A,V> Context<O,String> nominalScaleContext(MultiValuedContext<O,A,V> multiValuedContext, boolean unique){
 
         //Create Single-Valued Context to be returned
         Context<O,String> context = new FCAFormalContext<>(){};
-        for(MultiValuedAttribute<O,A,V> attribute : multiValuedContext.getContextAttributes()){
-            //System.out.println("AtTT "+ attribute.getAttributeID());
-            for(Pair<MultiValuedObject<O,A,V>, List<V>> pair : attribute.getDualEntities()){
-               // System.out.println(pair.getLeft().getObjectID());
-                //System.out.println(pair.getRight());
-            }
-        }
+
         //Iterate over each Attribute and scale it nominally
         //Add the scaled attribute to the context object
         for(MultiValuedAttribute<O,A,V> attribute : multiValuedContext.getContextAttributes()){
-            List<ObjectAPI<O,String>> objects = nominalScaleAttribute(attribute);
-            for(ObjectAPI<O,String> o : objects){
-                //System.out.println("OBJECT: "+o.getObjectID());
-                //System.out.println(o.getDualEntities());
-            }
+            List<ObjectAPI<O,String>> objects = nominalScaleAttribute(attribute, unique);
             for(ObjectAPI<O,String> object : objects){
                 if(context.containsObject(object.getObjectID())){
                     for(Object atr : object.getDualEntities()){
                         context.getObject(object.getObjectID()).addAttribute(atr.toString());
-                        Attribute<O,String> newAttribute = new FCAAttribute<>(atr.toString());
-                        newAttribute.addObject(object.getObjectID());
-                        context.addAttribute(newAttribute);
+                        if(context.containsAttribute(atr.toString())){
+                            //Get the Attribute and add the object to it
+                            context.getAttribute(atr.toString()).addObject(object.getObjectID());
+                        }else {
+                            Attribute<O, String> newAttribute = new FCAAttribute<>(atr.toString());
+                            newAttribute.addObject(object.getObjectID());
+                            context.addAttribute(newAttribute);
+                        }
+
                     }
                 }else {
                     context.addObject(object);
@@ -697,7 +693,18 @@ public interface Computation {
     }
 
     //TODO JAVADOC + Enable Generic Attribute Type instead of "String"
-    static <O,A,V> List<ObjectAPI<O,String>> nominalScaleAttribute(MultiValuedAttribute<O,A,V> attribute){
+
+    /**
+     *
+     * @param attribute
+     * @param unique If the Values of the Attribute are unique (are only present
+     *               in this Attribute) set it to true, otherwise false.
+     * @param <O>
+     * @param <A>
+     * @param <V>
+     * @return
+     */
+    static <O,A,V> List<ObjectAPI<O,String>> nominalScaleAttribute(MultiValuedAttribute<O,A,V> attribute, boolean unique){
 
         //Create List to be returned
         //This List contains Pairs of Incidences with an Object and an Attribute
@@ -707,14 +714,15 @@ public interface Computation {
         for(Pair<MultiValuedObject<O,A,V>, List<V>> p : attribute.getDualEntities()){
             ObjectAPI<O,String> objectAPI = new FCAObject<>(p.getLeft().getObjectID());
             for(V v : p.getRight()){
-                String s = "["+attribute.getAttributeID().toString()+"]".concat(v.toString());
+                String s;
+                if(unique){
+                    s = v.toString();
+                }else{
+                    s = "["+attribute.getAttributeID().toString()+"]".concat(v.toString());
+                }
                 objectAPI.addAttribute(s);
             }
             binaryIncidences.add(objectAPI);
-        }
-        for(ObjectAPI<O,String> o : binaryIncidences){
-            //System.out.println("IN METHOD: "+o.getObjectID());
-            //System.out.println(o.getDualEntities());
         }
         return binaryIncidences;
     }
@@ -726,6 +734,11 @@ public interface Computation {
 
     //TODO
     static void dichotomScaleAttribute(){
+
+    }
+
+    //TODO
+    static <O,A,V> void scaleAttribute(MultiValuedAttribute<O,A,V> attribute, Context<O,A> scale){
 
     }
 }

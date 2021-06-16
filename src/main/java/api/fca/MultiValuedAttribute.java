@@ -4,7 +4,7 @@ import lib.utils.Pair;
 
 import java.util.List;
 //TODO JAVADOC
-public interface MultiValuedAttribute<O,A,V> extends ClosureOperator{
+public interface MultiValuedAttribute<O,A,V>{
 
     A getAttributeID();
 

@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Class which represents an object
- * in an multi-valued Context.
- * @param <O>
- * @param <A>
- * @param <V>
+ * Class which represents an Attribute
+ * in a multi-valued Context.
+ * @param <O> Type of the corresponding Objects.
+ * @param <A> Type of the Attribute itself.
+ * @param <V> Type of the Values of the Attribute.
  */
 public class FCAMultiValuedAttribute<O,A,V> implements MultiValuedAttribute<O,A,V> {
 

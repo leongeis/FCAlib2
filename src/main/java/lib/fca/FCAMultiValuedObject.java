@@ -7,11 +7,29 @@ import lib.utils.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-//TODO JAVADOC
+
+/**
+ * Class which represents an Object
+ * in a multi-valued Context.
+ * @param <O> Type of the Object itself.
+ * @param <A> Type of the Attributes the Object has.
+ * @param <V> Type of the Values the Object has w.r.t
+ *           its Attributes.
+ */
 public class FCAMultiValuedObject<O,A,V> implements MultiValuedObject<O,A,V> {
 
+    /**
+     * ID of the Object.
+     */
     private O objectID;
 
+    /**
+     * List of Pairs of the Object.
+     * The first element of the pair is
+     * an Attribute this Object has
+     * and the second a List of values this Object
+     * has w.r.t. the first element (Attribute).
+     */
     private List<Pair<MultiValuedAttribute<O,A,V>, List<V>>> attributes;
 
     public FCAMultiValuedObject(){

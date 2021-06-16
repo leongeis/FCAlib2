@@ -3,7 +3,6 @@ package api.utils;
 import api.fca.*;
 import lib.fca.*;
 import lib.utils.KnowledgeGraphAccess;
-import lib.utils.Pair;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.json.simple.JSONArray;
@@ -318,18 +317,11 @@ public interface ContextHelper {
 
             //Now add the attribute with the value list to the object
             mvObject.addAttribute(mvAttribute, values);
-            //mvAttribute.addObject(mvObject,values);
 
             //Add the Object to the Multi-Valued Context
             mvContext.addMultiValuedObject(mvObject);
             //mvContext.addMultiValuedAttribute(mvAttribute);
 
-        }
-        for(MultiValuedAttribute<String,String,String> attribute : mvContext.getContextAttributes()){
-            System.out.println("AtTT "+ attribute.getAttributeID());
-            for(Pair<MultiValuedObject<String,String,String>, List<String>> pair : attribute.getDualEntities()){
-                System.out.println(pair.getLeft().getObjectID()+" "+pair.getRight());
-            }
         }
         //Return Multi-Valued Context
         return mvContext;
