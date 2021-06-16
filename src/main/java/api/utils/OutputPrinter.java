@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -92,15 +93,17 @@ public interface OutputPrinter {
         }
         //Print each Attribute name
         //Get longest List of Values
-        int valueLength = 0;
+        List<Integer> lengthValues = new ArrayList<>();
         for(MultiValuedObject<O,A,V> o : context.getContextObjects()){
             for(Pair<MultiValuedAttribute<O,A,V>, List<V>> pair : o.getDualEntities()){
-                if(pair.getRight().toString().length() > valueLength) valueLength = pair.getRight().toString().length();
+                 lengthValues.add(pair.getRight().toString().length());
             }
         }
-        valueLength--;
+
+        int i=0;
         for(MultiValuedAttribute<O,A,V> a : context.getContextAttributes()){
-            System.out.print(a.getAttributeID()+ String.format("%1$"+valueLength+"s", ""));
+            System.out.print(a.getAttributeID()+ String.format("%1$"+lengthValues.get(i)+"s", ""));
+            ++i;
         }
         //Newline
         System.out.println();
@@ -117,14 +120,17 @@ public interface OutputPrinter {
             }
             //Go through each Attribute and check if Object has Attribute
             //If it does Print X else -
+            i=0;
             for(MultiValuedAttribute<O,A,V> a : context.getContextAttributes()){
                 if(o.containsAttribute(a)){
-                    System.out.print(o.getAttribute(a).getRight());
+                    int currentValueLength = o.getAttribute(a).getRight().size();
+                    int newlength = lengthValues.get(i)-currentValueLength;
+                    System.out.print(o.getAttribute(a).getRight()+String.format("%1$"+newlength+"s", ""));
                 }else {
-                    System.out.print("-"+ String.format("%1$"+valueLength+"s", ""));
+                    System.out.print("-"+ String.format("%1$"+lengthValues.get(i)+"s", ""));
                 }
                 //Printing whitespaces for formatting of the table
-                for (int i = 0; i < a.getAttributeID().toString().length()-1; i++) {
+                for (int j = 0; j < a.getAttributeID().toString().length()-1; j++) {
                     System.out.print(" ");
                 }
             }

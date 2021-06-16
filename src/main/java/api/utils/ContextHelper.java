@@ -1,12 +1,9 @@
 package api.utils;
 
-import api.fca.Attribute;
-import api.fca.Context;
-import api.fca.ObjectAPI;
-import lib.fca.FCAAttribute;
-import lib.fca.FCAFormalContext;
-import lib.fca.FCAObject;
+import api.fca.*;
+import lib.fca.*;
 import lib.utils.KnowledgeGraphAccess;
+import lib.utils.Pair;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.json.simple.JSONArray;
@@ -17,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -181,7 +179,6 @@ public interface ContextHelper {
     }
 
     //TODO Enable Generic Types from File
-
     /**
      * Creates a Context from File. The Format has to be the same
      * as the Output Format of OutputPrinter Interface. This
@@ -287,6 +284,55 @@ public interface ContextHelper {
         //Return Context object
         return jsonContext;
 
+    }
+
+    static MultiValuedContext<String,String,String> createContextFromTTLFile(String filePath) throws IOException {
+        //Get all Triples from the File
+        List<String> triples = TTLParser.getAllTriples(filePath);
+
+        //Create mvContext in which all triples are stored
+        MultiValuedContext<String,String,String> mvContext = new FCAMultiValuedFormalContext<>(){};
+
+        //Go through each Triple
+        for(String triple : triples){
+
+            //Remove all Commas and Semicolons
+            triple = triple.replaceAll(",","");
+            triple = triple.replaceAll(";","");
+
+            //Split the triple String at each whitespace
+            String[] splittedTriple = triple.split("\\s+");
+
+            //Create new MultiValuedObject
+            //Set the ID of the new Object to the first Element of the splitted String (Subject)
+            MultiValuedObject<String,String,String> mvObject = new FCAMultiValuedObject<>(splittedTriple[0]);
+
+            //Add the second element in the splitted String to the object (predicate)
+            MultiValuedAttribute<String,String,String> mvAttribute = new FCAMultiValuedAttribute<>(splittedTriple[1]);
+
+            //Get all RDF Objects of the triple in a List and add them to the Value List of the Object
+            List<String> values = Arrays.asList(splittedTriple);
+
+            //Get all Objects
+            values = values.subList(2,values.size()-1);
+
+            //Now add the attribute with the value list to the object
+            mvObject.addAttribute(mvAttribute, values);
+            //mvAttribute.addObject(mvObject,values);
+
+            //Add the Object to the Multi-Valued Context
+            mvContext.addMultiValuedObject(mvObject);
+            //mvContext.addMultiValuedAttribute(mvAttribute);
+
+        }
+        for(MultiValuedAttribute<String,String,String> attribute : mvContext.getContextAttributes()){
+            System.out.println("AtTT "+ attribute.getAttributeID());
+            for(Pair<MultiValuedObject<String,String,String>, List<String>> pair : attribute.getDualEntities()){
+                System.out.println(pair.getLeft().getObjectID()+" "+pair.getRight());
+            }
+        }
+        //Return Multi-Valued Context
+        return mvContext;
     }
 
     //TODO

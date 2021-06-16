@@ -4,7 +4,7 @@ import lib.utils.Pair;
 
 import java.util.List;
 //TODO JAVADOC
-public interface MultiValuedObject<O,A,V>{
+public interface MultiValuedObject<O,A,V> extends ClosureOperator{
 
     public O getObjectID();
 

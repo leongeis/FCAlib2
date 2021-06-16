@@ -78,7 +78,7 @@ public abstract class FCAMultiValuedFormalContext<O,A,V> implements MultiValuedC
                     MultiValuedAttribute<O,A,V> atr = new FCAMultiValuedAttribute<>(pair.getLeft().getAttributeID());
                     atr.addObject(object, pair.getRight());
                     //Add the new MVAttribute, as well as all values to the context
-                    this.contextAttributes.add(atr);
+                    this.contextAttributes.add(pair.getLeft());
                 }else{
                     //Get the corresponding MVAttribute Object with the same ID
                     MultiValuedAttribute<O,A,V> a = this.contextAttributes.get(this.contextAttributes.stream().map(MultiValuedAttribute::getAttributeID).
@@ -97,9 +97,36 @@ public abstract class FCAMultiValuedFormalContext<O,A,V> implements MultiValuedC
                 }
             }
             return true;
+        }else{
+            //Get the Object
+            MultiValuedObject<O,A,V> cxtObject = this.contextObjects.get(this.contextObjects.stream().map(MultiValuedObject::getObjectID).
+                    collect(Collectors.toList()).indexOf(object.getObjectID()));
+            //Add the new Attributes and do not change the already existing ones
+            for(Pair<MultiValuedAttribute<O,A,V>, List<V>> pair : object.getDualEntities()){
+                if(!cxtObject.containsAttribute(pair.getLeft()) && !containsMultiValuedAttribute(pair.getLeft())){
+                    MultiValuedAttribute<O,A,V> newAttribute = new FCAMultiValuedAttribute<>(pair.getLeft().getAttributeID());
+                    newAttribute.addObject(cxtObject,pair.getRight());
+                    cxtObject.addAttribute(newAttribute,pair.getRight());
+                    this.contextAttributes.add(newAttribute);
+                }else if(!cxtObject.containsAttribute(pair.getLeft()) && containsMultiValuedAttribute(pair.getLeft())){
+                    //Get the Attribute of the Context
+                    MultiValuedAttribute<O,A,V> cxtAttribute = this.contextAttributes.get(this.contextAttributes.stream().map(MultiValuedAttribute::getAttributeID).
+                            collect(Collectors.toList()).indexOf(pair.getLeft().getAttributeID()));
+                    cxtObject.addAttribute(cxtAttribute,pair.getRight());
+                    cxtAttribute.addObject(cxtObject,pair.getRight());
+                }
+                //Add all Values to the Context
+                for(V v : pair.getRight()){
+                    if(!this.values.contains(v)){
+                        this.values.add(v);
+                    }
+                }
+            }
         }
         return false;
     }
+
+
     public <T extends MultiValuedAttribute<O,A,V>> boolean addMultiValuedAttribute(T attribute){
         //Check if attribute is already contained
         if(!containsMultiValuedAttribute(attribute)){
@@ -132,6 +159,29 @@ public abstract class FCAMultiValuedFormalContext<O,A,V> implements MultiValuedC
                 }
             }
             return true;
+        }//Get the Attribute
+        MultiValuedAttribute<O,A,V> cxtAttribute = this.contextAttributes.get(this.contextAttributes.stream().map(MultiValuedAttribute::getAttributeID).
+                collect(Collectors.toList()).indexOf(attribute.getAttributeID()));
+        //Add the new Objects and do not change the already existing ones
+        for(Pair<MultiValuedObject<O,A,V>, List<V>> pair : attribute.getDualEntities()){
+            if(!cxtAttribute.containsObject(pair.getLeft()) && !containsMultiValuedObject(pair.getLeft())){
+                MultiValuedObject<O,A,V> newObject = new FCAMultiValuedObject<>(pair.getLeft().getObjectID());
+                newObject.addAttribute(cxtAttribute,pair.getRight());
+                cxtAttribute.addObject(newObject, pair.getRight());
+                this.contextObjects.add(pair.getLeft());
+            }else if(!cxtAttribute.containsObject(pair.getLeft()) && containsMultiValuedObject(pair.getLeft())){
+                //Get the Object of the Context
+                MultiValuedObject<O,A,V> cxtObject = this.contextObjects.get(this.contextObjects.stream().map(MultiValuedObject::getObjectID).
+                        collect(Collectors.toList()).indexOf(pair.getLeft().getObjectID()));
+                cxtObject.addAttribute(cxtAttribute,pair.getRight());
+                cxtAttribute.addObject(cxtObject,pair.getRight());
+            }
+            //Add all Values to the Context
+            for(V v : pair.getRight()){
+                if(!this.values.contains(v)){
+                    this.values.add(v);
+                }
+            }
         }
         return false;
     }
