@@ -56,4 +56,14 @@ public class Pair<L,R> {
     public void setRight(R right) {
         this.right = right;
     }
+
+    /**
+     * Get the String representation of
+     * this Pair.
+     * @return String of the Pair.
+     */
+    @Override
+    public String toString(){
+        return this.left+","+this.right;
+    }
 }

@@ -17,6 +17,4 @@ public interface MultiValuedAttribute<O,A,V>{
 
     List<Pair<MultiValuedObject<O,A,V>, List<V>>> getDualEntities();
 
-
-
 }

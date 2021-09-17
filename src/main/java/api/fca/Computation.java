@@ -728,13 +728,51 @@ public interface Computation {
     }
 
     //TODO
-    static boolean dichotomScaleContext(){
-        return true;
-    }
+    @SuppressWarnings("unchecked")
+    static <O,A,V> Context<O,String> dichotomScaleContext(MultiValuedContext<O,A,V> multiValuedContext){
 
-    //TODO
-    static void dichotomScaleAttribute(){
+        //Create Context to be returned
+        Context<O,String> context = new FCAFormalContext<>(){};
 
+        //Iterate over each multi valued attribute of the context and scale it dichotome
+        for(MultiValuedAttribute<O,A,V> multiValuedAttribute : multiValuedContext.getContextAttributes()){
+
+            //Create new Attributes and add them to the context object
+            Attribute<O,String> atrEpsilon = new FCAAttribute<>("("+multiValuedAttribute.getAttributeID()+",ε)");
+            Attribute<O,String> atrPhi = new FCAAttribute<>("("+multiValuedAttribute.getAttributeID()+",φ)");
+
+            context.addAttribute(atrEpsilon);
+            context.addAttribute(atrPhi);
+
+            //Iterate over the objects
+            for(MultiValuedObject<O,A,V> mvObject: multiValuedContext.getContextObjects()){
+
+                //Check if Object is already contained
+                ObjectAPI<O,String> objectAPI;
+
+                if(context.containsObject(mvObject.getObjectID())){
+                    objectAPI = context.getObject(mvObject.getObjectID());
+                }else{
+                    //Create new (binary) Object and it to the context object
+                    objectAPI = new FCAObject<>(mvObject.getObjectID());
+                    context.addObject(objectAPI);
+                }
+
+                //Check if the current multivalued object has the current multivalued attribute
+                if(mvObject.containsAttribute(multiValuedAttribute)){
+                    //Add the Incidence between object and attribute
+                    context.getObject(objectAPI.getObjectID()).addAttribute("("+multiValuedAttribute.getAttributeID()+",φ)");
+                    context.getAttribute("("+multiValuedAttribute.getAttributeID()+",φ)").addObject(objectAPI.getObjectID());
+                }else{
+                    context.getObject(objectAPI.getObjectID()).addAttribute("("+multiValuedAttribute.getAttributeID()+",ε)");
+                    context.getAttribute("("+multiValuedAttribute.getAttributeID()+",ε)").addObject(objectAPI.getObjectID());
+                }
+
+            }//end for objects
+
+        }//end for attributes
+
+        return context;
     }
 
     //TODO
