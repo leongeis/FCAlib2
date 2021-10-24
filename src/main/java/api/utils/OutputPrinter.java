@@ -17,18 +17,13 @@ import java.util.stream.Collectors;
 /**
  * Interface describing Output functionalities,
  * which can either be printing to the Console or
- * saving the results in a file in utils.output.
+ * saving the results in a file.
  * Note: The file path cannot be changed and
  * all files created by these methods are
  * created there.
  * @author Leon Geis
  */
 public interface OutputPrinter {
-
-    /**
-     * The fixed file path the files are created in.
-     */
-    String filepath = "src/main/java/lib/utils/output/";
 
     /**
      * Print the given Context to the Console.
@@ -143,7 +138,7 @@ public interface OutputPrinter {
      * Write the given Context to a file.
      * @param name name of file
      */
-    static <T extends Context<O,A>,O,A> void writeCrosstableToFile(T context, String name){
+    static <T extends Context<O,A>,O,A> void writeCrosstableToFile(T context, String filepath, String name){
         //Append file name to path
         String fileName = filepath+name;
         //Print to Console
@@ -222,7 +217,7 @@ public interface OutputPrinter {
      * @param context the given context
      * @param name name of file
      */
-    static <T extends Context<O,A>,O,A> void writeConceptsToFile(T context, String name){
+    static <T extends Context<O,A>,O,A> void writeConceptsToFile(T context, String filepath, String name){
         //Append the file name
         String fileName = filepath+name;
         //Print to Console
@@ -266,7 +261,7 @@ public interface OutputPrinter {
      * @param context The Context from the Stem Base will be computed.
      * @param name The Name of the File ("example.txt")
      */
-    static <T extends Context<O,A>,O,A> void writeStemBaseToFile(T context, String name){
+    static <T extends Context<O,A>,O,A> void writeStemBaseToFile(T context, String filepath, String name){
         //Append the file name
         String fileName = filepath+name;
         //Print to Console
