@@ -5,7 +5,7 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![Github top language][language-shield]][language-url]
-[![GitHub all releases][downloads-shield]][downloads-url]
+![GitHub all releases][downloads-shield]
 
 <!-- PROJECT LOGO -->
 <h1 align="center">FCAlib2</h1>
@@ -785,4 +785,3 @@ Project Link: [https://github.com/leongeis/FCAlib2](https://github.com/leongeis/
 [language-shield]: https://img.shields.io/github/languages/top/leongeis/FCAlib2
 [language-url]: https://github.com/leongeis/FCAlib2/search?l=java
 [downloads-shield]: https://img.shields.io/github/downloads/leongeis/FCAlib2/total
-[downloads-url]: https://github.com/leongeis/FCAlib2/releases
