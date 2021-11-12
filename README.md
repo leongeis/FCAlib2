@@ -5,6 +5,7 @@
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![Github top language][language-shield]][language-url]
+[![GitHub all releases](https://img.shields.io/github/downloads/leongeis/FCAlib2/total)]
 
 <!-- PROJECT LOGO -->
 <h1 align="center">FCAlib2</h1>
